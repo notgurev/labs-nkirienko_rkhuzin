@@ -20,6 +20,7 @@ import static se1_prog_lab.util.BetterStrings.coloredYellow;
 
 @Singleton
 public class MyServerIO implements ServerIO {
+    private static final int MAX_TRIES = 3;
     private final int DEFAULT_BUFFER_CAPACITY = 1024;
     private final int PORT = 6006;
     private final String HOST = "localhost";
@@ -32,16 +33,23 @@ public class MyServerIO implements ServerIO {
     public MyServerIO() {
     }
 
-    public void open() {
+    public boolean open() {
         System.out.println("Попытка соединиться с сервером...");
-        try {
-            socketChannel = SocketChannel.open();
-            socketChannel.connect(new InetSocketAddress(HOST, PORT));
-            socketChannel.configureBlocking(false);
-            System.out.println(coloredYellow("Соединение с сервером успешно установлено"));
-        } catch (IOException e) {
-            System.out.println(coloredRed("Не получилось открыть соединение: " + e.getMessage()));
+        String errorMessage = null;
+        for (int i = 1; i <= MAX_TRIES; i++) {
+            System.out.println("ПОПЫТКА НОМЕР "+i);
+            try {
+                socketChannel = SocketChannel.open();
+                socketChannel.connect(new InetSocketAddress(HOST, PORT));
+                socketChannel.configureBlocking(false);
+                System.out.println(coloredYellow("Соединение с сервером успешно установлено"));
+                return true;
+            } catch (IOException e) {
+                errorMessage = coloredRed("Не получилось открыть соединение: " + e.getMessage());
+            }
         }
+        System.out.println(errorMessage);
+        return false;
     }
 
     private boolean isOpen() {
@@ -81,52 +89,59 @@ public class MyServerIO implements ServerIO {
         System.out.println("Команда отправлена");
     }
 
-    private String receiveFromServer() throws IOException {
-        ByteBuffer buffer = getByteBuffer();
-        buffer.clear();
-        StringBuilder stringBuilder = new StringBuilder();
-        ArrayList<Byte> stringBytes = new ArrayList<>();
-        String stringSlice = "";
-        byte[] readBytes;
-        while (!eotWrapper.hasEOTSymbol(stringSlice)) {
-            if (socketChannel.read(buffer) > 0) {
-                buffer.flip();
-                readBytes = new byte[buffer.limit()];
-                buffer.get(readBytes);
-                stringBytes.addAll(ByteArrays.toList(readBytes));
-                stringSlice = new String(readBytes);
-                buffer.clear();
+    private void receiveFromServer() {
+        StringBuilder stringBuilder = null;
+        try {
+            ByteBuffer buffer = getByteBuffer();
+            buffer.clear();
+            stringBuilder = new StringBuilder();
+            ArrayList<Byte> stringBytes = new ArrayList<>();
+            String stringSlice = "";
+            byte[] readBytes;
+            while (!eotWrapper.hasEOTSymbol(stringSlice)) {
+                if (socketChannel.read(buffer) > 0) {
+                    buffer.flip();
+                    readBytes = new byte[buffer.limit()];
+                    buffer.get(readBytes);
+                    stringBytes.addAll(ByteArrays.toList(readBytes));
+                    stringSlice = new String(readBytes);
+                    buffer.clear();
+                }
             }
+            stringBuilder.append(new String(ByteArrays.toByteArray(stringBytes)));
+        } catch (IOException e) {
+            System.out.println(coloredRed("При получении ответа возникла ошибка: " + e.getMessage()));
         }
-        stringBuilder.append(new String(ByteArrays.toByteArray(stringBytes)));
-        return eotWrapper.unwrap(stringBuilder.toString());
+        System.out.println("Получен результат команды:\n" + eotWrapper.unwrap(stringBuilder.toString()));
     }
 
     @Override
     public void sendAndReceive(Command command) {
         if (command.isServerSide()) {
-            try {
-                if (!isOpen()) open();
-                sendToServer(command);
-
+            while (true) {
                 try {
-                    String result = receiveFromServer();
-                    System.out.println("Получен результат команды:\n" + result);
+                    if (!isOpen() && !open()) {
+                        System.out.println("Команда не будет отправлена, так как не удалось открыть соединение");
+                        break;
+                    }
+                    sendToServer(command);
+                    receiveFromServer();
+                    break;
                 } catch (IOException e) {
-                    System.out.println(coloredRed("При получении ответа возникла ошибка: " + e.getMessage()));
+                    System.out.println(coloredRed("Не получилось отправить команду: " + e.getMessage()));
+                    closeSocketChannel();
+                    if (!open()) break;
+                    System.out.println("Повторная отправка команды " + command.getClass().getSimpleName());
                 }
-
-            } catch (IOException e) {
-                System.out.println(coloredRed("Не получилось отправить команду: " + e.getMessage()));
-                try {
-                    socketChannel.close();
-                } catch (IOException ex) {
-                    System.out.println("Проблемы с закрытием сокета: " + e.getMessage());
-                }
-                open();
-                System.out.println("Повторная отправка команды " + command.getClass().getSimpleName());
-                sendAndReceive(command);
             }
+        }
+    }
+
+    private void closeSocketChannel() {
+        try {
+            socketChannel.close();
+        } catch (IOException ex) {
+            System.out.println("Проблемы с закрытием сокета: " + ex.getMessage());
         }
     }
 }

@@ -39,7 +39,7 @@ public class ClientApp implements Client {
     public void start() {
         System.out.println(coloredYellow("Начало работы клиента"));
 
-        authorize();
+//        authorize();
 
         serverIO.open();
 
