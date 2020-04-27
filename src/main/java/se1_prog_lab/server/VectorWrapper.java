@@ -1,9 +1,12 @@
 package se1_prog_lab.server;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import com.google.inject.internal.cglib.core.$ClassInfo;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.NoElementWithSuchIdException;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
+import se1_prog_lab.server.interfaces.DatabaseManager;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -12,14 +15,21 @@ import java.util.stream.Collectors;
 import static se1_prog_lab.util.BetterStrings.coloredYellow;
 import static se1_prog_lab.util.BetterStrings.multiline;
 
+/**
+ * Принципиально данный класс должен только управлять коллекцией, но не оповещать ни о чем пользователя напрямую
+ * (тут не должно быть sout)
+ */
 @Singleton
 public class VectorWrapper implements CollectionWrapper {
     private final Vector<LabWork> labWorks = new Vector<>();
     private final LocalDate initDate;
     private final HashSet<Long> idSet = new HashSet<>();
     private final Comparator<LabWork> labWorkComparator = Comparator.naturalOrder();
+    private final DatabaseManager databaseManager;
 
-    public VectorWrapper() {
+    @Inject
+    public VectorWrapper(DatabaseManager databaseManager) {
+        this.databaseManager = databaseManager;
         initDate = LocalDate.now();
     }
 
@@ -38,9 +48,11 @@ public class VectorWrapper implements CollectionWrapper {
         return labWorks.getClass().getSimpleName();
     }
 
-    // TODO разобраться с правами доступа: удалять только своё?
+    // TODO разобраться с правами доступа: удалять только своё? (по идее removeElement только свои и удалит)
+    // TODO parralelStream? правильно?
     public void clear() {
-        labWorks.clear();
+        labWorks.parallelStream().forEachOrdered(databaseManager::removeElement);
+        databaseManager.loadFromDatabase(this); // TODO тут либо оболочку пихать, либо сам вектор
     }
 
     // TODO переделать по ТЗ
@@ -59,8 +71,9 @@ public class VectorWrapper implements CollectionWrapper {
 
     // TODO должна изменять БД
     public long add(LabWork labWork) {
-        assignId(labWork);
-        labWorks.add(labWork);
+        assignId(labWork); //TODO refactor
+        databaseManager.addElement(labWork);
+        databaseManager.loadFromDatabase(this);
         return labWork.getId();
     }
 

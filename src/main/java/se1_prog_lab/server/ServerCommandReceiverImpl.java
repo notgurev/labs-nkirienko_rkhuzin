@@ -33,7 +33,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     public void clear() {
         logger.info("Очищаем коллекцию");
         collectionWrapper.clear();
-        responseBuilder.addLineToResponse(coloredYellow("Коллекция очищена."));
+        responseBuilder.addLineToResponse(coloredYellow("Элементы, на которые вы имели права, удалены из коллекции"));
     }
 
     @Override
