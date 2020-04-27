@@ -11,8 +11,6 @@ public interface CollectionWrapper {
 
     boolean isEmpty();
 
-    String[] toArray();
-
     void clear();
 
     long countLessThanDescription(String description);

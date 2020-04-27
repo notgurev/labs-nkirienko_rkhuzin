@@ -1,29 +1,24 @@
 package se1_prog_lab.server;
 
 import com.google.inject.Inject;
-import com.google.inject.assistedinject.Assisted;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.NoElementWithSuchIdException;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.ResponseBuilder;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.FileIO;
 
-import java.io.IOException;
 import java.util.logging.Logger;
 
 import static se1_prog_lab.util.BetterStrings.*;
 
 public class ServerCommandReceiverImpl implements ServerCommandReceiver {
-    private CollectionWrapper collectionWrapper;
-    private String collectionFile;
-    private ResponseBuilder responseBuilder;
-    private static Logger logger = Logger.getLogger(ServerApp.class.getName());
+    private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
+    private final CollectionWrapper collectionWrapper;
+    private final ResponseBuilder responseBuilder;
 
     @Inject
-    public ServerCommandReceiverImpl(@Assisted String collectionFile, CollectionWrapper collectionWrapper, ResponseBuilder responseBuilder) {
+    public ServerCommandReceiverImpl(CollectionWrapper collectionWrapper, ResponseBuilder responseBuilder) {
         this.collectionWrapper = collectionWrapper;
-        this.collectionFile = collectionFile;
         this.responseBuilder = responseBuilder;
     }
 
@@ -88,11 +83,12 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     @Override
     public void save() {
         logger.info("Сохраняем коллекцию");
-        try {
-            FileIO.saveCollectionToFile(collectionFile, collectionWrapper);
-        } catch (IOException e) {
-            responseBuilder.addLineToResponse(coloredYellow("Сохранение не удалось!"));
-        }
+        // TODO удалить
+//        try {
+//            FileIO.saveCollectionToFile(collectionFile, collectionWrapper);
+//        } catch (IOException e) {
+//            responseBuilder.addLineToResponse(coloredYellow("Сохранение не удалось!"));
+//        }
         responseBuilder.addLineToResponse(coloredYellow("Коллекция успешно сохранена в файл."));
     }
 

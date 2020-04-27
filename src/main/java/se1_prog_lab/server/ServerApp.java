@@ -1,10 +1,8 @@
 package se1_prog_lab.server;
 
 import com.google.inject.*;
-import com.google.inject.name.Named;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.server.interfaces.*;
-import se1_prog_lab.util.FileIO;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -15,20 +13,17 @@ import java.util.logging.Logger;
 
 @Singleton
 public class ServerApp implements Server {
-    private final CollectionWrapper collectionWrapper;
     private final ResponseBuilder responseBuilder;
-    private ServerCommandReceiver serverCommandReceiver;
+    private final ServerCommandReceiver serverCommandReceiver;
     private ServerSocket serverSocket;
-    @Inject
-    private ServerCommandReceiverFactory serverCommandReceiverFactory;
     @Inject
     private EOTWrapper eotWrapper;
     private static final Logger logger;
     private final int PORT = 6006;
 
     @Inject
-    public ServerApp(CollectionWrapper collectionWrapper, ResponseBuilder responseBuilder) {
-        this.collectionWrapper = collectionWrapper;
+    public ServerApp(ResponseBuilder responseBuilder, ServerCommandReceiver serverCommandReceiver) {
+        this.serverCommandReceiver = serverCommandReceiver;
         this.responseBuilder = responseBuilder;
     }
 
@@ -44,35 +39,19 @@ public class ServerApp implements Server {
 
     public static void main(String[] args) {
         logger.info("Инициализация сервера");
-
-        if (args.length == 0 || args[0].trim().length() == 0) {
-            logger.info("Не указано название файла для загрузки и сохранения коллекции!");
-            System.exit(1);
-        }
-
         Injector injector = Guice.createInjector(new ServerModule());
         Server serverApp = injector.getInstance(Server.class);
-
         try {
-            serverApp.start(args[0]);
+            serverApp.start();
         } catch (IOException e) {
             logger.info("С сервером что-то пошло не так:\n" + e.getMessage());
         }
     }
 
     @Override
-    public void start(String fileName) throws IOException {
-        this.serverCommandReceiver = createServerCommandReceiver(fileName);
+    public void start() throws IOException {
         this.serverSocket = new ServerSocket(PORT);
-        FileIO.readCollectionFromFile(fileName, collectionWrapper);
         handleRequests();
-    }
-
-    @Provides
-    @Singleton
-    @Named("serverCommandReceiverImpl")
-    public ServerCommandReceiver createServerCommandReceiver(String fileName) {
-        return serverCommandReceiverFactory.create(fileName);
     }
 
     private void sendResponseToClient(BufferedWriter clientWriter) throws IOException {

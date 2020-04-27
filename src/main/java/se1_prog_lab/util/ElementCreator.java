@@ -66,6 +66,8 @@ public class ElementCreator {
         labWork.getAuthor().setPassportID(args[9]);
         labWork.getAuthor().setHairColor(nullableValueOf(Color.class, args[10]));
         labWork.getAuthor().setLocation(Integer.parseInt(args[11]), Float.parseFloat(args[12]), Integer.valueOf(args[13]));
+        // TODO тут я пока оставил, потому что бог знает как это будет грузиться из БД.
+        //  Скорее всего тоже можно удалить.
         if (fromCSV) {
             labWork.preSetId(Long.valueOf(args[14]));
             labWork.setCreationDate(LocalDateTime.parse(args[15]));

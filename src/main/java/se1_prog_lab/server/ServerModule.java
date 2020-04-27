@@ -11,8 +11,6 @@ public class ServerModule extends AbstractModule {
         bind(CollectionWrapper.class).to(VectorWrapper.class);
         bind(ResponseBuilder.class).to(MyResponseBuilder.class);
         bind(EOTWrapper.class).to(UtfEOTWrapper.class);
-        install(new FactoryModuleBuilder()
-                .implement(ServerCommandReceiver.class, ServerCommandReceiverImpl.class)
-                .build(ServerCommandReceiverFactory.class));
+        bind(ServerCommandReceiver.class).to(ServerCommandReceiverImpl.class);
     }
 }

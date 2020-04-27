@@ -36,7 +36,6 @@ public class ClientModule extends AbstractModule {
         commandBinder.addBinding().to(InsertAt.class);
         commandBinder.addBinding().to(PrintUniqueTunedInWorks.class);
         commandBinder.addBinding().to(RemoveByID.class);
-        commandBinder.addBinding().to(Save.class);
         commandBinder.addBinding().to(Show.class);
         commandBinder.addBinding().to(Sort.class);
         commandBinder.addBinding().to(Update.class);
