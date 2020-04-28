@@ -1,5 +1,6 @@
 package se1_prog_lab.collection;
 
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 import static se1_prog_lab.util.BetterStrings.multiline;
@@ -8,8 +9,11 @@ import static se1_prog_lab.util.BetterStrings.multiline;
  * Класс местоположения Person
  */
 public class Location implements Serializable {
+    @NotNull
     private Integer x; // not null
+    @NotNull
     private float y; // not null
+    @NotNull
     private Integer z; // not null
 
     public Location() {

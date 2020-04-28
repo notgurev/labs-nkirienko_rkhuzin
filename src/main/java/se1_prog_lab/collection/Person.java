@@ -1,7 +1,12 @@
 package se1_prog_lab.collection;
 
+import org.hibernate.validator.constraints.Length;
 import se1_prog_lab.exceptions.LabWorkFieldException;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Positive;
 import java.io.Serializable;
 
 import static se1_prog_lab.util.BetterStrings.blueStringIfNull;
@@ -11,10 +16,14 @@ import static se1_prog_lab.util.BetterStrings.multiline;
  * Класс человека-автора лаб. работы
  */
 public class Person implements Serializable {
+    @NotEmpty @NotNull
     private String name; // not empty, not null
+    @Positive @NotNull
     private Float height; // > 0, null
+    @Length(min = 9) @NotNull
     private String passportID; // length >= 9, not null
     private Color hairColor; // null
+    @NotNull
     private Location location; // not null
 
     public Person() {

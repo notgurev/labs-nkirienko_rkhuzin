@@ -15,4 +15,8 @@ public abstract class ConstructingCommand extends AbstractCommand {
     public ConstructingCommand(String key, String helpText) {
         super(true, helpText, key);
     }
+
+    public LabWork getCarriedObject() {
+        return carriedObject;
+    }
 }

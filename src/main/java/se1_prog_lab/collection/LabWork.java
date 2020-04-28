@@ -4,6 +4,7 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import se1_prog_lab.exceptions.LabWorkFieldException;
 
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -17,13 +18,20 @@ import static se1_prog_lab.util.BetterStrings.multiline;
  */
 public class LabWork implements Comparable<LabWork>, Serializable {
     private static final int NUMBER_OF_FIELDS = 14;
+    @Positive // без NotNull т.к. сервер сам назначает ID
     private Long id; // > 0, unique, auto-gen, not null
+    @NotEmpty @NotNull
     private String name; // not null
+    @NotNull
     private Coordinates coordinates; // not null
+    @NotNull
     private LocalDateTime creationDate; // auto-gen, not null
+    @Positive
     private Integer minimalPoint; // > 0, null
+    @NotNull @NotEmpty
     private String description; // not null
     private Integer tunedInWorks; // null
+    @NotNull
     private Difficulty difficulty; // not null
     private Person author; // null
 

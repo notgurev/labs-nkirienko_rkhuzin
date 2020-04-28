@@ -12,5 +12,6 @@ public class ServerModule extends AbstractModule {
         bind(ResponseBuilder.class).to(MyResponseBuilder.class);
         bind(EOTWrapper.class).to(UtfEOTWrapper.class);
         bind(ServerCommandReceiver.class).to(ServerCommandReceiverImpl.class);
+        bind(DatabaseManager.class).to(DatabaseManagerDummyImpl.class);
     }
 }
