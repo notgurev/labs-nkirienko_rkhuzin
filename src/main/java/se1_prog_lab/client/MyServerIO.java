@@ -37,7 +37,6 @@ public class MyServerIO implements ServerIO {
         System.out.println("Попытка соединиться с сервером...");
         String errorMessage = null;
         for (int i = 1; i <= MAX_TRIES; i++) {
-            System.out.println("ПОПЫТКА НОМЕР "+i);
             try {
                 socketChannel = SocketChannel.open();
                 socketChannel.connect(new InetSocketAddress(HOST, PORT));
