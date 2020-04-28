@@ -130,47 +130,9 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return author;
     }
 
-    private String[] toArray() {
-        ArrayList<String> array = new ArrayList<>(getStringValues(
-                name,
-                coordinates.getX(),
-                coordinates.getY(),
-                minimalPoint,
-                description,
-                tunedInWorks,
-                difficulty,
-                author.getName(),
-                author.getHeight(),
-                author.getPassportID(),
-                author.getHairColor(),
-                author.getLocation().getX(),
-                author.getLocation().getY(),
-                author.getLocation().getZ(),
-                id,
-                creationDate.withNano(0)
-        ));
-        String[] result = new String[array.size()];
-        result = array.toArray(result);
-        return result;
-    }
-
-    private ArrayList<String> getStringValues(Object... objects) {
-        ArrayList<String> array = new ArrayList<>();
-        for (Object object : objects) {
-            if (object == null) array.add("");
-            else array.add(String.valueOf(object));
-        }
-        return array;
-    }
-
     @Override
     public int compareTo(LabWork o) {
         return (int) (id - o.getId());
-    }
-
-    public String toCSVline() {
-        CSVParser parser = new CSVParserBuilder().withSeparator(',').withIgnoreQuotations(true).withQuoteChar('"').build();
-        return parser.parseToLine(toArray(), false);
     }
 
     public void setCreationDate(LocalDateTime creationDate) {
