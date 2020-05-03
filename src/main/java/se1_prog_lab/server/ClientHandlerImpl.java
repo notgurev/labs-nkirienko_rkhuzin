@@ -8,8 +8,8 @@ import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.ClientHandler;
-import se1_prog_lab.server.interfaces.EOTWrapper;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
+import se1_prog_lab.util.interfaces.EOTWrapper;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;

@@ -3,6 +3,7 @@ package se1_prog_lab.server;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.collection.LabWork;
+import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.util.AuthData;
 
@@ -21,6 +22,8 @@ import java.util.logging.Logger;
 public class DatabaseManagerImpl implements DatabaseManager {
     private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
     private final String URL = "jdbc:postgresql://localhost:5432/se1-prog-lab";
+    // Ссылка на коллекцию для загрузки
+    private final CollectionWrapper collectionWrapper;
     // Я не уверен что адекватно сделал поля ниже
     private final String ADMIN_USERNAME = "postgres";
     private final String ADMIN_PASSWORD = "admin";
@@ -32,7 +35,8 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * Конструктор. Подключает драйвер.
      */
     @Inject
-    public DatabaseManagerImpl() {
+    public DatabaseManagerImpl(CollectionWrapper collectionWrapper) {
+        this.collectionWrapper = collectionWrapper;
         try {
             Class.forName("org.postgresql.Driver");
             logger.info("Драйвер подключён");
@@ -62,6 +66,11 @@ public class DatabaseManagerImpl implements DatabaseManager {
         }
     }
 
+    @Override
+    public boolean addThenLoad(LabWork labWork) {
+        return addElement(labWork) && loadCollectionFromDatabase();
+    }
+
     /**
      * Удаляет элемент из БД. Понятия не имею, что он должен принимать в качестве аргумента.
      * Посмотрим по мере выполнения.
@@ -89,11 +98,16 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return true, если успешно; false, если нет
      */
     @Override
-    public boolean updateElement(LabWork labWork, long id) {
+    public boolean updateById(LabWork labWork, long id) {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
         /*
             Тут запрос к БД
+            UPDATE table_name
+            SET column1 = value1, column2 = value2, ...
+            WHERE condition;
+            или чет такое
          */
+            loadCollectionFromDatabase();
             return true;
         } catch (SQLException e) {
             logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
@@ -107,16 +121,17 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return загруженную коллекцию / null, если не удалось загрузить
      */
     @Override
-    public Vector<LabWork> loadCollectionFromDatabase() {
+    public boolean loadCollectionFromDatabase() {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
             Vector<LabWork> newCollection = new Vector<>();
             /*
-                Тут запрос к БД
+                Тут запрос к БД и заполнение newCollection
              */
-            return newCollection;
+            collectionWrapper.setVector(newCollection);
+            return true;
         } catch (SQLException e) {
             logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return null;
+            return false;
         }
     }
 
@@ -171,6 +186,66 @@ public class DatabaseManagerImpl implements DatabaseManager {
         /*
             Тут запрос к БД
          */
+            return true;
+        } catch (SQLException e) {
+            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean clear() {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        /*
+            Тут запрос к БД
+         */
+            loadCollectionFromDatabase();
+            return true;
+        } catch (SQLException e) {
+            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean addThenLoad(LabWork labWork, int index) {
+        return addElementToIndex(labWork, index) && loadCollectionFromDatabase();
+    }
+
+    @Override
+    public boolean addElementToIndex(LabWork labWork, int index) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        /*
+            Тут запрос к БД
+         */
+            return true;
+        } catch (SQLException e) {
+            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean sortById() {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        /*
+            Тут запрос к БД
+         */
+            loadCollectionFromDatabase();
+            return true;
+        } catch (SQLException e) {
+            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Override
+    public boolean removeById(long id) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        /*
+            Тут запрос к БД
+         */
+            loadCollectionFromDatabase();
             return true;
         } catch (SQLException e) {
             logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());

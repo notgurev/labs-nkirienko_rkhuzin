@@ -1,4 +1,4 @@
-package se1_prog_lab.server.interfaces;
+package se1_prog_lab.util.interfaces;
 
 public interface EOTWrapper {
     String wrap(String s);

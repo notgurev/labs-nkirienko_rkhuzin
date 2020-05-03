@@ -3,6 +3,8 @@ package se1_prog_lab.server;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import se1_prog_lab.server.interfaces.*;
+import se1_prog_lab.util.UtfEOTWrapper;
+import se1_prog_lab.util.interfaces.EOTWrapper;
 
 /**
  * Серверный модуль для Guice Dependency Injection.

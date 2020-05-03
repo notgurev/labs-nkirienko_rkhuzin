@@ -7,7 +7,9 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 import static se1_prog_lab.util.BetterStrings.coloredYellow;
@@ -16,14 +18,11 @@ import static se1_prog_lab.util.BetterStrings.multiline;
 /**
  * Принципиально данный класс должен только управлять коллекцией, но не оповещать ни о чем пользователя напрямую
  * Если нет туду, то я почти уверен, что метод уже сделан верно и работает.
- * TODO не уверен, нужно ли заново загружать коллекцию из БД каждый раз.
  * TODO сделать нормальное назначение ID средствами БД.
  */
 @Singleton
 public class VectorWrapper implements CollectionWrapper {
     private final LocalDate initDate;
-    private final HashSet<Long> idSet = new HashSet<>();
-    private final Comparator<LabWork> labWorkComparator = Comparator.naturalOrder();
     private final DatabaseManager databaseManager;
     private Vector<LabWork> labWorks = new Vector<>();
 
@@ -61,41 +60,18 @@ public class VectorWrapper implements CollectionWrapper {
      * TODO должен удалять только те элементы, на которые у юзера есть права.
      */
     public void clear() {
-        labWorks = databaseManager.loadCollectionFromDatabase();
-    }
-
-    /**
-     * Назначает id элементу, если он его не имеет, либо элемент с таким id уже есть в коллекции.
-     * TODO: не факт, что нужен вообще.
-     *
-     * @param labWork элемент, которому назначается id.
-     */
-    private void assignId(LabWork labWork) {
-        if (labWork.getId() == null || idSet.contains(labWork.getId())) {
-            for (long i = 0L; i <= idSet.size(); i++) {
-                if (idSet.add(i)) {
-                    labWork.safeSetId(i);
-                    break;
-                }
-            }
-        } else {
-            idSet.add(labWork.getId());
-        }
+        databaseManager.clear();
     }
 
     /**
      * Добавляет элемент в коллекцию.
-     * TODO через БД. Код условный.
-     * TODO назначение ID.
+     * TODO проверить?
      *
      * @param labWork добавлямый элемент.
-     * @return id элемента (назначается сам)
+     * @return true если успешно
      */
-    public long add(LabWork labWork) {
-        assignId(labWork); //TODO refactor
-        databaseManager.addElement(labWork);
-        databaseManager.loadCollectionFromDatabase();
-        return labWork.getId();
+    public boolean add(LabWork labWork) {
+        return databaseManager.addThenLoad(labWork);
     }
 
     /**
@@ -105,14 +81,10 @@ public class VectorWrapper implements CollectionWrapper {
      *
      * @param labWork новый элемент
      * @param index   позиция
-     * @return id нового элемента (TODO вещь косметическая, можно сделать void, если проблемы создает, но тогда поменять в контексте)
+     * @return true если успешно
      */
-    // TODO должна изменять БД + как есть ли там вообще индекс??? (insert_at)
-    public long addToPosition(LabWork labWork, int index) {
-        assignId(labWork);
-        labWorks.setSize(index);
-        labWorks.add(index, labWork);
-        return labWork.getId();
+    public boolean insertAt(LabWork labWork, int index) {
+        return databaseManager.addThenLoad(labWork, index);
     }
 
     /**
@@ -142,12 +114,11 @@ public class VectorWrapper implements CollectionWrapper {
      * TODO код старый. Нужно поменять тело и случаи применения
      * TODO (упомянуть там о правах, мб придется даже менять возвращаемый тип)
      *
-     * @return true, если успешно; false, если нет (например, коллекция пуста)
+     * @return true, если успешно; false, если нет (например, коллекция пуста или нет прав на все)
      */
     public boolean sort() {
         if (labWorks.isEmpty()) return false;
-        labWorks.sort(labWorkComparator);
-        return true;
+        else return databaseManager.sortById();
     }
 
     /**
@@ -158,10 +129,7 @@ public class VectorWrapper implements CollectionWrapper {
      * @return true, если успешно; false, если нет (например, элемента с таким id нет)
      */
     public boolean removeByID(long id) {
-        if (getByID(id) != null) {
-            labWorks.remove(getByID(id));
-            return true;
-        } else return false;
+        return databaseManager.removeById(id);
     }
 
     /**
@@ -174,15 +142,14 @@ public class VectorWrapper implements CollectionWrapper {
      * @param newLabWork объект нового элемента.
      * @return true, если успешно; false, если нет (например, элемента с таким id нет)
      */
-    public boolean replaceByID(long id, LabWork newLabWork) {
-        if (getByID(id) != null) {
-            LabWork oldLabWork = getByID(id);
-            newLabWork.safeSetId(id);
-            labWorks.set(labWorks.indexOf(oldLabWork), newLabWork);
-            return true;
-        } else return false;
+    public boolean updateByID(long id, LabWork newLabWork) {
+        return databaseManager.updateById(newLabWork, id);
     }
 
+    @Override
+    public void setVector(Vector<LabWork> labWorkVector) {
+        labWorks = labWorkVector;
+    }
 
     /**
      * Подсчитывает элементы, значение поля "описание" которых меньше заданного.
@@ -194,19 +161,6 @@ public class VectorWrapper implements CollectionWrapper {
         return labWorks.stream().filter(labWork -> labWork.getDescription().compareTo(description) < 0).count();
     }
 
-
-    /**
-     * Получает элемент по значению его id.
-     * TODO был нужен для removeByID и replaceByID, так как удаление было по объекту. Думаю, можно обойтись без него.
-     *
-     * @param id id получаемого объекта.
-     * @return объект с данным id / null, если такого нет.
-     */
-    public LabWork getByID(Long id) {
-        return labWorks.stream().filter(labWork -> labWork.getId().equals(id)).findAny().orElse(null);
-    }
-
-
     /**
      * @return все строки содержимого всех элементов коллекции или сообщение, что она пуста.
      */
@@ -217,7 +171,6 @@ public class VectorWrapper implements CollectionWrapper {
             return multiline(labWorks.stream().filter(Objects::nonNull).map(LabWork::toString).toArray());
         }
     }
-
 
     /**
      * Проверяет, пуста ли коллеция

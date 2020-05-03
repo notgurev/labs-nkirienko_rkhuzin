@@ -31,8 +31,9 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     @Override
     public synchronized String add(LabWork labWork) {
         logger.info("Добавляем элемент в коллекцию");
-        long id = collectionWrapper.add(labWork);
-        return coloredYellow(format("Элемент успешно добавлен в коллекцию (id = %d).", id));
+        if (collectionWrapper.add(labWork)) {
+            return coloredYellow("Элемент успешно добавлен в коллекцию");
+        } else return coloredRed("Добавить элемент в коллекцию не удалось");
     }
 
     @Override
@@ -65,7 +66,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
         if (collectionWrapper.sort()) {
             return coloredYellow("Коллекция была успешно отсортирована в естественном порядке!");
         } else {
-            return coloredYellow("Коллекция пуста!");
+            return coloredYellow("Коллекция пуста, либо у вас нет прав на сортировку всех элементов");
         }
     }
 
@@ -114,14 +115,15 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     @Override
     public synchronized String insertAt(LabWork labWork, int index) {
         logger.info("Вставляем элемент в ячейку с индексом " + index);
-        long id = collectionWrapper.addToPosition(labWork, index);
-        return coloredYellow(format("Элемент успешно добавлен в коллекцию (id = %d, index = %d).", id, index));
+        if (collectionWrapper.insertAt(labWork, index)) {
+            return coloredYellow(format("Элемент успешно добавлен в коллекцию (index = %d).", index));
+        } else return coloredRed("Добавить элемент в коллекцию не удалось");
     }
 
     @Override
     public synchronized String update(LabWork labWork, long id) {
         logger.info("Обновляем элемент с id " + id);
-        if (collectionWrapper.replaceByID(id, labWork)) {
+        if (collectionWrapper.updateByID(id, labWork)) {
             logger.info(format("Элемент успешно заменён (id = %d)", id));
             return coloredYellow(format("Элемент успешно заменён (id = %d)", id));
         } else {

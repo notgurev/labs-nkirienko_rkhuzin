@@ -1,7 +1,7 @@
-package se1_prog_lab.server;
+package se1_prog_lab.util;
 
 import com.google.inject.Singleton;
-import se1_prog_lab.server.interfaces.EOTWrapper;
+import se1_prog_lab.util.interfaces.EOTWrapper;
 
 /**
  * Класс-обертка для передачи строк.

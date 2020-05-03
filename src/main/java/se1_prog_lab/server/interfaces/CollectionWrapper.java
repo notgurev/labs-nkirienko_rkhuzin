@@ -4,13 +4,16 @@ import se1_prog_lab.collection.LabWork;
 
 import java.time.LocalDate;
 import java.util.Set;
+import java.util.Vector;
 
 public interface CollectionWrapper {
-    long add(LabWork labWork);
+    boolean add(LabWork labWork);
 
     boolean isEmpty();
 
     void clear();
+
+    void setVector(Vector<LabWork> labWorkVector);
 
     long countLessThanDescription(String description);
 
@@ -30,7 +33,7 @@ public interface CollectionWrapper {
 
     boolean removeByID(long id);
 
-    long addToPosition(LabWork labWork, int index);
+    boolean insertAt(LabWork labWork, int index);
 
-    boolean replaceByID(long id, LabWork labWork);
+    boolean updateByID(long id, LabWork labWork);
 }

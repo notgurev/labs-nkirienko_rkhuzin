@@ -9,8 +9,8 @@ import se1_prog_lab.client.interfaces.Client;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.client.interfaces.CommandRepository;
 import se1_prog_lab.client.interfaces.ServerIO;
-import se1_prog_lab.server.UtfEOTWrapper;
-import se1_prog_lab.server.interfaces.EOTWrapper;
+import se1_prog_lab.util.UtfEOTWrapper;
+import se1_prog_lab.util.interfaces.EOTWrapper;
 
 import java.util.Scanner;
 

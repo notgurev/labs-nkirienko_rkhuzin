@@ -7,9 +7,9 @@ import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.interfaces.ServerIO;
-import se1_prog_lab.server.interfaces.EOTWrapper;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ByteArrays;
+import se1_prog_lab.util.interfaces.EOTWrapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
