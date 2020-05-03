@@ -11,6 +11,9 @@ import java.util.Scanner;
 
 import static se1_prog_lab.util.BetterStrings.coloredYellow;
 
+/**
+ * Ресивер для клиентских команд (см. паттерн "Команда").
+ */
 @Singleton
 public class ClientCommandReceiverImpl implements ClientCommandReceiver {
     private final Scanner consoleScanner; // Сканнер для считывания команд из консоли

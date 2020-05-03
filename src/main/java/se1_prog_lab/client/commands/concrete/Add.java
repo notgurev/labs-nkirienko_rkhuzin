@@ -12,8 +12,8 @@ public class Add extends ConstructingCommand {
 
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.add(carriedObject);
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.add(carriedObject);
     }
 
     @Override

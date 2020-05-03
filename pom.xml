@@ -39,6 +39,11 @@
             <version>2.0.1.Final</version>
         </dependency>
         <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.2.12</version>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
             <version>6.1.4.Final</version>
@@ -79,7 +84,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>se1_prog_lab.server.ServerApp</mainClass>
+                            <mainClass>se1_prog_lab.client.ClientApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -102,7 +107,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>se1_prog_lab.server.ServerApp</mainClass>
+                            <mainClass>se1_prog_lab.client.ClientApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

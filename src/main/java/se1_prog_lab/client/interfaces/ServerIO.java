@@ -3,7 +3,9 @@ package se1_prog_lab.client.interfaces;
 import se1_prog_lab.client.commands.Command;
 
 public interface ServerIO {
-    boolean open();
+    boolean tryOpen();
 
-    void sendAndReceive(Command command);
+    String sendAndReceive(Command command);
+
+    void authorize();
 }

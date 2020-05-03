@@ -14,7 +14,7 @@ public abstract class ClientSideCommand extends AbstractCommand {
     }
 
     @Override
-    public final void serverExecute(ServerCommandReceiver clientCommandReceiver) {
-        // final and empty
+    public final String serverExecute(ServerCommandReceiver clientCommandReceiver) {
+        return null;
     }
 }

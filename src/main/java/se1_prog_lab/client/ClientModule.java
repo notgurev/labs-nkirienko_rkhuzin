@@ -14,6 +14,9 @@ import se1_prog_lab.server.interfaces.EOTWrapper;
 
 import java.util.Scanner;
 
+/**
+ * Клиентский модуль для Guice Dependency Injection.
+ */
 public class ClientModule extends AbstractModule {
     @Override
     protected void configure() {

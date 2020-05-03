@@ -13,8 +13,8 @@ public class InsertAt extends ConstructingCommand {
     }
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.insertAt(carriedObject, index);
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.insertAt(carriedObject, index);
     }
 
     @Override

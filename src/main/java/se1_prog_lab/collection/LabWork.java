@@ -1,39 +1,43 @@
 package se1_prog_lab.collection;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
 import se1_prog_lab.exceptions.LabWorkFieldException;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 import static se1_prog_lab.util.BetterStrings.blueStringIfNull;
 import static se1_prog_lab.util.BetterStrings.multiline;
 
 
 /**
- * Класс лабораторной работы (элемента коллекции)
+ * Класс лабораторной работы (элемента коллекции).
  */
 public class LabWork implements Comparable<LabWork>, Serializable {
+    /**
+     * Количество полей, чтобы скрипт знал, сколько пропускать строк.
+     */
     private static final int NUMBER_OF_FIELDS = 14;
     @Positive // без NotNull т.к. сервер сам назначает ID
     private Long id; // > 0, unique, auto-gen, not null
-    @NotEmpty @NotNull
-    private String name; // not null
+    @NotEmpty
     @NotNull
-    private Coordinates coordinates; // not null
+    private String name;
     @NotNull
-    private LocalDateTime creationDate; // auto-gen, not null
+    private Coordinates coordinates;
+    @NotNull
+    private LocalDateTime creationDate; // auto-gen
     @Positive
-    private Integer minimalPoint; // > 0, null
-    @NotNull @NotEmpty
-    private String description; // not null
-    private Integer tunedInWorks; // null
+    private Integer minimalPoint;
     @NotNull
-    private Difficulty difficulty; // not null
-    private Person author; // null
+    @NotEmpty
+    private String description;
+    private Integer tunedInWorks;
+    @NotNull
+    private Difficulty difficulty;
+    private final Person author;
 
     public LabWork() {
         author = new Person();
@@ -69,10 +73,21 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         );
     }
 
+    /**
+     * "Безопасная" установка id, когда мы знаем, что больше элементов с таким id в коллекции нет.
+     *
+     * @param id устанавливаемый id.
+     */
     public void safeSetId(Long id) {
         this.id = id;
     }
 
+    /**
+     * "Предустановка" id при чтении из CSV, когда неясно, есть ли коллизии с другими id.
+     *
+     * @param id устанавливаемый id.
+     * @throws LabWorkFieldException если id не соответствует ограничениям (для скрипта).
+     */
     public void preSetId(Long id) throws LabWorkFieldException {
         if (id == null || id < 0) throw new LabWorkFieldException();
         this.id = id;
@@ -130,6 +145,12 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return author;
     }
 
+    /**
+     * Для сортировки по умолчанию.
+     *
+     * @param o с чем сравниваем.
+     * @return разница в id.
+     */
     @Override
     public int compareTo(LabWork o) {
         return (int) (id - o.getId());

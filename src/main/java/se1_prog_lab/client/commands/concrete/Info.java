@@ -9,7 +9,7 @@ public class Info extends NonValidatingRegularCommand {
     }
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.info();
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.info();
     }
 }

@@ -9,7 +9,7 @@ public class Clear extends NonValidatingRegularCommand {
     }
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.clear();
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.clear();
     }
 }

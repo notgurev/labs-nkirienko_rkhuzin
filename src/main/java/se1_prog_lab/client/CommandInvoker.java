@@ -14,6 +14,9 @@ import java.util.Set;
 
 import static se1_prog_lab.util.BetterStrings.multiline;
 
+/**
+ * Класс, хранящий команды и возвращающий их по ключу.
+ */
 @Singleton
 public class CommandInvoker implements CommandRepository {
     private final HashMap<String, AbstractCommand> commandMap = new HashMap<>(); // HashMap команд
@@ -29,16 +32,22 @@ public class CommandInvoker implements CommandRepository {
                 .map(command -> command.getKey() + command.getHelpText()).toArray()));
     }
 
+    /**
+     * Добавляет массив команд в карту команд.
+     *
+     * @param commands команды.
+     */
     private void addCommand(AbstractCommand... commands) {
         Arrays.stream(commands).forEach(command -> commandMap.put(command.getKey(), command));
     }
 
-
-    @Override
-    public ServerIO getServerIO() {
-        return serverIO;
-    }
-
+    /**
+     * По ключу достает команду, выполняет её клиентскую часть, добалвяет в историю и возвращает.
+     *
+     * @param commandKey ключ команды.
+     * @param args       аргументы команды.
+     * @return команду или null, если команда неудачно выполнилась на клиенте.
+     */
     @Override
     public Command runCommand(String commandKey, String[] args) {
         if (!commandMap.containsKey(commandKey)) {
@@ -51,6 +60,12 @@ public class CommandInvoker implements CommandRepository {
         return command; // Возвращаем, чтобы отправить на сервер
     }
 
+    /**
+     * Парсит строку на ключ и аргументы и передает в runCommand(), затем возвращает полученную от него команду.
+     *
+     * @param input строка.
+     * @return команду.
+     */
     @Override
     public Command parseThenRun(String[] input) {
         String commandKey = input[0]; // Первый аргумент - ключ команды

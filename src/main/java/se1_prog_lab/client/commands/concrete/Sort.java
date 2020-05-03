@@ -9,7 +9,7 @@ public class Sort extends NonValidatingRegularCommand {
     }
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.sort();
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.sort();
     }
 }

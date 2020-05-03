@@ -1,29 +1,32 @@
 package se1_prog_lab.server.interfaces;
 
 import se1_prog_lab.collection.LabWork;
+import se1_prog_lab.util.AuthData;
 
 public interface ServerCommandReceiver {
-    void add(LabWork labWork);
+    String add(LabWork labWork);
 
-    void clear();
+    String clear();
 
-    void countLessThanDescription(String description);
+    String countLessThanDescription(String description);
 
-    void info();
+    String info();
 
-    void printUniqueTunedInWorks();
+    String printUniqueTunedInWorks();
 
-    void save();
+    String show();
 
-    void show();
+    String sort();
 
-    void sort();
+    String filterGreaterThanMinimalPoint(int minimalPoint);
 
-    void filterGreaterThanMinimalPoint(int minimalPoint);
+    String removeByID(long id);
 
-    void removeByID(long id);
+    String insertAt(LabWork labWork, int index);
 
-    void insertAt(LabWork labWork, int index);
+    String update(LabWork labWork, long id);
 
-    void update(LabWork labWork, long id);
+    String register(AuthData authData);
+
+    String login(AuthData authData);
 }

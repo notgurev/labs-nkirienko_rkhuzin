@@ -1,18 +1,22 @@
 package se1_prog_lab.server.interfaces;
 
 import se1_prog_lab.collection.LabWork;
-import se1_prog_lab.server.VectorWrapper;
+import se1_prog_lab.util.AuthData;
+
+import java.util.Vector;
 
 public interface DatabaseManager {
     boolean addElement(LabWork labWork);
 
-    boolean removeElement(LabWork labWork);
+    boolean removeElement();
 
-    boolean replaceElement();
+    boolean updateElement(LabWork labWork, long id);
 
-    boolean loadFromDatabase(VectorWrapper vectorWrapper);
+    Vector<LabWork> loadCollectionFromDatabase();
 
-    void getUser();
+    boolean checkAuth(AuthData authData);
 
-    void getPassword();
+    boolean doesUserExist(String username);
+
+    boolean addUser(String username, String password);
 }

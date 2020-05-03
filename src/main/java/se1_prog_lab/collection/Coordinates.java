@@ -1,6 +1,8 @@
 package se1_prog_lab.collection;
 
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 import static se1_prog_lab.util.BetterStrings.multiline;
@@ -9,8 +11,10 @@ import static se1_prog_lab.util.BetterStrings.multiline;
  * Класс координат лаб. работы (?)
  */
 public class Coordinates implements Serializable {
-    private long x; // max = 625
-    private Float y; // not null
+    @Max(value = 625)
+    private long x;
+    @NotNull
+    private Float y;
 
     public Coordinates() {
     }

@@ -12,8 +12,8 @@ public class FilterGreaterThanMinimalPoint extends RegularCommand {
     }
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.filterGreaterThanMinimalPoint(minimalPoint);
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.filterGreaterThanMinimalPoint(minimalPoint);
     }
 
     @Override

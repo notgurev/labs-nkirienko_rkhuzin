@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * Класс со всякими удобствами для вывода в консоль
+ * Класс со всякими удобствами для вывода в консоль.
  */
 public class BetterStrings {
     public static final String ANSI_RESET = "\u001B[0m";

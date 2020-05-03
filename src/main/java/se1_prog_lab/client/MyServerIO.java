@@ -2,9 +2,13 @@ package se1_prog_lab.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.Command;
+import se1_prog_lab.client.commands.concrete.technical.Login;
+import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.server.interfaces.EOTWrapper;
+import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ByteArrays;
 
 import java.io.ByteArrayOutputStream;
@@ -14,26 +18,49 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.Scanner;
 
+import static se1_prog_lab.util.AuthStrings.LOGIN_SUCCESSFUL;
+import static se1_prog_lab.util.AuthStrings.REGISTRATION_SUCCESSFUL;
 import static se1_prog_lab.util.BetterStrings.coloredRed;
 import static se1_prog_lab.util.BetterStrings.coloredYellow;
+import static se1_prog_lab.util.ValidatingReader.readString;
 
+/**
+ * Класс для взаимодействия с сервером.
+ */
 @Singleton
 public class MyServerIO implements ServerIO {
+    /**
+     * Максимальное количество попыток переподключения к серверу.
+     */
     private static final int MAX_TRIES = 3;
+    /**
+     * Размер буфера по умолчанию.
+     */
     private final int DEFAULT_BUFFER_CAPACITY = 1024;
     private final int PORT = 6006;
     private final String HOST = "localhost";
+    private final Scanner consoleScanner;
     private SocketChannel socketChannel;
     private ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_BUFFER_CAPACITY);
     @Inject
     private EOTWrapper eotWrapper;
+    private AuthData authData;
 
     @Inject
-    public MyServerIO() {
+    public MyServerIO(Scanner consoleScanner) {
+        this.consoleScanner = consoleScanner;
     }
 
-    public boolean open() {
+    /**
+     * Метод, пытающийся установить соединение с сервером.
+     * Количество попыток: MAX_TRIES.
+     *
+     * @return true, если удалось; false, если не удалось.
+     */
+    public boolean tryOpen() {
         System.out.println("Попытка соединиться с сервером...");
         String errorMessage = null;
         for (int i = 1; i <= MAX_TRIES; i++) {
@@ -70,11 +97,17 @@ public class MyServerIO implements ServerIO {
         return byteBuffer;
     }
 
+    /**
+     * Отправляет команду на сервер.
+     *
+     * @param command команда для отправки.
+     * @throws IOException если что-то пошло не так.
+     */
     private void sendToServer(Command command) throws IOException {
         ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
         ObjectOutputStream objectStream = new ObjectOutputStream(byteArrayStream);
 
-        System.out.println("Команда готовится к отправке: " + command.getClass().getSimpleName());
+        System.out.printf("Команда %s готовится к отправке... ", command.getClass().getSimpleName());
         objectStream.writeObject(command);
         byte[] byteArray = byteArrayStream.toByteArray();
         ByteBuffer buffer = getByteBuffer(byteArray.length);
@@ -85,11 +118,16 @@ public class MyServerIO implements ServerIO {
         while (buffer.hasRemaining()) {
             socketChannel.write(buffer);
         }
-        System.out.println("Команда отправлена");
+        System.out.print("Команда отправлена. \n");
     }
 
-    private void receiveFromServer() {
-        StringBuilder stringBuilder = null;
+    /**
+     * Принимает ответ сервера.
+     *
+     * @return полученная строка.
+     */
+    private String receiveFromServer() {
+        StringBuilder stringBuilder;
         try {
             ByteBuffer buffer = getByteBuffer();
             buffer.clear();
@@ -109,38 +147,86 @@ public class MyServerIO implements ServerIO {
             }
             stringBuilder.append(new String(ByteArrays.toByteArray(stringBytes)));
         } catch (IOException e) {
-            System.out.println(coloredRed("При получении ответа возникла ошибка: " + e.getMessage()));
+            return coloredRed("При получении ответа возникла ошибка: " + e.getMessage());
         }
-        System.out.println("Получен результат команды:\n" + eotWrapper.unwrap(stringBuilder.toString()));
+        return eotWrapper.unwrap(stringBuilder.toString());
     }
 
+    /**
+     * Отправляет команду на сервер и получает ответ, а также содержит контроль переподключений.
+     * Добавляет команде актуальные данные для авторизации.
+     *
+     * @param command команда для отправки.
+     * @return полученная строка.
+     */
     @Override
-    public void sendAndReceive(Command command) {
+    public String sendAndReceive(Command command) {
         if (command.isServerSide()) {
+            if (!Objects.equals(command.getAuthData(), authData)) command.setAuthData(authData);
             while (true) {
                 try {
-                    if (!isOpen() && !open()) {
-                        System.out.println("Команда не будет отправлена, так как не удалось открыть соединение");
-                        break;
+                    if (!isOpen() && !tryOpen()) {
+                        return "Команда не будет отправлена, так как не удалось открыть соединение";
                     }
                     sendToServer(command);
-                    receiveFromServer();
-                    break;
+                    return receiveFromServer();
                 } catch (IOException e) {
                     System.out.println(coloredRed("Не получилось отправить команду: " + e.getMessage()));
                     closeSocketChannel();
-                    if (!open()) break;
+                    if (!tryOpen()) return "Не удалось установить соединение";
                     System.out.println("Повторная отправка команды " + command.getClass().getSimpleName());
                 }
             }
         }
+        return "";
     }
 
+    /**
+     * Пытается закрыть сокет.
+     */
     private void closeSocketChannel() {
         try {
             socketChannel.close();
         } catch (IOException ex) {
             System.out.println("Проблемы с закрытием сокета: " + ex.getMessage());
         }
+    }
+
+    /**
+     * Получает от пользователя данные для авторизации и отправляет их на сервер.
+     */
+    @Override
+    public void authorize() {
+        System.out.println("Для работы с коллекцией зарегистрироваться/авторизоваться");
+
+        String input;
+        do {
+            System.out.printf("Введите %s для регистрации или %s для авторизации \n",
+                    coloredYellow("register"), coloredYellow("login"));
+            input = consoleScanner.nextLine().trim();
+        } while (!(input.equals("login") || input.equals("register")));
+
+        String username, password, response;
+        AuthCommand authCommand;
+        String usernameMessage, passwordMessage;
+        do {
+            if (input.equals("login")) {
+                usernameMessage = "Введите ваше имя пользователя: ";
+                passwordMessage = "Введите ваш пароль: ";
+            } else {
+                usernameMessage = "Придумайте имя пользователя: ";
+                passwordMessage = "Придумайте пароль: ";
+            }
+
+            username = readString(consoleScanner, usernameMessage, false, 1);
+            password = readString(consoleScanner, passwordMessage, false, 1);
+            authData = new AuthData(username, password);
+
+            if (input.equals("login")) authCommand = new Login(authData);
+            else authCommand = new Register(authData);
+
+            response = sendAndReceive(authCommand);
+            System.out.println(response);
+        } while (!(response.equals(REGISTRATION_SUCCESSFUL.getMessage()) || response.equals(LOGIN_SUCCESSFUL.getMessage())));
     }
 }

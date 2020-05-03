@@ -1,42 +1,24 @@
 package se1_prog_lab.server;
 
-import com.google.inject.*;
-import se1_prog_lab.client.commands.Command;
-import se1_prog_lab.client.commands.ConstructingCommand;
-import se1_prog_lab.collection.LabWork;
-import se1_prog_lab.server.interfaces.*;
+import com.google.inject.Guice;
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
+import se1_prog_lab.server.interfaces.ClientHandlerFactory;
+import se1_prog_lab.server.interfaces.Server;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import java.io.*;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 @Singleton
 public class ServerApp implements Server {
-    private final ResponseBuilder responseBuilder;
-    private final ServerCommandReceiver serverCommandReceiver;
-    private ServerSocket serverSocket;
-    @Inject
-    private EOTWrapper eotWrapper;
     private static final Logger logger;
-    private final int PORT = 6006;
-    private final Validator validator;
-
-    @Inject
-    public ServerApp(ResponseBuilder responseBuilder, ServerCommandReceiver serverCommandReceiver) {
-        this.serverCommandReceiver = serverCommandReceiver;
-        this.responseBuilder = responseBuilder;
-
-        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
-    }
+    private static final int THREADS_IN_POOL = 8;
 
     static {
         try {
@@ -46,6 +28,14 @@ public class ServerApp implements Server {
             System.out.println("Не удалось загрузить конфиг логгера. Запуск в дефолтном режиме");
         }
         logger = Logger.getLogger(ServerApp.class.getName());
+    }
+
+    private final int PORT = 6006;
+    private final ClientHandlerFactory clientHandlerFactory;
+
+    @Inject
+    public ServerApp(ClientHandlerFactory clientHandlerFactory) {
+        this.clientHandlerFactory = clientHandlerFactory;
     }
 
     public static void main(String[] args) {
@@ -61,62 +51,24 @@ public class ServerApp implements Server {
 
     @Override
     public void start() throws IOException {
-        this.serverSocket = new ServerSocket(PORT);
-        handleRequests();
-    }
+        logger.info("Создание сокета с портом " + PORT);
+        ServerSocket serverSocket = new ServerSocket(PORT);
 
-    private void sendResponseToClient(BufferedWriter clientWriter) throws IOException {
-        logger.info("Отправка ответа клиенту");
-        clientWriter.write(eotWrapper.wrap(responseBuilder.getResponse()));
-        clientWriter.flush();
-        responseBuilder.clearResponse();
-    }
+        logger.info("Начинаем попытки соединиться с клиентом");
+        Socket clientSocket;
 
-    private void handleRequests() {
-        logger.info("Начата обработка запросов");
+        logger.info("Создаем пул потоков для обработки ответов");
+        ExecutorService executorService = Executors.newFixedThreadPool(THREADS_IN_POOL);
+
         while (true) {
-            try (Socket clientSocket = serverSocket.accept();
-                 BufferedWriter clientWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8))) {
-                logger.info("Принят clientSocket, создан clientWriter");
-
-                InputStream clientInputStream = clientSocket.getInputStream();
-                ObjectInputStream objectInput;
-                Command command;
-
-                while (true) {
-                    objectInput = new ObjectInputStream(clientInputStream);
-                    logger.info("Принят объект " + objectInput.getClass().getSimpleName());
-                    command = (Command) objectInput.readObject();
-
-                    if (command instanceof ConstructingCommand && !validateCarriedObject(command)) {
-                        responseBuilder.addLineToResponse("Объект не прошел валидацию, команда не будет выполнена.");
-                        sendResponseToClient(clientWriter);
-                    } else {
-                        logger.info("Начинается выполнение команды " + command.getClass().getSimpleName());
-                        command.serverExecute(serverCommandReceiver);
-                        logger.info("Команда выполнена");
-                        sendResponseToClient(clientWriter);
-                        logger.info("Отправлен ответ на команду " + command.getClass().getSimpleName());
-                    }
-                }
+            try {
+                logger.info("Попытка установить соединение");
+                clientSocket = serverSocket.accept();
+                logger.info("Соединение установлено, создаем новый поток ClientHandler");
+                new Thread(clientHandlerFactory.create(clientSocket, executorService)).start();
             } catch (IOException e) {
-                logger.severe("Не удалось обработать запрос: " + e.getMessage());
-            } catch (ClassNotFoundException e) {
-                logger.severe("Не удалось десериализировать объект: {}" + e.getMessage());
+                logger.warning("Не удалось установить соединение");
             }
-        }
-    }
-
-    private boolean validateCarriedObject(Command command) {
-        LabWork carriedObject = ((ConstructingCommand) command).getCarriedObject();
-        Set<ConstraintViolation<LabWork>> violations = validator.validate(carriedObject);
-        if (violations.isEmpty()) {
-            logger.fine("Валидация объекта пройдена успешно");
-            return true;
-        } else {
-            logger.warning("Объект не прошел валидацию, команда не будет выполнена.");
-            logger.warning("Ошибки: " + violations.toString());
-            return false;
         }
     }
 }

@@ -9,7 +9,7 @@ public class Show extends NonValidatingRegularCommand {
     }
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.show();
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.show();
     }
 }

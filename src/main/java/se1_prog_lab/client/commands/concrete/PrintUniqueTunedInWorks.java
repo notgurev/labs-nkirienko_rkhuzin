@@ -9,7 +9,7 @@ public class PrintUniqueTunedInWorks extends NonValidatingRegularCommand {
     }
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.printUniqueTunedInWorks();
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.printUniqueTunedInWorks();
     }
 }

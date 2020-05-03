@@ -51,28 +51,46 @@ public class ValidatingReader {
         } while (true);
     }
 
-    private static Number checkForLimits(String limitType, Number result, Long limit) {
+    /**
+     * Проверяет число на выход за пределы.
+     *
+     * @param limitType тип предела: MIN - минимум, MAX - максимум, NO_LIMIT - отсутствие предела.
+     * @param number    проверяемое число.
+     * @param limit     верхний/нижний предел, либо null в случае его отсутствия.
+     * @return number, если он не выходит за пределы; null, если выходит за пределы.
+     */
+    private static Number checkForLimits(String limitType, Number number, Long limit) {
         switch (limitType) {
             case ("MIN"):
-                if (result.doubleValue() > limit) {
-                    return result;
+                if (number.longValue() > limit) {
+                    return number;
                 } else {
                     System.out.print("Значение должно быть больше " + limit + ". Попробуйте снова: ");
                 }
                 break;
             case ("MAX"):
-                if (result.doubleValue() < limit) {
-                    return result;
+                if (number.longValue() < limit) {
+                    return number;
                 } else {
                     System.out.print("Значение должно быть меньше " + limit + ". Попробуйте снова: ");
                 }
                 break;
             case ("NO_LIMIT"):
-                return result;
+                return number;
         }
-        return result;
+        return number;
     }
 
+    /**
+     * Считывает Float из консоли с приглашением на ввод и проверками на корректность введенных данных.
+     *
+     * @param scanner           Scanner, используемый в консоли.
+     * @param messageForConsole приглашение на ввод.
+     * @param canBeNull         может ли принимать значение null.
+     * @param limit             предел.
+     * @param limitType         тип предела (MIN/MAX/NO_LIMIT)
+     * @return число, либо null (если canBeNull == true)
+     */
     public static Float readFloat(Scanner scanner, String messageForConsole, boolean canBeNull, Long limit, String limitType) {
         System.out.print(messageForConsole);
         float result;
@@ -91,6 +109,16 @@ public class ValidatingReader {
         }
     }
 
+    /**
+     * Считывает Integer из консоли с приглашением на ввод и проверками на корректность введенных данных.
+     *
+     * @param scanner           Scanner, используемый в консоли.
+     * @param messageForConsole приглашение на ввод.
+     * @param canBeNull         может ли принимать значение null.
+     * @param limit             предел.
+     * @param limitType         тип предела (MIN/MAX/NO_LIMIT)
+     * @return число, либо null (если canBeNull == true)
+     */
     public static Integer readInteger(Scanner scanner, String messageForConsole, boolean canBeNull, Long limit, String limitType) {
         System.out.print(messageForConsole);
         int result;
@@ -109,6 +137,16 @@ public class ValidatingReader {
         }
     }
 
+    /**
+     * Считывает Long из консоли с приглашением на ввод и проверками на корректность введенных данных.
+     *
+     * @param scanner           Scanner, используемый в консоли.
+     * @param messageForConsole приглашение на ввод.
+     * @param canBeNull         может ли принимать значение null.
+     * @param limit             предел.
+     * @param limitType         тип предела (MIN/MAX/NO_LIMIT)
+     * @return число, либо null (если canBeNull == true)
+     */
     public static Long readLong(Scanner scanner, String messageForConsole, boolean canBeNull, Long limit, String limitType) {
         System.out.print(messageForConsole);
         long result;
@@ -128,13 +166,13 @@ public class ValidatingReader {
     }
 
     /**
-     * Метод, считывающий String
+     * Метод, считывающий String.
      *
-     * @param scanner           Scanner
-     * @param messageForConsole сообщение для консоли
-     * @param canBeNull         может ли данный String быть null
-     * @param minLength         минимальная длина
-     * @return String или null
+     * @param scanner           Scanner, используемый в консоли.
+     * @param messageForConsole приглашение на ввод.
+     * @param canBeNull         может ли принимать значение null.
+     * @param minLength         минимальная длина строки.
+     * @return String или null, если canBeNull == true;
      */
     public static String readString(Scanner scanner, String messageForConsole, boolean canBeNull, Integer minLength) {
         System.out.print(messageForConsole);

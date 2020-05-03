@@ -6,6 +6,7 @@ import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.client.commands.ScriptCommand;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.client.interfaces.CommandRepository;
+import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.LabWorkFieldException;
 import se1_prog_lab.exceptions.SelfCallingScriptException;
@@ -23,12 +24,14 @@ import static se1_prog_lab.util.BetterStrings.coloredYellow;
 
 
 public class ExecuteScript extends ScriptCommand {
-    private CommandRepository commandRepository;
+    private final CommandRepository commandRepository;
+    private final ServerIO serverIO;
 
     @Inject
-    public ExecuteScript(CommandRepository commandRepository) {
+    public ExecuteScript(CommandRepository commandRepository, ServerIO serverIO) {
         super("execute_script", " file_name - считать и исполнить скрипт из указанного файла");
         this.commandRepository = commandRepository;
+        this.serverIO = serverIO;
     }
 
     @Override
@@ -56,7 +59,7 @@ public class ExecuteScript extends ScriptCommand {
                 line = scanner.nextLine().split(" ");
                 try {
                     Command command = commandRepository.parseThenRun(line);
-                    if (command != null) commandRepository.getServerIO().sendAndReceive(command);
+                    if (command != null) System.out.println(serverIO.sendAndReceive(command));
                     if (command instanceof ConstructingCommand) currentLine += LabWork.getNumberOfFields();
                 } catch (SelfCallingScriptException e) {
                     linesWithErrors.add(currentLine);

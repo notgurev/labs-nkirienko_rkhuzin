@@ -6,15 +6,15 @@ import java.io.Serializable;
 import static se1_prog_lab.util.BetterStrings.multiline;
 
 /**
- * Класс местоположения Person
+ * Класс местоположения Person.
  */
 public class Location implements Serializable {
     @NotNull
-    private Integer x; // not null
+    private Integer x;
     @NotNull
-    private float y; // not null
+    private float y;
     @NotNull
-    private Integer z; // not null
+    private Integer z;
 
     public Location() {
     }

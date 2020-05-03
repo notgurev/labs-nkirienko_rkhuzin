@@ -109,6 +109,12 @@ public class ElementCreator {
         return ElementCreator.fromStringArray(inter, false);
     }
 
+    /**
+     * Определяет, выполняется ли сейчас скрипт, и вызывает соответствующий конструктор элемента.
+     *
+     * @param clientCommandReceiver ресивер клиентских комманд.
+     * @return созданный элемент.
+     */
     public static LabWork buildLabWork(ClientCommandReceiver clientCommandReceiver) {
         if (clientCommandReceiver.getExecutingScripts().isEmpty()) {
             // Создаем LabWork из консоли

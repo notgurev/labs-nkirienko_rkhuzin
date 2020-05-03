@@ -12,8 +12,8 @@ public class CountLessThanDescription extends RegularCommand {
     }
 
     @Override
-    public void serverExecute(ServerCommandReceiver serverReceiver) {
-        serverReceiver.countLessThanDescription(description);
+    public String serverExecute(ServerCommandReceiver serverReceiver) {
+        return serverReceiver.countLessThanDescription(description);
     }
 
     @Override

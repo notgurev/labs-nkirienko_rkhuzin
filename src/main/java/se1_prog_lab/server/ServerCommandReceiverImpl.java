@@ -2,140 +2,154 @@ package se1_prog_lab.server;
 
 import com.google.inject.Inject;
 import se1_prog_lab.collection.LabWork;
-import se1_prog_lab.exceptions.NoElementWithSuchIdException;
+import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
-import se1_prog_lab.server.interfaces.ResponseBuilder;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
+import se1_prog_lab.util.AuthData;
 
 import java.util.logging.Logger;
 
+import static java.lang.String.format;
+import static java.lang.String.join;
+import static se1_prog_lab.util.AuthStrings.*;
 import static se1_prog_lab.util.BetterStrings.*;
 
+/**
+ * Ресивер для серверных команд (см. паттерн "Команда").
+ */
 public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
     private final CollectionWrapper collectionWrapper;
-    private final ResponseBuilder responseBuilder;
+    private final AuthManager authManager;
 
     @Inject
-    public ServerCommandReceiverImpl(CollectionWrapper collectionWrapper, ResponseBuilder responseBuilder) {
+    public ServerCommandReceiverImpl(CollectionWrapper collectionWrapper, AuthManager authManager) {
         this.collectionWrapper = collectionWrapper;
-        this.responseBuilder = responseBuilder;
+        this.authManager = authManager;
     }
 
     @Override
-    public void add(LabWork labWork) {
+    public synchronized String add(LabWork labWork) {
         logger.info("Добавляем элемент в коллекцию");
         long id = collectionWrapper.add(labWork);
-        responseBuilder.addLineToResponse(coloredYellow("Элемент успешно добавлен в коллекцию (id = " + id + ")."));
+        return coloredYellow(format("Элемент успешно добавлен в коллекцию (id = %d).", id));
     }
 
     @Override
-    public void clear() {
+    public synchronized String clear() {
         logger.info("Очищаем коллекцию");
         collectionWrapper.clear();
-        responseBuilder.addLineToResponse(coloredYellow("Элементы, на которые вы имели права, удалены из коллекции"));
+        return coloredYellow("Элементы, на которые вы имели права, удалены из коллекции");
     }
 
     @Override
-    public void countLessThanDescription(String description) {
+    public synchronized String countLessThanDescription(String description) {
         logger.info("Добавляем в ответ количество элементов, значение поля description которых меньше " + description);
-        responseBuilder.addLineToResponse(coloredYellow("Количество элементов, значение поля description которых меньше заданного: " +
-                collectionWrapper.countLessThanDescription(description)));
+        return coloredYellow("Количество элементов, значение поля description которых меньше заданного: " +
+                collectionWrapper.countLessThanDescription(description));
     }
 
     @Override
-    public void info() {
+    public synchronized String info() {
         logger.info("Добавляем в ответ информацию о коллекции");
-        responseBuilder.addLineToResponse(multiline(
+        return multiline(
                 "Тип коллекции: " + collectionWrapper.getCollectionType(),
                 "Дата инициализации: " + collectionWrapper.getInitDate(),
                 "Количество элементов: " + collectionWrapper.getSize()
-        ));
+        );
     }
 
     @Override
-    public void sort() {
+    public synchronized String sort() {
         logger.info("Сортируем коллекцию");
         if (collectionWrapper.sort()) {
-            responseBuilder.addLineToResponse(coloredYellow("Коллекция была успешно отсортирована в естественном порядке!"));
+            return coloredYellow("Коллекция была успешно отсортирована в естественном порядке!");
         } else {
-            responseBuilder.addLineToResponse(coloredYellow("Коллекция пуста!"));
+            return coloredYellow("Коллекция пуста!");
         }
     }
 
     @Override
-    public void show() {
+    public synchronized String show() {
         logger.info("Добавляем в ответ содержимое коллекции");
-        responseBuilder.addLineToResponse(collectionWrapper.showAll());
+        return collectionWrapper.showAll();
     }
 
     @Override
-    public void printUniqueTunedInWorks() {
+    public synchronized String printUniqueTunedInWorks() {
         logger.info("Добавляем в ответ уникальные значения поля tunedInWorks");
         if (collectionWrapper.isEmpty()) {
-            responseBuilder.addLineToResponse(coloredYellow("Коллекция пуста!"));
+            return coloredYellow("Коллекция пуста!");
         } else {
-            responseBuilder.addLineToResponse("Уникальные значения поля tunedInWorks: " +
-                    String.join(", ", collectionWrapper.getUniqueTunedInWorks().toString()));
+            return "Уникальные значения поля tunedInWorks: " +
+                    join(", ", collectionWrapper.getUniqueTunedInWorks().toString());
         }
     }
 
     @Override
-    public void save() {
-        logger.info("Сохраняем коллекцию");
-        // TODO удалить
-//        try {
-//            FileIO.saveCollectionToFile(collectionFile, collectionWrapper);
-//        } catch (IOException e) {
-//            responseBuilder.addLineToResponse(coloredYellow("Сохранение не удалось!"));
-//        }
-        responseBuilder.addLineToResponse(coloredYellow("Коллекция успешно сохранена в файл."));
-    }
-
-    @Override
-    public void filterGreaterThanMinimalPoint(int minimalPoint) {
+    public synchronized String filterGreaterThanMinimalPoint(int minimalPoint) {
         logger.info("Добавляем в ответ элементы, значение поля minimalPoint которых больше " + minimalPoint);
         if (collectionWrapper.isEmpty()) {
-            responseBuilder.addLineToResponse((coloredYellow("Коллекция пуста!")));
+            return coloredYellow("Коллекция пуста!");
         } else {
             String response = collectionWrapper.filterGreaterThanMinimalPoint(minimalPoint);
             if (response.equals("")) {
-                responseBuilder.addLineToResponse(
-                        coloredYellow("Элементов, значение поля minimalPoint которых больше заданного, нет."));
-            } else responseBuilder.addLineToResponse(response);
+                return coloredYellow("Элементов, значение поля minimalPoint которых больше заданного, нет.");
+            } else return response;
         }
     }
 
     @Override
-    public void removeByID(long id) {
+    public synchronized String removeByID(long id) {
         logger.info("Удаляем элемент с id " + id);
-        try {
-            collectionWrapper.removeByID(id);
-            logger.info("Элемент с id = " + id + " успешно удален");
-            responseBuilder.addLineToResponse("Элемент с id = " + id + " успешно удален");
-        } catch (NoElementWithSuchIdException e) {
+        if (collectionWrapper.removeByID(id)) {
+            logger.info(format("Элемент с id = %d успешно удален", id));
+            return format("Элемент с id = %d успешно удален", id);
+        } else {
             logger.warning("Элемента с данным id не существует в коллекции.");
-            responseBuilder.addLineToResponse("Элемента с данным id не существует в коллекции.");
+            return "Элемента с данным id не существует в коллекции.";
         }
     }
 
     @Override
-    public void insertAt(LabWork labWork, int index) {
+    public synchronized String insertAt(LabWork labWork, int index) {
         logger.info("Вставляем элемент в ячейку с индексом " + index);
         long id = collectionWrapper.addToPosition(labWork, index);
-        responseBuilder.addLineToResponse(coloredYellow("Элемент успешно добавлен в коллекцию (id = " + id +
-                ", index = " + index + ")."));
+        return coloredYellow(format("Элемент успешно добавлен в коллекцию (id = %d, index = %d).", id, index));
     }
 
     @Override
-    public void update(LabWork labWork, long id) {
+    public synchronized String update(LabWork labWork, long id) {
         logger.info("Обновляем элемент с id " + id);
         if (collectionWrapper.replaceByID(id, labWork)) {
-            logger.info("Элемент успешно заменён (id = " + id + ")");
-            responseBuilder.addLineToResponse(coloredYellow("Элемент успешно заменён (id = " + id + ")"));
+            logger.info(format("Элемент успешно заменён (id = %d)", id));
+            return coloredYellow(format("Элемент успешно заменён (id = %d)", id));
         } else {
             logger.info("Элемент с таким id отсутствует в коллекции!");
-            responseBuilder.addLineToResponse((coloredRed("Элемент с таким id отсутствует в коллекции!")));
+            return coloredRed("Элемент с таким id отсутствует в коллекции!");
+        }
+    }
+
+    @Override
+    public String register(AuthData authData) {
+        if (!authManager.doesUserExist(authData.getUsername())) {
+            authManager.register(authData);
+            logger.info(format("Зарегистрирован пользователь с именем: %s", authData.getUsername()));
+            return REGISTRATION_SUCCESSFUL.getMessage();
+        } else {
+            logger.warning(format("Имя пользователя %s уже занято", authData.getUsername()));
+            return USERNAME_TAKEN.getMessage();
+        }
+    }
+
+    @Override
+    public String login(AuthData authData) {
+        if (authManager.checkAuth(authData)) {
+            logger.info(format("Авторизовался пользователь с именем: %s", authData.getUsername()));
+            return LOGIN_SUCCESSFUL.getMessage();
+        } else {
+            logger.info(format("Пользователь с именем: %s не смог авторизоваться", authData.getUsername()));
+            return INCORRECT_LOGIN_DATA.getMessage();
         }
     }
 }
