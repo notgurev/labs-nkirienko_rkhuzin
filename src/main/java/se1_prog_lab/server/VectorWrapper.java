@@ -29,6 +29,7 @@ public class VectorWrapper implements CollectionWrapper {
     @Inject
     public VectorWrapper(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
+        databaseManager.loadCollectionFromDatabase(this);
         initDate = LocalDate.now();
     }
 
@@ -71,7 +72,7 @@ public class VectorWrapper implements CollectionWrapper {
      * @return true если успешно
      */
     public boolean add(LabWork labWork) {
-        return databaseManager.addThenLoad(labWork);
+        return databaseManager.addElement(labWork);
     }
 
     /**
@@ -84,7 +85,7 @@ public class VectorWrapper implements CollectionWrapper {
      * @return true если успешно
      */
     public boolean insertAt(LabWork labWork, int index) {
-        return databaseManager.addThenLoad(labWork, index);
+        return databaseManager.addElementToIndex(labWork, index);
     }
 
     /**

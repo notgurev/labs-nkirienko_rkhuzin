@@ -22,6 +22,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private static final int NUMBER_OF_FIELDS = 14;
     @Positive // без NotNull т.к. сервер сам назначает ID
     private Long id; // > 0, unique, auto-gen, not null
+
     @NotEmpty
     @NotNull
     private String name;
@@ -97,6 +98,18 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -113,6 +126,10 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     public void setTunedInWorks(Integer tunedInWorks) {
         // Нет условий
         this.tunedInWorks = tunedInWorks;
+    }
+
+    public Coordinates getCoordinates() {
+        return coordinates;
     }
 
     public Integer getMinimalPoint() {
