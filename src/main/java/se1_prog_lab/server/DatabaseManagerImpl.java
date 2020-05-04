@@ -2,19 +2,18 @@ package se1_prog_lab.server;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import se1_prog_lab.collection.Coordinates;
-import se1_prog_lab.collection.LabWork;
-import se1_prog_lab.collection.Location;
-import se1_prog_lab.collection.Person;
+import se1_prog_lab.collection.*;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
 import se1_prog_lab.util.AuthData;
+import se1_prog_lab.util.ElementCreator;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.function.Consumer;
@@ -143,9 +142,7 @@ public class DatabaseManagerImpl implements DatabaseManager {
     @Override
     public boolean removeElement() {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-        /*
-            Тут запрос к БД
-         */
+
             return true;
         } catch (SQLException e) {
             logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
@@ -186,11 +183,33 @@ public class DatabaseManagerImpl implements DatabaseManager {
     public boolean loadCollectionFromDatabase(CollectionWrapper collectionWrapper) {
         return handleQuery((connection -> {
             Vector<LabWork> newCollection = new Vector<>();
-            /*
-                Тут запрос к БД и заполнение newCollection
-             */
-
+            String query = "SELECT * FROM labwork" +
+                    " INNER JOIN person ON labwork.person_id = person.person_id";
+            Statement statement = connection.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            LabWorkParams labWorkParams;
+            while (rs.next()) {
+                labWorkParams = new LabWorkParams();
+                labWorkParams.setName(rs.getString("labwork_name"));
+                labWorkParams.setId(rs.getLong("labwork_id"));
+                labWorkParams.setCoordinateX(rs.getLong("coordinatex"));
+                labWorkParams.setCoordinateY(rs.getFloat("coordinatey"));
+                labWorkParams.setCreationDate(rs.getTimestamp("creationdate").toLocalDateTime());
+                labWorkParams.setMinimalPoint(rs.getInt("minimalpoint"));
+                labWorkParams.setDescription(rs.getString("description"));
+                labWorkParams.setTunedInWorks(rs.getInt("tunedinworks"));
+                labWorkParams.setDifficulty(Difficulty.valueOf(rs.getString("difficulty")));
+                labWorkParams.setAuthorName(rs.getString("person_name"));
+                labWorkParams.setAuthorHeight(rs.getFloat("height"));
+                labWorkParams.setAuthorPassportID(rs.getString("passportid"));
+                labWorkParams.setAuthorHairColor(Color.valueOf(rs.getString("hair_color")));
+                labWorkParams.setAuthorLocationX(rs.getInt("locationx"));
+                labWorkParams.setAuthorLocationY(rs.getFloat("locationy"));
+                labWorkParams.setAuthorLocationZ(rs.getInt("locationz"));
+                newCollection.add(ElementCreator.createLabWork(labWorkParams));
+            }
           collectionWrapper.setVector(newCollection);
+          logger.info("База данных загружена");
         }));
     }
 

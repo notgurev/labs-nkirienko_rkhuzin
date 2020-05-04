@@ -29,7 +29,6 @@ public class VectorWrapper implements CollectionWrapper {
     @Inject
     public VectorWrapper(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
-        databaseManager.loadCollectionFromDatabase(this);
         initDate = LocalDate.now();
     }
 

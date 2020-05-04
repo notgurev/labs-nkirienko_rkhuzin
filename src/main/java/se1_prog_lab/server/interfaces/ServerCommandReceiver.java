@@ -4,6 +4,8 @@ import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.util.AuthData;
 
 public interface ServerCommandReceiver {
+    void loadCollectionFromDatabase();
+
     String add(LabWork labWork);
 
     String clear();

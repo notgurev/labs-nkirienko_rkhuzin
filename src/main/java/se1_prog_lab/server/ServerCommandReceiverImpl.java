@@ -4,9 +4,11 @@ import com.google.inject.Inject;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
+import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 
+import javax.xml.crypto.Data;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
@@ -21,11 +23,17 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
     private final CollectionWrapper collectionWrapper;
     private final AuthManager authManager;
+    private final DatabaseManager databaseManager;
 
     @Inject
-    public ServerCommandReceiverImpl(CollectionWrapper collectionWrapper, AuthManager authManager) {
+    public ServerCommandReceiverImpl(CollectionWrapper collectionWrapper, AuthManager authManager, DatabaseManager databaseManager) {
         this.collectionWrapper = collectionWrapper;
         this.authManager = authManager;
+        this.databaseManager = databaseManager;
+    }
+
+    public void loadCollectionFromDatabase() {
+        databaseManager.loadCollectionFromDatabase(collectionWrapper);
     }
 
     @Override

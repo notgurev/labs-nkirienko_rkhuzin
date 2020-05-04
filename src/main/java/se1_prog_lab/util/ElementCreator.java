@@ -51,7 +51,7 @@ public class ElementCreator {
      * @param args массив полей
      * @return созданный LabWork
      */
-    public static LabWork fromStringArray(String[] args, boolean fromCSV) throws LabWorkFieldException, NumberFormatException, ArrayIndexOutOfBoundsException {
+    public static LabWork fromStringArray(String[] args) throws LabWorkFieldException, NumberFormatException, ArrayIndexOutOfBoundsException {
         Arrays.setAll(args, i -> args[i].trim());
         IntStream.range(0, args.length).filter(i -> args[i].equals("")).forEach(i -> args[i] = null);
         LabWork labWork = new LabWork();
@@ -66,14 +66,26 @@ public class ElementCreator {
         labWork.getAuthor().setPassportID(args[9]);
         labWork.getAuthor().setHairColor(nullableValueOf(Color.class, args[10]));
         labWork.getAuthor().setLocation(Integer.parseInt(args[11]), Float.parseFloat(args[12]), Integer.valueOf(args[13]));
-        // TODO тут я пока оставил, потому что бог знает как это будет грузиться из БД.
-        //  Скорее всего тоже можно удалить.
-        if (fromCSV) {
-            labWork.preSetId(Long.valueOf(args[14]));
-            labWork.setCreationDate(LocalDateTime.parse(args[15]));
-        } else {
-            labWork.setCreationDate(LocalDateTime.now());
-        }
+        labWork.preSetId(Long.valueOf(args[14]));
+        labWork.setCreationDate(LocalDateTime.parse(args[15]));
+        return labWork;
+    }
+
+    public static LabWork createLabWork(LabWorkParams params) {
+        LabWork labWork = new LabWork();
+        labWork.setName(params.getName());
+        labWork.setCoordinates(params.getCoordinateX(), params.getCoordinateY());
+        labWork.setMinimalPoint(params.getMinimalPoint());
+        labWork.setDescription(params.getDescription());
+        labWork.setTunedInWorks(params.getTunedInWorks());
+        labWork.setDifficulty(params.getDifficulty());
+        labWork.getAuthor().setName(params.getAuthorName());
+        labWork.getAuthor().setHeight(params.getAuthorHeight());
+        labWork.getAuthor().setPassportID(params.getAuthorPassportID());
+        labWork.getAuthor().setHairColor(params.getAuthorHairColor());
+        labWork.getAuthor().setLocation(params.getAuthorLocationX(), params.getAuthorLocationY(), params.getAuthorLocationZ());
+        labWork.preSetId(params.getId());
+        labWork.setCreationDate(params.getCreationDate());
         return labWork;
     }
 
@@ -106,7 +118,7 @@ public class ElementCreator {
         }
         String[] inter = new String[dataForLabWorkCreator.size()];
         inter = dataForLabWorkCreator.toArray(inter);
-        return ElementCreator.fromStringArray(inter, false);
+        return ElementCreator.fromStringArray(inter);
     }
 
     /**
