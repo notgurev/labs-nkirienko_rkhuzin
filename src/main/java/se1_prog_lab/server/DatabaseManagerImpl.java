@@ -6,6 +6,7 @@ import se1_prog_lab.collection.*;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
+import se1_prog_lab.server.interfaces.SqlFunction;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ElementCreator;
 
@@ -76,8 +77,8 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return true, если успешно; false, если нет
      */
     @Override
-    public boolean addElement(LabWork labWork) {
-        return handleQuery((Connection connection) -> {
+    public Long addElement(LabWork labWork) {
+        return this.<Long>handleQuery((Connection connection) -> {
 
             Person author = labWork.getAuthor();
             Location authorLocation = author.getLocation();
@@ -102,7 +103,7 @@ public class DatabaseManagerImpl implements DatabaseManager {
 
                 Coordinates coordinates = labWork.getCoordinates();
 
-                PreparedStatement elementStatement = connection.prepareStatement(addElementSql);
+                PreparedStatement elementStatement = connection.prepareStatement(addElementSql, Statement.RETURN_GENERATED_KEYS);
                 elementStatement.setString(1, labWork.getName());
                 elementStatement.setLong(2, coordinates.getX());
                 elementStatement.setFloat(3, coordinates.getY());
@@ -115,7 +116,13 @@ public class DatabaseManagerImpl implements DatabaseManager {
 
                 elementStatement.executeUpdate();
 
+                ResultSet result = elementStatement.getGeneratedKeys();
+
+                result.next();
+
+
                 logger.info("В коллекцию добавлен элемент");
+                return result.getLong(1);
             } else {
                 throw new SQLException("Creating user failed, no ID obtained.");
             }
@@ -133,6 +140,15 @@ public class DatabaseManagerImpl implements DatabaseManager {
         }
     }
 
+    public <T> T handleQuery(SqlFunction<Connection, T> queryBody) {
+        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
+            return queryBody.apply(connection);
+        } catch (SQLException e) {
+            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
+            return null;
+        }
+    }
+
     /**
      * Удаляет элемент из БД. Понятия не имею, что он должен принимать в качестве аргумента.
      * Посмотрим по мере выполнения.
@@ -140,14 +156,18 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return true, если успешно; false, если нет
      */
     @Override
-    public boolean removeElement() {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+    public boolean removeById(long id) {
+        return handleQuery((Connection connection) -> {
+            String query = "DELETE from labwork" +
+                    " WHERE labwork.labwork_id = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setLong(1, id);
 
-            return true;
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
+            int rowsDeleted = statement.executeUpdate();
+            if (rowsDeleted == 0) {
+                throw new SQLException("Элемента с заданным id нет в бд");
+            }
+        });
     }
 
     /**
@@ -299,19 +319,6 @@ public class DatabaseManagerImpl implements DatabaseManager {
 
     @Override
     public boolean sortById() {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-        /*
-            Тут запрос к БД
-         */
-            return true;
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
-    }
-
-    @Override
-    public boolean removeById(long id) {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
         /*
             Тут запрос к БД

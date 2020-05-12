@@ -6,9 +6,7 @@ import se1_prog_lab.util.AuthData;
 import java.util.Collection;
 
 public interface DatabaseManager {
-    boolean addElement(LabWork labWork);
-
-    boolean removeElement();
+    Long addElement(LabWork labWork);
 
     boolean updateById(LabWork labWork, long id);
 

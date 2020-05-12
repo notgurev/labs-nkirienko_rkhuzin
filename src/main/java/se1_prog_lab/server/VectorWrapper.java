@@ -71,7 +71,13 @@ public class VectorWrapper implements CollectionWrapper {
      * @return true если успешно
      */
     public boolean add(LabWork labWork) {
-        return databaseManager.addElement(labWork);
+        Long result = databaseManager.addElement(labWork);
+        if (result != null) {
+            labWork.preSetId(result);
+            labWorks.add(labWork);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -129,7 +135,11 @@ public class VectorWrapper implements CollectionWrapper {
      * @return true, если успешно; false, если нет (например, элемента с таким id нет)
      */
     public boolean removeByID(long id) {
-        return databaseManager.removeById(id);
+        if (databaseManager.removeById(id)) {
+            labWorks.removeIf((labwork) -> labwork.getId() == id);
+            return true;
+        }
+        return false;
     }
 
     /**
