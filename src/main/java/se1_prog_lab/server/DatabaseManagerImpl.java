@@ -179,19 +179,55 @@ public class DatabaseManagerImpl implements DatabaseManager {
      */
     @Override
     public boolean updateById(LabWork labWork, long id) {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-        /*
-            Тут запрос к БД
-            UPDATE table_name
-            SET column1 = value1, column2 = value2, ...
-            WHERE condition;
-            или чет такое
-         */
-            return true;
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
+        return handleQuery((Connection connection) -> {
+
+            //(labwork_name, coordinateX, coordinateY, creationDate, minimalPoint, description, tunedInWorks, difficulty, person_id)
+            String query =
+                    "BEGIN TRANSACTION;" +
+                    "UPDATE labwork" +
+                    " SET labwork_name = ?," +
+                    "coordinateX = ?," +
+                    "coordinateY = ?," +
+                    "creationDate = ?," +
+                    "minimalPoint = ?," +
+                    "description = ?," +
+                    "tunedInWorks = ?," +
+                    "difficulty = ?::difficulty" +
+                    " WHERE labwork.labwork_id = ?;" +
+                    "UPDATE person" +
+                    " SET person_name = ?," +
+                    "height = ?," +
+                    "passportID = ?," +
+                    "hair_color = ?::color," +
+                    "locationX = ?," +
+                    "locationY = ?," +
+                    "locationZ = ?" +
+                    "FROM labwork" +
+                    " WHERE labwork.person_id = person.person_id and labwork.labwork_id = ?;" +
+                    "COMMIT;";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, labWork.getName());
+            statement.setLong(2, labWork.getCoordinates().getX());
+            statement.setFloat(3, labWork.getCoordinates().getY());
+            statement.setTimestamp(4, Timestamp.valueOf(labWork.getCreationDate()));
+            statement.setInt(5, labWork.getMinimalPoint());
+            statement.setString(6, labWork.getDescription());
+            statement.setInt(7, labWork.getTunedInWorks());
+            statement.setString(8, labWork.getDifficulty().name());
+            statement.setLong(9, id);
+
+            Person author = labWork.getAuthor();
+            statement.setString(10, author.getName());
+            statement.setFloat(11, author.getHeight());
+            statement.setString(12, author.getPassportID());
+            statement.setString(13, author.getHairColor().name());
+            statement.setInt(14, author.getLocation().getX());
+            statement.setFloat(15, author.getLocation().getY());
+            statement.setInt(16, author.getLocation().getZ());
+            statement.setLong(17, id);
+
+            statement.executeUpdate();
+        });
     }
 
     /**

@@ -153,7 +153,12 @@ public class VectorWrapper implements CollectionWrapper {
      * @return true, если успешно; false, если нет (например, элемента с таким id нет)
      */
     public boolean updateByID(long id, LabWork newLabWork) {
-        return databaseManager.updateById(newLabWork, id);
+        if (databaseManager.updateById(newLabWork, id)) {
+            newLabWork.preSetId(id);
+            labWorks.set(labWorks.indexOf(getByID(id)), newLabWork);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -189,5 +194,9 @@ public class VectorWrapper implements CollectionWrapper {
      */
     public boolean isEmpty() {
         return labWorks.isEmpty();
+    }
+
+    public LabWork getByID(Long id) {
+        return labWorks.stream().filter(labWork -> labWork.getId().equals(id)).findAny().orElse(null);
     }
 }
