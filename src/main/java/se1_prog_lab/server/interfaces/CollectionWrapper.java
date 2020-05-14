@@ -33,7 +33,7 @@ public interface CollectionWrapper {
 
     boolean removeByID(long id);
 
-    boolean insertAt(LabWork labWork, int index);
+    boolean insertAtIndex(LabWork labWork, int index);
 
     boolean updateByID(long id, LabWork labWork);
 }

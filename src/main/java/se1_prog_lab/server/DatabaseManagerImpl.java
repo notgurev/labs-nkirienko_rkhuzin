@@ -8,10 +8,8 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
 import se1_prog_lab.server.interfaces.SqlFunction;
-import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ElementCreator;
 
-import javax.xml.crypto.Data;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,13 +21,11 @@ import java.util.logging.Logger;
 /**
  * Класс для работы с базой данных.
  * Я во многом тут не уверен, наверное придется переделывать сигнатуры и так далее.
- * TODO надо придумать, как передавать сюда права и как прикрутить многопоточность.
  */
 @Singleton
 public class DatabaseManagerImpl implements DatabaseManager {
     private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
     private final String URL = "jdbc:postgresql://localhost:5432/se1-prog-lab";
-    // Я не уверен что адекватно сделал поля ниже
     private final String ADMIN_USERNAME = "postgres";
     private final String ADMIN_PASSWORD = "admin";
     private final String PASSWORD = ADMIN_PASSWORD;
@@ -290,7 +286,6 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * Проверяет, соответствуют ли данные (имя пользователя и пароль) в команде реальному пользователю в базе данных
      *
      * @param login Логин
-     * @param hashedPassword Захешированный пароль
      * @return true, если соответствуют; false, если нет.
      */
     @Override

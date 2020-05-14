@@ -18,7 +18,6 @@ import static se1_prog_lab.util.BetterStrings.multiline;
 /**
  * Принципиально данный класс должен только управлять коллекцией, но не оповещать ни о чем пользователя напрямую
  * Если нет туду, то я почти уверен, что метод уже сделан верно и работает.
- * TODO сделать нормальное назначение ID средствами БД.
  */
 @Singleton
 public class VectorWrapper implements CollectionWrapper {
@@ -33,8 +32,6 @@ public class VectorWrapper implements CollectionWrapper {
     }
 
     /**
-     * TODO надо узнать, оставить это как есть или возвращать дату создания БД.
-     *
      * @return дату инициализации коллекции.
      */
     public LocalDate getInitDate() {
@@ -65,15 +62,14 @@ public class VectorWrapper implements CollectionWrapper {
 
     /**
      * Добавляет элемент в коллекцию.
-     * TODO проверить?
      *
      * @param labWork добавлямый элемент.
      * @return true если успешно
      */
     public boolean add(LabWork labWork) {
-        Long result = databaseManager.addElement(labWork);
-        if (result != null) {
-            labWork.preSetId(result);
+        Long id = databaseManager.addElement(labWork);
+        if (id != null) {
+            labWork.setId(id);
             labWorks.add(labWork);
             return true;
         }
@@ -82,14 +78,13 @@ public class VectorWrapper implements CollectionWrapper {
 
     /**
      * (для команды insert_at)
-     * TODO Понятия не имею, как это должно работать в БД (есть ли там индексы?). Ну и надо переделать.
      * Добавляет элемент в указанную позицию.
      *
      * @param labWork новый элемент
      * @param index   позиция
      * @return true если успешно
      */
-    public boolean insertAt(LabWork labWork, int index) {
+    public boolean insertAtIndex(LabWork labWork, int index) {
         return databaseManager.addElementToIndex(labWork, index);
     }
 
@@ -117,8 +112,7 @@ public class VectorWrapper implements CollectionWrapper {
     /**
      * Сортирует коллекцию по умолчанию.
      * Инфа от Миши: работает, только если у юзера есть права на ВООБЩЕ ВСЕ элементы коллекции.
-     * TODO код старый. Нужно поменять тело и случаи применения
-     * TODO (упомянуть там о правах, мб придется даже менять возвращаемый тип)
+     * TODO права + надо еще сортировать саму коллекцию
      *
      * @return true, если успешно; false, если нет (например, коллекция пуста или нет прав на все)
      */
@@ -129,7 +123,6 @@ public class VectorWrapper implements CollectionWrapper {
 
     /**
      * Удаляет элемент по его id.
-     * TODO код старый, надо сделать через БД.
      *
      * @param id id элемента
      * @return true, если успешно; false, если нет (например, элемента с таким id нет)
@@ -145,8 +138,6 @@ public class VectorWrapper implements CollectionWrapper {
     /**
      * (Для команды Update id)
      * Заменяет элемент с данным id новым.
-     * TODO код старый. Нужно менять. Либо сделать вызов removeElement(id) и addElement(newLabWork), либо как-то ещё.
-     * TODO тут надо аккуратнее с назначением id.
      *
      * @param id         id старого элемента.
      * @param newLabWork объект нового элемента.
@@ -154,7 +145,7 @@ public class VectorWrapper implements CollectionWrapper {
      */
     public boolean updateByID(long id, LabWork newLabWork) {
         if (databaseManager.updateById(newLabWork, id)) {
-            newLabWork.preSetId(id);
+            newLabWork.setId(id);
             labWorks.set(labWorks.indexOf(getByID(id)), newLabWork);
             return true;
         }

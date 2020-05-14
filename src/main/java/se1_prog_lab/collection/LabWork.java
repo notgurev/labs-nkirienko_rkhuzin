@@ -75,21 +75,12 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     }
 
     /**
-     * "Безопасная" установка id, когда мы знаем, что больше элементов с таким id в коллекции нет.
-     *
-     * @param id устанавливаемый id.
-     */
-    public void safeSetId(Long id) {
-        this.id = id;
-    }
-
-    /**
      * "Предустановка" id при чтении из CSV, когда неясно, есть ли коллизии с другими id.
      *
      * @param id устанавливаемый id.
      * @throws LabWorkFieldException если id не соответствует ограничениям (для скрипта).
      */
-    public void preSetId(Long id) throws LabWorkFieldException {
+    public void setId(Long id) throws LabWorkFieldException {
         if (id == null || id < 0) throw new LabWorkFieldException();
         this.id = id;
     }

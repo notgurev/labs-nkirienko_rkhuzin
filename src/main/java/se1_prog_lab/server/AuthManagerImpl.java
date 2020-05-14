@@ -9,7 +9,6 @@ import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SecurePassword;
 import se1_prog_lab.util.AuthData;
 
-import javax.xml.crypto.Data;
 import java.util.logging.Logger;
 
 /**
@@ -65,7 +64,6 @@ public class AuthManagerImpl implements AuthManager {
      */
     @Override
     public boolean register(AuthData authData) throws DatabaseException {
-        // TODO наверное это не нужно.
         try {
             return databaseManager.addUser(authData.getUsername(), securePassword.hash(authData.getPassword()));
         } catch (PasswordHashException e) {

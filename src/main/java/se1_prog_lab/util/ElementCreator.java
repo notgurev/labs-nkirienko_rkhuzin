@@ -15,7 +15,6 @@ import static se1_prog_lab.util.ValidatingReader.*;
 /**
  * Класс, предоставляющий методы для создания экземпляров LabWork
  */
-@SuppressWarnings("ConstantConditions")
 public class ElementCreator {
     /**
      * Метод для создания LW из консоли
@@ -66,7 +65,7 @@ public class ElementCreator {
         labWork.getAuthor().setPassportID(args[9]);
         labWork.getAuthor().setHairColor(nullableValueOf(Color.class, args[10]));
         labWork.getAuthor().setLocation(Integer.parseInt(args[11]), Float.parseFloat(args[12]), Integer.valueOf(args[13]));
-        labWork.preSetId(Long.valueOf(args[14]));
+        labWork.setId(Long.valueOf(args[14]));
         labWork.setCreationDate(LocalDateTime.parse(args[15]));
         return labWork;
     }
@@ -84,7 +83,7 @@ public class ElementCreator {
         labWork.getAuthor().setPassportID(params.getAuthorPassportID());
         labWork.getAuthor().setHairColor(params.getAuthorHairColor());
         labWork.getAuthor().setLocation(params.getAuthorLocationX(), params.getAuthorLocationY(), params.getAuthorLocationZ());
-        labWork.preSetId(params.getId());
+        labWork.setId(params.getId());
         labWork.setCreationDate(params.getCreationDate());
         return labWork;
     }

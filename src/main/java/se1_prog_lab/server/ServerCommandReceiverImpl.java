@@ -9,7 +9,6 @@ import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 
-import javax.xml.crypto.Data;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
@@ -124,7 +123,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     @Override
     public synchronized String insertAt(LabWork labWork, int index) {
         logger.info("Вставляем элемент в ячейку с индексом " + index);
-        if (collectionWrapper.insertAt(labWork, index)) {
+        if (collectionWrapper.insertAtIndex(labWork, index)) {
             return coloredYellow(format("Элемент успешно добавлен в коллекцию (index = %d).", index));
         } else return coloredRed("Добавить элемент в коллекцию не удалось");
     }
