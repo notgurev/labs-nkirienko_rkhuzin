@@ -2,13 +2,14 @@ package se1_prog_lab.server;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import se1_prog_lab.exceptions.DatabaseException;
+import se1_prog_lab.exceptions.PasswordHashException;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.DatabaseManager;
+import se1_prog_lab.server.interfaces.SecurePassword;
 import se1_prog_lab.util.AuthData;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
+import javax.xml.crypto.Data;
 import java.util.logging.Logger;
 
 /**
@@ -18,10 +19,12 @@ import java.util.logging.Logger;
 public class AuthManagerImpl implements AuthManager {
     private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
     private final DatabaseManager databaseManager;
+    private final SecurePassword securePassword;
 
     @Inject
-    public AuthManagerImpl(DatabaseManager databaseManager) {
+    public AuthManagerImpl(DatabaseManager databaseManager, SecurePassword securePassword) {
         this.databaseManager = databaseManager;
+        this.securePassword = securePassword;
     }
 
     /**
@@ -31,8 +34,17 @@ public class AuthManagerImpl implements AuthManager {
      * @return true, если правильные; false, если нет.
      */
     @Override
-    public boolean checkAuth(AuthData authData) {
-        return databaseManager.checkAuth(authData);
+    public boolean checkAuth(AuthData authData) throws DatabaseException {
+        try {
+            String hashedPassword = databaseManager.getPassword(authData.getUsername());
+            if (hashedPassword == null) {
+                return false;
+            }
+
+            return securePassword.validatePassword(authData.getPassword(), hashedPassword);
+        } catch (PasswordHashException e) {
+            throw new DatabaseException(e.getMessage());
+        }
     }
 
     /**
@@ -42,7 +54,7 @@ public class AuthManagerImpl implements AuthManager {
      * @return true, если зарегистрирован; false, если нет.
      */
     @Override
-    public boolean doesUserExist(String username) {
+    public boolean doesUserExist(String username) throws DatabaseException {
         return databaseManager.doesUserExist(username);
     }
 
@@ -52,14 +64,12 @@ public class AuthManagerImpl implements AuthManager {
      * @param authData данные для регистрации.
      */
     @Override
-    public void register(AuthData authData) {
+    public boolean register(AuthData authData) throws DatabaseException {
         // TODO наверное это не нужно.
         try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            databaseManager.addUser(authData.getUsername(), Arrays.toString(md.digest(authData.getPassword().getBytes())));
-        } catch (NoSuchAlgorithmException e) {
-            logger.severe("Не удалось получить алгоритм шифрования");
-            System.exit(1);
+            return databaseManager.addUser(authData.getUsername(), securePassword.hash(authData.getPassword()));
+        } catch (PasswordHashException e) {
+            throw new DatabaseException(e.getMessage());
         }
     }
 }

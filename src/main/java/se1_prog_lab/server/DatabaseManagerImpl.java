@@ -3,6 +3,7 @@ package se1_prog_lab.server;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.collection.*;
+import se1_prog_lab.exceptions.DatabaseException;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
@@ -10,14 +11,13 @@ import se1_prog_lab.server.interfaces.SqlFunction;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ElementCreator;
 
+import javax.xml.crypto.Data;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.Properties;
 import java.util.Vector;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
@@ -140,6 +140,23 @@ public class DatabaseManagerImpl implements DatabaseManager {
         }
     }
 
+    public boolean handleQueryWithExceptionForwarding(SqlConsumer<Connection> queryBody) throws DatabaseException {
+        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
+            queryBody.accept(connection);
+            return true;
+        } catch (SQLException e) {
+            throw new DatabaseException("Ошибка от бд: " + e.getMessage());
+        }
+    }
+
+    public <T> T handleQueryWithExceptionForwarding(SqlFunction<Connection, T> queryBody) throws DatabaseException {
+        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
+            return queryBody.apply(connection);
+        } catch (SQLException e) {
+            throw new DatabaseException(e.getMessage());
+        }
+    }
+
     public <T> T handleQuery(SqlFunction<Connection, T> queryBody) {
         try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
             return queryBody.apply(connection);
@@ -184,27 +201,27 @@ public class DatabaseManagerImpl implements DatabaseManager {
             //(labwork_name, coordinateX, coordinateY, creationDate, minimalPoint, description, tunedInWorks, difficulty, person_id)
             String query =
                     "BEGIN TRANSACTION;" +
-                    "UPDATE labwork" +
-                    " SET labwork_name = ?," +
-                    "coordinateX = ?," +
-                    "coordinateY = ?," +
-                    "creationDate = ?," +
-                    "minimalPoint = ?," +
-                    "description = ?," +
-                    "tunedInWorks = ?," +
-                    "difficulty = ?::difficulty" +
-                    " WHERE labwork.labwork_id = ?;" +
-                    "UPDATE person" +
-                    " SET person_name = ?," +
-                    "height = ?," +
-                    "passportID = ?," +
-                    "hair_color = ?::color," +
-                    "locationX = ?," +
-                    "locationY = ?," +
-                    "locationZ = ?" +
-                    "FROM labwork" +
-                    " WHERE labwork.person_id = person.person_id and labwork.labwork_id = ?;" +
-                    "COMMIT;";
+                            "UPDATE labwork" +
+                            " SET labwork_name = ?," +
+                            "coordinateX = ?," +
+                            "coordinateY = ?," +
+                            "creationDate = ?," +
+                            "minimalPoint = ?," +
+                            "description = ?," +
+                            "tunedInWorks = ?," +
+                            "difficulty = ?::difficulty" +
+                            " WHERE labwork.labwork_id = ?;" +
+                            "UPDATE person" +
+                            " SET person_name = ?," +
+                            "height = ?," +
+                            "passportID = ?," +
+                            "hair_color = ?::color," +
+                            "locationX = ?," +
+                            "locationY = ?," +
+                            "locationZ = ?" +
+                            "FROM labwork" +
+                            " WHERE labwork.person_id = person.person_id and labwork.labwork_id = ?;" +
+                            "COMMIT;";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, labWork.getName());
             statement.setLong(2, labWork.getCoordinates().getX());
@@ -264,28 +281,34 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 labWorkParams.setAuthorLocationZ(rs.getInt("locationz"));
                 newCollection.add(ElementCreator.createLabWork(labWorkParams));
             }
-          collectionWrapper.setVector(newCollection);
-          logger.info("База данных загружена");
+            collectionWrapper.setVector(newCollection);
+            logger.info("База данных загружена");
         }));
     }
 
     /**
      * Проверяет, соответствуют ли данные (имя пользователя и пароль) в команде реальному пользователю в базе данных
      *
-     * @param authData данные для авторизации
+     * @param login Логин
+     * @param hashedPassword Захешированный пароль
      * @return true, если соответствуют; false, если нет.
      */
     @Override
-    public boolean checkAuth(AuthData authData) {
-        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
-            /*
-                Тут запрос к БД
-             */
-            return true;
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
+    public String getPassword(String login) throws DatabaseException {
+        return this.handleQueryWithExceptionForwarding((Connection connection) -> {
+           String query = "SELECT (\"password\")" +
+                   " FROM \"user\"" +
+                   " WHERE \"user\".login = ?";
+           PreparedStatement statement = connection.prepareStatement(query);
+           statement.setString(1, login);
+
+           ResultSet result = statement.executeQuery();
+
+           if (result.next()) {
+               return result.getString("password");
+           }
+           return null;
+        });
     }
 
     /**
@@ -295,16 +318,19 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return true, если существует; false, если нет.
      */
     @Override
-    public boolean doesUserExist(String username) {
-        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
-        /*
-            Тут запрос к БД
-         */
-            return false; // или false
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
+    public boolean doesUserExist(String username) throws DatabaseException {
+        return this.<Boolean>handleQueryWithExceptionForwarding((Connection connection) -> {
+            String query = "SELECT COUNT(*)" +
+                    " FROM \"user\"" +
+                    " WHERE \"user\".login = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, username);
+            ResultSet result = statement.executeQuery();
+
+            result.next();
+
+            return result.getInt("count") > 0;
+        });
     }
 
     /**
@@ -315,29 +341,28 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return true, если успешно; false, если нет.
      */
     @Override
-    public boolean addUser(String username, String password) {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-        /*
-            Тут запрос к БД
-         */
-            return true;
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
+    public boolean addUser(String username, String password) throws DatabaseException {
+        return handleQueryWithExceptionForwarding((Connection connection) -> {
+            String query = "INSERT INTO \"user\" (\"login\", \"password\")" +
+                    "VALUES (?, ?)";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, username);
+            statement.setString(2, password);
+
+            statement.executeUpdate();
+        });
     }
 
     @Override
     public boolean clear() {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-        /*
-            Тут запрос к БД
-         */
-            return true;
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
+        return handleQuery((Connection connection) -> {
+            String query = "BEGIN TRANSACTION;" +
+                    "TRUNCATE TABLE labwork RESTART IDENTITY;" +
+                    "TRUNCATE TABLE person RESTART IDENTITY;" +
+                    "COMMIT;";
+            Statement statement = connection.createStatement();
+            statement.executeQuery(query);
+        });
     }
 
     @Override

@@ -8,8 +8,8 @@ public enum AuthStrings {
     REGISTRATION_SUCCESSFUL("Вы успешно зарегистрированы!"),
     INCORRECT_LOGIN_DATA("Получены некорректные данные для авторизации!"),
     USERNAME_TAKEN("Это имя пользователя уже занято!"),
-    AUTH_FAILED("Команда содержит некорректные данные для авторизации!");
-
+    AUTH_FAILED("Команда содержит некорректные данные для авторизации!"),
+    SERVER_ERROR("Произошла ошибка на сервере");
     private final String message;
 
     AuthStrings(String message) {

@@ -58,7 +58,9 @@ public class ClientApp implements Client {
                     serverResponse = serverIO.sendAndReceive(command);
                     System.out.println(serverResponse);
                     if (serverResponse.equals(AuthStrings.INCORRECT_LOGIN_DATA.getMessage())
-                            || serverResponse.equals(AuthStrings.USERNAME_TAKEN.getMessage())) break;
+                            || serverResponse.equals(AuthStrings.USERNAME_TAKEN.getMessage())
+                            || serverResponse.equals(AuthStrings.SERVER_ERROR.getMessage())
+                    ) break;
                 }
             }
         }

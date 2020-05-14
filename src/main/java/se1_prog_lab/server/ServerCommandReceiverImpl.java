@@ -2,6 +2,7 @@ package se1_prog_lab.server;
 
 import com.google.inject.Inject;
 import se1_prog_lab.collection.LabWork;
+import se1_prog_lab.exceptions.DatabaseException;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
@@ -142,24 +143,34 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
 
     @Override
     public String register(AuthData authData) {
-        if (!authManager.doesUserExist(authData.getUsername())) {
-            authManager.register(authData);
-            logger.info(format("Зарегистрирован пользователь с именем: %s", authData.getUsername()));
-            return REGISTRATION_SUCCESSFUL.getMessage();
-        } else {
-            logger.warning(format("Имя пользователя %s уже занято", authData.getUsername()));
-            return USERNAME_TAKEN.getMessage();
+        try {
+            if (!authManager.doesUserExist(authData.getUsername())) {
+                authManager.register(authData);
+                logger.info(format("Зарегистрирован пользователь с именем: %s", authData.getUsername()));
+                return REGISTRATION_SUCCESSFUL.getMessage();
+            } else {
+                logger.warning(format("Имя пользователя %s уже занято", authData.getUsername()));
+                return USERNAME_TAKEN.getMessage();
+            }
+        } catch (DatabaseException e) {
+            logger.severe(e.getMessage());
+            return SERVER_ERROR.getMessage();
         }
     }
 
     @Override
     public String login(AuthData authData) {
-        if (authManager.checkAuth(authData)) {
-            logger.info(format("Авторизовался пользователь с именем: %s", authData.getUsername()));
-            return LOGIN_SUCCESSFUL.getMessage();
-        } else {
-            logger.info(format("Пользователь с именем: %s не смог авторизоваться", authData.getUsername()));
-            return INCORRECT_LOGIN_DATA.getMessage();
+        try {
+            if (authManager.checkAuth(authData)) {
+                logger.info(format("Авторизовался пользователь с именем: %s", authData.getUsername()));
+                return LOGIN_SUCCESSFUL.getMessage();
+            } else {
+                logger.info(format("Пользователь с именем: %s не смог авторизоваться", authData.getUsername()));
+                return INCORRECT_LOGIN_DATA.getMessage();
+            }
+        } catch (DatabaseException e) {
+            logger.severe(e.getMessage());
+            return SERVER_ERROR.getMessage();
         }
     }
 }

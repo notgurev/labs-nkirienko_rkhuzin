@@ -18,7 +18,7 @@ public class ServerModule extends AbstractModule {
         bind(ServerCommandReceiver.class).to(ServerCommandReceiverImpl.class);
         bind(DatabaseManager.class).to(DatabaseManagerImpl.class);
         bind(AuthManager.class).to(AuthManagerImpl.class);
-
+        bind(SecurePassword.class).to(PBKDF2SecurePassword.class);
         install(new FactoryModuleBuilder()
                 .implement(ClientHandler.class, ClientHandlerImpl.class)
                 .build(ClientHandlerFactory.class));

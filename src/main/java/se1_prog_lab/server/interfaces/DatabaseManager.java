@@ -1,9 +1,10 @@
 package se1_prog_lab.server.interfaces;
 
 import se1_prog_lab.collection.LabWork;
+import se1_prog_lab.exceptions.DatabaseException;
 import se1_prog_lab.util.AuthData;
 
-import java.util.Collection;
+import javax.xml.crypto.Data;
 
 public interface DatabaseManager {
     Long addElement(LabWork labWork);
@@ -12,11 +13,11 @@ public interface DatabaseManager {
 
     boolean loadCollectionFromDatabase(CollectionWrapper collectionWrapper);
 
-    boolean checkAuth(AuthData authData);
+    String getPassword(String username) throws DatabaseException;
 
-    boolean doesUserExist(String username);
+    boolean doesUserExist(String username) throws DatabaseException;
 
-    boolean addUser(String username, String password);
+    boolean addUser(String username, String password) throws DatabaseException;
 
     boolean clear();
 

@@ -6,6 +6,7 @@ import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.collection.LabWork;
+import se1_prog_lab.exceptions.DatabaseException;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.ClientHandler;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
@@ -24,6 +25,7 @@ import java.util.logging.Logger;
 
 import static java.lang.String.format;
 import static se1_prog_lab.util.AuthStrings.AUTH_FAILED;
+import static se1_prog_lab.util.AuthStrings.SERVER_ERROR;
 
 /**
  * Класс для работы с каждым клиентом в отдельном потоке.
@@ -72,20 +74,26 @@ public class ClientHandlerImpl implements ClientHandler {
                 new Thread(() -> {
                     logger.info("Создан поток для команды " + finalCommand.getClass().getSimpleName());
                     String response;
-                    if (!(finalCommand instanceof AuthCommand || authManager.checkAuth(finalCommand.getAuthData()))) {
-                        logger.info("Команда содержит некорректные данные для авторизации!");
-                        response = AUTH_FAILED.getMessage();
-                    } else {
-                        if (finalCommand instanceof ConstructingCommand && !validateCarriedObject(finalCommand)) {
-                            response = "Объект не прошел валидацию, команда не будет выполнена.";
-                            logger.warning("Объект не прошел валидацию, команда не будет выполнена.");
+                    try {
+
+                        if (!(finalCommand instanceof AuthCommand || authManager.checkAuth(finalCommand.getAuthData()))) {
+                            logger.info("Команда содержит некорректные данные для авторизации!");
+                            response = AUTH_FAILED.getMessage();
                         } else {
-                            logger.info("Начинается выполнение команды " + finalCommand.getClass().getSimpleName());
-                            response = finalCommand.serverExecute(serverCommandReceiver);
-                            logger.info(format("Команда %s выполнена, отправляем ответ клиенту", finalCommand.getClass().getSimpleName()));
+                            if (finalCommand instanceof ConstructingCommand && !validateCarriedObject(finalCommand)) {
+                                response = "Объект не прошел валидацию, команда не будет выполнена.";
+                                logger.warning("Объект не прошел валидацию, команда не будет выполнена.");
+                            } else {
+                                logger.info("Начинается выполнение команды " + finalCommand.getClass().getSimpleName());
+                                response = finalCommand.serverExecute(serverCommandReceiver);
+                                logger.info(format("Команда %s выполнена, отправляем ответ клиенту", finalCommand.getClass().getSimpleName()));
+                            }
                         }
+                    } catch (DatabaseException e) {
+                        response = SERVER_ERROR.getMessage();
                     }
-                    executorService.submit(() -> sendToClient(clientWriter, response));
+                    String newResponse = response;
+                    executorService.submit(() -> sendToClient(clientWriter, newResponse));
                 }).start();
             }
         } catch (IOException e) {
