@@ -7,6 +7,6 @@ package se1_prog_lab.client.commands;
  */
 public abstract class ScriptCommand extends ClientSideCommand {
     public ScriptCommand(String key, String helpText) {
-        super(helpText, key);
+        super(key, helpText);
     }
 }

@@ -56,29 +56,71 @@ public class ValidatingReader {
      *
      * @param limitType тип предела: MIN - минимум, MAX - максимум, NO_LIMIT - отсутствие предела.
      * @param number    проверяемое число.
-     * @param limit     верхний/нижний предел, либо null в случае его отсутствия.
-     * @return number, если он не выходит за пределы; null, если выходит за пределы.
+     * @param limit     верхний/нижний предел.
+     * @return true, если не выходит; false, если входит или limit == null.
      */
-    private static Number checkForLimits(String limitType, Number number, Long limit) {
+    private static boolean checkLimits(String limitType, Number number, Long limit) {
+        if (limit == null) return false;
         switch (limitType) {
             case ("MIN"):
-                if (number.longValue() > limit) {
-                    return number;
-                } else {
-                    System.out.print("Значение должно быть больше " + limit + ". Попробуйте снова: ");
-                }
-                break;
+                return number.longValue() > limit;
             case ("MAX"):
-                if (number.longValue() < limit) {
-                    return number;
-                } else {
-                    System.out.print("Значение должно быть меньше " + limit + ". Попробуйте снова: ");
-                }
-                break;
-            case ("NO_LIMIT"):
-                return number;
+                return number.longValue() < limit;
+            default:
+                return false;
         }
-        return number;
+    }
+
+    /**
+     * Выполняет парсинг в Long/Integer/Float
+     *
+     * @param numberClass X.class, в который нужно парсить.
+     * @param input       строка для парсинга.
+     * @param <T>         класс-наследник Number.
+     * @return число-результат парсинга.
+     * @throws NumberFormatException если указан некорректный класс или не удалось сделать парсинг.
+     */
+    private static <T extends Number> T parseNumber(Class<T> numberClass, String input) throws NumberFormatException {
+        if (numberClass == Long.class) {
+            return numberClass.cast(Long.parseLong(input));
+        } else if (numberClass == Integer.class) {
+            return numberClass.cast(Integer.parseInt(input));
+        } else if (numberClass == Float.class) {
+            return numberClass.cast(Float.parseFloat(input));
+        } else throw new NumberFormatException();
+    }
+
+    /**
+     * Общий класс для считывания чисел из консоли.
+     *
+     * @param scanner           Scanner, используемый в консоли.
+     * @param numberClass       класс-наследник Number, в которое нужно парсить ввод из консоли.
+     * @param messageForConsole приглашение на ввод.
+     * @param canBeNull         может ли принимать значение null.
+     * @param limit             предел.
+     * @param limitType         тип предела (MIN/MAX/NO_LIMIT)
+     * @param <T>               класс-наследник Number, в которое нужно парсить ввод из консоли.
+     * @return число, либо null (если canBeNull == true)
+     */
+    private static <T extends Number> T readNumber(Scanner scanner, Class<T> numberClass, String messageForConsole, boolean canBeNull, Long limit, String limitType) {
+        System.out.print(messageForConsole);
+        T result;
+        String input;
+        while (true) {
+            input = scanner.nextLine().trim();
+            if (input.equals("")) {
+                if (canBeNull) return null;
+                System.out.print("Значение не может быть пустым! Попробуйте снова: ");
+                continue;
+            }
+            try {
+                result = parseNumber(numberClass, input);
+                if (limitType.equals("NO_LIMIT") || checkLimits(limitType, result, limit)) return result;
+                else System.out.printf("Значение должно быть меньше %s. Попробуйте снова: ", limit);
+            } catch (NullPointerException | NumberFormatException e) {
+                System.out.print("Введенное значение не является корректным числом. Попробуйте снова: ");
+            }
+        }
     }
 
     /**
@@ -92,21 +134,7 @@ public class ValidatingReader {
      * @return число, либо null (если canBeNull == true)
      */
     public static Float readFloat(Scanner scanner, String messageForConsole, boolean canBeNull, Long limit, String limitType) {
-        System.out.print(messageForConsole);
-        float result;
-        String input;
-        while (true) {
-            input = scanner.nextLine().trim();
-            try {
-                result = Float.parseFloat(input);
-                return (float) checkForLimits(limitType, result, limit);
-            } catch (NumberFormatException ex) {
-                if (canBeNull && input.equals("")) {
-                    return null;
-                }
-                System.out.print("Введенное значение не является числом или превышает его допустимые границы. Попробуйте снова: ");
-            }
-        }
+        return readNumber(scanner, Float.class, messageForConsole, canBeNull, limit, limitType);
     }
 
     /**
@@ -120,21 +148,7 @@ public class ValidatingReader {
      * @return число, либо null (если canBeNull == true)
      */
     public static Integer readInteger(Scanner scanner, String messageForConsole, boolean canBeNull, Long limit, String limitType) {
-        System.out.print(messageForConsole);
-        int result;
-        String input;
-        while (true) {
-            input = scanner.nextLine().trim();
-            try {
-                result = Integer.parseInt(input);
-                return (int) checkForLimits(limitType, result, limit);
-            } catch (NumberFormatException ex) {
-                if (canBeNull && input.equals("")) {
-                    return null;
-                }
-                System.out.print("Введенное значение не является числом или превышает его допустимые границы. Попробуйте снова: ");
-            }
-        }
+        return readNumber(scanner, Integer.class, messageForConsole, canBeNull, limit, limitType);
     }
 
     /**
@@ -148,21 +162,7 @@ public class ValidatingReader {
      * @return число, либо null (если canBeNull == true)
      */
     public static Long readLong(Scanner scanner, String messageForConsole, boolean canBeNull, Long limit, String limitType) {
-        System.out.print(messageForConsole);
-        long result;
-        String input;
-        while (true) {
-            input = scanner.nextLine().trim();
-            try {
-                result = Long.parseLong(input);
-                return (long) checkForLimits(limitType, result, limit);
-            } catch (NumberFormatException ex) {
-                if (canBeNull && input.equals("")) {
-                    return null;
-                }
-                System.out.print("Введенное значение не является числом или превышает его допустимые границы. Попробуйте снова: ");
-            }
-        }
+        return readNumber(scanner, Long.class, messageForConsole, canBeNull, limit, limitType);
     }
 
     /**
