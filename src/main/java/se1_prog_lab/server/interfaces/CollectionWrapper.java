@@ -12,8 +12,6 @@ public interface CollectionWrapper {
 
     boolean isEmpty();
 
-    void clear();
-
     void clear(List<Long> ids);
 
     void setVector(Vector<LabWork> labWorkVector);
@@ -36,7 +34,7 @@ public interface CollectionWrapper {
 
     void removeByID(long id);
 
-    boolean insertAtIndex(LabWork labWork, int index);
+    void insertAtIndex(LabWork labWork, int index, long id);
 
     void updateByID(long id, LabWork labWork);
 }

@@ -8,7 +8,6 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
 import se1_prog_lab.server.interfaces.SqlFunction;
-import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ElementCreator;
 
 import java.io.FileNotFoundException;
@@ -385,31 +384,5 @@ public class DatabaseManagerImpl implements DatabaseManager {
             }
             return ids;
         });
-    }
-
-    @Override
-    public boolean addElementToIndex(LabWork labWork, int index) {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-        /*
-            Тут запрос к БД
-         */
-            return true;
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
-    }
-
-    @Override
-    public boolean sortById() {
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
-        /*
-            Тут запрос к БД
-         */
-            return true;
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
     }
 }

@@ -7,10 +7,7 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static se1_prog_lab.util.BetterStrings.coloredYellow;
@@ -55,12 +52,7 @@ public class VectorWrapper implements CollectionWrapper {
 
     /**
      * Очищает коллекцию.
-     * TODO должен удалять только те элементы, на которые у юзера есть права.
      */
-    public void clear() {
-        labWorks.clear();
-    }
-
     public void clear(List<Long> ids) {
         labWorks.removeIf((LabWork labwork) -> ids.contains(labwork.getId()));
     }
@@ -69,7 +61,6 @@ public class VectorWrapper implements CollectionWrapper {
      * Добавляет элемент в коллекцию.
      *
      * @param labWork добавлямый элемент.
-     * @return true если успешно
      */
     public void add(LabWork labWork, long id) {
         labWork.setId(id);
@@ -82,10 +73,12 @@ public class VectorWrapper implements CollectionWrapper {
      *
      * @param labWork новый элемент
      * @param index   позиция
-     * @return true если успешно
+     * @param id id
      */
-    public boolean insertAtIndex(LabWork labWork, int index) {
-        return databaseManager.addElementToIndex(labWork, index);
+    public void insertAtIndex(LabWork labWork, int index, long id) {
+        labWork.setId(id);
+        labWorks.setSize(index);
+        labWorks.add(index, labWork);
     }
 
     /**
@@ -112,20 +105,21 @@ public class VectorWrapper implements CollectionWrapper {
     /**
      * Сортирует коллекцию по умолчанию.
      * Инфа от Миши: работает, только если у юзера есть права на ВООБЩЕ ВСЕ элементы коллекции.
-     * TODO права + надо еще сортировать саму коллекцию
      *
      * @return true, если успешно; false, если нет (например, коллекция пуста или нет прав на все)
      */
     public boolean sort() {
         if (labWorks.isEmpty()) return false;
-        else return databaseManager.sortById();
+        else {
+            labWorks.sort(Comparator.naturalOrder());
+            return true;
+        }
     }
 
     /**
      * Удаляет элемент по его id.
      *
      * @param id id элемента
-     * @return true, если успешно; false, если нет (например, элемента с таким id нет)
      */
     public void removeByID(long id) {
         labWorks.removeIf((labwork) -> labwork.getId() == id);
@@ -137,7 +131,6 @@ public class VectorWrapper implements CollectionWrapper {
      *
      * @param id         id старого элемента.
      * @param newLabWork объект нового элемента.
-     * @return true, если успешно; false, если нет (например, элемента с таким id нет)
      */
     public void updateByID(long id, LabWork newLabWork) {
         newLabWork.setId(id);

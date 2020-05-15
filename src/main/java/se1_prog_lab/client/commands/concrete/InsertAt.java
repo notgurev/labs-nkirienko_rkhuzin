@@ -14,7 +14,7 @@ public class InsertAt extends ConstructingCommand {
 
     @Override
     public String serverExecute(ServerCommandReceiver serverReceiver) {
-        return serverReceiver.insertAt(carriedObject, index);
+        return serverReceiver.insertAt(carriedObject, index, getAuthData());
     }
 
     @Override

@@ -56,7 +56,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             logger.info("Очищаем коллекцию");
             List<Long> ids = databaseManager.clear(authData.getUsername());
             if (ids.size() > 0) {
-                collectionWrapper.clear();
+                collectionWrapper.clear(ids);
                 return coloredYellow("Элементы, на которые вы имели права, удалены из коллекции");
             }
             return coloredYellow("Ваших элементов уже нет в коллекции");
@@ -89,7 +89,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
         if (collectionWrapper.sort()) {
             return coloredYellow("Коллекция была успешно отсортирована в естественном порядке!");
         } else {
-            return coloredYellow("Коллекция пуста, либо у вас нет прав на сортировку всех элементов");
+            return coloredYellow("Коллекция пуста!");
         }
     }
 
@@ -142,11 +142,16 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized String insertAt(LabWork labWork, int index) {
-        logger.info("Вставляем элемент в ячейку с индексом " + index);
-        if (collectionWrapper.insertAtIndex(labWork, index)) {
-            return coloredYellow(format("Элемент успешно добавлен в коллекцию (index = %d).", index));
-        } else return coloredRed("Добавить элемент в коллекцию не удалось");
+    public synchronized String insertAt(LabWork labWork, int index, AuthData authData) {
+        try {
+            logger.info("Вставляем элемент в ячейку с индексом " + index);
+            Long id = databaseManager.addElement(labWork, authData.getUsername());
+            collectionWrapper.insertAtIndex(labWork, index, id);
+            return coloredYellow("Элемент успешно добавлен в коллекцию");
+        } catch (DatabaseException e) {
+            logger.severe(e.getMessage());
+            return SERVER_ERROR.getMessage();
+        }
     }
 
     @Override

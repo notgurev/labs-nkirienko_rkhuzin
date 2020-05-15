@@ -24,7 +24,7 @@ public interface ServerCommandReceiver {
 
     String removeByID(long id, AuthData authData);
 
-    String insertAt(LabWork labWork, int index);
+    String insertAt(LabWork labWork, int index, AuthData authData);
 
     String update(LabWork labWork, long id, AuthData authData);
 
