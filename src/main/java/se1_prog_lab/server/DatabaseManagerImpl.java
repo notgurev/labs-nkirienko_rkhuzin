@@ -27,11 +27,6 @@ import java.util.logging.Logger;
 @Singleton
 public class DatabaseManagerImpl implements DatabaseManager {
     private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
-    private final String URL = "jdbc:postgresql://localhost:5432/se1-prog-lab";
-    private final String ADMIN_USERNAME = "postgres";
-    private final String ADMIN_PASSWORD = "admin";
-    private final String PASSWORD = ADMIN_PASSWORD;
-    private final String USER = ADMIN_USERNAME;
     private Properties dbProps;
 
 
