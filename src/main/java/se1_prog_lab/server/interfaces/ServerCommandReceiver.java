@@ -6,9 +6,9 @@ import se1_prog_lab.util.AuthData;
 public interface ServerCommandReceiver {
     void loadCollectionFromDatabase();
 
-    String add(LabWork labWork);
+    String add(LabWork labWork, AuthData authData);
 
-    String clear();
+    String clear(AuthData authData);
 
     String countLessThanDescription(String description);
 
@@ -22,11 +22,11 @@ public interface ServerCommandReceiver {
 
     String filterGreaterThanMinimalPoint(int minimalPoint);
 
-    String removeByID(long id);
+    String removeByID(long id, AuthData authData);
 
     String insertAt(LabWork labWork, int index);
 
-    String update(LabWork labWork, long id);
+    String update(LabWork labWork, long id, AuthData authData);
 
     String register(AuthData authData);
 

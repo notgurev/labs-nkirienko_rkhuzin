@@ -9,6 +9,7 @@ import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
@@ -37,18 +38,32 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized String add(LabWork labWork) {
-        logger.info("Добавляем элемент в коллекцию");
-        if (collectionWrapper.add(labWork)) {
+    public synchronized String add(LabWork labWork, AuthData authData) {
+        try {
+            logger.info("Добавляем элемент в коллекцию");
+            Long id = databaseManager.addElement(labWork, authData.getUsername());
+            collectionWrapper.add(labWork, id);
             return coloredYellow("Элемент успешно добавлен в коллекцию");
-        } else return coloredRed("Добавить элемент в коллекцию не удалось");
+        } catch (DatabaseException e) {
+            logger.severe(e.getMessage());
+            return SERVER_ERROR.getMessage();
+        }
     }
 
     @Override
-    public synchronized String clear() {
-        logger.info("Очищаем коллекцию");
-        collectionWrapper.clear();
-        return coloredYellow("Элементы, на которые вы имели права, удалены из коллекции");
+    public synchronized String clear(AuthData authData) {
+        try {
+            logger.info("Очищаем коллекцию");
+            List<Long> ids = databaseManager.clear(authData.getUsername());
+            if (ids.size() > 0) {
+                collectionWrapper.clear();
+                return coloredYellow("Элементы, на которые вы имели права, удалены из коллекции");
+            }
+            return coloredYellow("Ваших элементов уже нет в коллекции");
+        } catch (DatabaseException e) {
+            logger.severe(e.getMessage());
+            return SERVER_ERROR.getMessage();
+        }
     }
 
     @Override
@@ -109,14 +124,20 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized String removeByID(long id) {
-        logger.info("Удаляем элемент с id " + id);
-        if (collectionWrapper.removeByID(id)) {
-            logger.info(format("Элемент с id = %d успешно удален", id));
-            return format("Элемент с id = %d успешно удален", id);
-        } else {
-            logger.warning("Элемента с данным id не существует в коллекции.");
-            return "Элемента с данным id не существует в коллекции.";
+    public synchronized String removeByID(long id, AuthData authData) {
+        try {
+            logger.info("Удаляем элемент с id " + id);
+            if (databaseManager.removeById(id, authData.getUsername())) {
+                collectionWrapper.removeByID(id);
+                logger.info(format("Элемент с id = %d успешно удален", id));
+                return format("Элемент с id = %d успешно удален", id);
+            } else {
+                logger.warning("Элемента с данным id не существует в коллекции или у вас нет прав на его удаление");
+                return "Элемента с данным id не существует в коллекции или у вас нет прав на его удаление";
+            }
+        } catch (DatabaseException e) {
+            logger.severe(e.getMessage());
+            return SERVER_ERROR.getMessage();
         }
     }
 
@@ -129,14 +150,20 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized String update(LabWork labWork, long id) {
-        logger.info("Обновляем элемент с id " + id);
-        if (collectionWrapper.updateByID(id, labWork)) {
-            logger.info(format("Элемент успешно заменён (id = %d)", id));
-            return coloredYellow(format("Элемент успешно заменён (id = %d)", id));
-        } else {
-            logger.info("Элемент с таким id отсутствует в коллекции!");
-            return coloredRed("Элемент с таким id отсутствует в коллекции!");
+    public synchronized String update(LabWork labWork, long id, AuthData authData) {
+        try {
+            logger.info("Обновляем элемент с id " + id);
+            if (databaseManager.updateById(labWork, id, authData.getUsername())) {
+                collectionWrapper.updateByID(id, labWork);
+                logger.info(format("Элемент успешно заменён (id = %d)", id));
+                return coloredYellow(format("Элемент успешно заменён (id = %d)", id));
+            } else {
+                logger.info("Элемент с таким id отсутствует в коллекции либо у вас нет прав на его изменение!");
+                return coloredRed("Элемент с таким id отсутствует в коллекции либо у вас нет праав на его изменение!");
+            }
+        } catch (DatabaseException e) {
+            logger.severe(e.getMessage());
+            return SERVER_ERROR.getMessage();
         }
     }
 

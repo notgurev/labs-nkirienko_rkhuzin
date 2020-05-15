@@ -5,11 +5,12 @@ import se1_prog_lab.exceptions.DatabaseException;
 import se1_prog_lab.util.AuthData;
 
 import javax.xml.crypto.Data;
+import java.util.List;
 
 public interface DatabaseManager {
-    Long addElement(LabWork labWork);
+    Long addElement(LabWork labWork, String username) throws DatabaseException;
 
-    boolean updateById(LabWork labWork, long id);
+    boolean updateById(LabWork labWork, long id, String username) throws DatabaseException;
 
     boolean loadCollectionFromDatabase(CollectionWrapper collectionWrapper);
 
@@ -19,11 +20,11 @@ public interface DatabaseManager {
 
     boolean addUser(String username, String password) throws DatabaseException;
 
-    boolean clear();
+    List<Long> clear(String username) throws DatabaseException;
 
     boolean addElementToIndex(LabWork labWork, int index);
 
     boolean sortById();
 
-    boolean removeById(long id);
+    boolean removeById(long id, String username) throws DatabaseException;
 }

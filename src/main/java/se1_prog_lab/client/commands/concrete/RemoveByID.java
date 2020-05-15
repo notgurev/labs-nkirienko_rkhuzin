@@ -13,7 +13,7 @@ public class RemoveByID extends RegularCommand {
 
     @Override
     public String serverExecute(ServerCommandReceiver serverReceiver) {
-        return serverReceiver.removeByID(id);
+        return serverReceiver.removeByID(id, getAuthData());
     }
 
     @Override

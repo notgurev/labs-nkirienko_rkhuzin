@@ -13,7 +13,7 @@ public class Add extends ConstructingCommand {
 
     @Override
     public String serverExecute(ServerCommandReceiver serverReceiver) {
-        return serverReceiver.add(carriedObject);
+        return serverReceiver.add(carriedObject, getAuthData());
     }
 
     @Override

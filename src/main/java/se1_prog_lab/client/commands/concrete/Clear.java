@@ -10,6 +10,6 @@ public class Clear extends NonValidatingRegularCommand {
 
     @Override
     public String serverExecute(ServerCommandReceiver serverReceiver) {
-        return serverReceiver.clear();
+        return serverReceiver.clear(getAuthData());
     }
 }

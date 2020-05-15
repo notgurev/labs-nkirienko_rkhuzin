@@ -8,12 +8,15 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
 import se1_prog_lab.server.interfaces.SqlFunction;
+import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ElementCreator;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Logger;
@@ -73,8 +76,8 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return true, если успешно; false, если нет
      */
     @Override
-    public Long addElement(LabWork labWork) {
-        return this.<Long>handleQuery((Connection connection) -> {
+    public Long addElement(LabWork labWork, String username) throws DatabaseException {
+        return this.<Long>handleQueryWithExceptionForwarding((Connection connection) -> {
 
             Person author = labWork.getAuthor();
             Location authorLocation = author.getLocation();
@@ -94,8 +97,10 @@ public class DatabaseManagerImpl implements DatabaseManager {
 
             ResultSet rs = authorStatement.getGeneratedKeys();
             if (rs.next()) {
-                String addElementSql = "INSERT INTO labwork (labwork_name, coordinateX, coordinateY, creationDate, minimalPoint, description, tunedInWorks, difficulty, person_id)" +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?::difficulty, ?)";
+                String addElementSql = "INSERT INTO labwork (labwork_name, coordinateX, coordinateY, creationDate, minimalPoint, description, tunedInWorks, difficulty, person_id, user_id)" +
+                        " SELECT ?, ?, ?, ?, ?, ?, ?, ?::difficulty, ?, id" +
+                        " FROM \"user\"" +
+                        " WHERE \"user\".login = ?";
 
                 Coordinates coordinates = labWork.getCoordinates();
 
@@ -109,6 +114,8 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 elementStatement.setInt(7, labWork.getTunedInWorks());
                 elementStatement.setString(8, labWork.getDifficulty().name());
                 elementStatement.setLong(9, rs.getLong(1));
+
+                elementStatement.setString(10, username);
 
                 elementStatement.executeUpdate();
 
@@ -169,17 +176,20 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return true, если успешно; false, если нет
      */
     @Override
-    public boolean removeById(long id) {
-        return handleQuery((Connection connection) -> {
-            String query = "DELETE from labwork" +
-                    " WHERE labwork.labwork_id = ?";
+    public boolean removeById(long id, String username) throws DatabaseException {
+        return handleQueryWithExceptionForwarding((Connection connection) -> {
+            String query =
+                    "DELETE from person" +
+                    " USING \"user\", labwork" +
+                    " WHERE person.person_id = labwork.person_id AND labwork.labwork_id = ? AND labwork.user_id = \"user\".id AND \"user\".login = ?;";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setLong(1, id);
 
+            statement.setString(2, username);
+
             int rowsDeleted = statement.executeUpdate();
-            if (rowsDeleted == 0) {
-                throw new SQLException("Элемента с заданным id нет в бд");
-            }
+
+            return rowsDeleted > 0;
         });
     }
 
@@ -191,12 +201,11 @@ public class DatabaseManagerImpl implements DatabaseManager {
      * @return true, если успешно; false, если нет
      */
     @Override
-    public boolean updateById(LabWork labWork, long id) {
-        return handleQuery((Connection connection) -> {
-
+    public boolean updateById(LabWork labWork, long id, String username) throws DatabaseException {
+        return handleQueryWithExceptionForwarding((Connection connection) -> {
+            connection.createStatement().execute("BEGIN TRANSACTION;");
             //(labwork_name, coordinateX, coordinateY, creationDate, minimalPoint, description, tunedInWorks, difficulty, person_id)
             String query =
-                    "BEGIN TRANSACTION;" +
                             "UPDATE labwork" +
                             " SET labwork_name = ?," +
                             "coordinateX = ?," +
@@ -206,7 +215,8 @@ public class DatabaseManagerImpl implements DatabaseManager {
                             "description = ?," +
                             "tunedInWorks = ?," +
                             "difficulty = ?::difficulty" +
-                            " WHERE labwork.labwork_id = ?;" +
+                            " FROM \"user\"" +
+                            " WHERE labwork.labwork_id = ? AND labwork.user_id = \"user\".id AND \"user\".login = ?;" +
                             "UPDATE person" +
                             " SET person_name = ?," +
                             "height = ?," +
@@ -215,9 +225,8 @@ public class DatabaseManagerImpl implements DatabaseManager {
                             "locationX = ?," +
                             "locationY = ?," +
                             "locationZ = ?" +
-                            "FROM labwork" +
-                            " WHERE labwork.person_id = person.person_id and labwork.labwork_id = ?;" +
-                            "COMMIT;";
+                            "FROM labwork, \"user\"" +
+                            " WHERE labwork.person_id = person.person_id and labwork.labwork_id = ? AND labwork.user_id = \"user\".id AND \"user\".login = ?";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, labWork.getName());
             statement.setLong(2, labWork.getCoordinates().getX());
@@ -229,17 +238,26 @@ public class DatabaseManagerImpl implements DatabaseManager {
             statement.setString(8, labWork.getDifficulty().name());
             statement.setLong(9, id);
 
-            Person author = labWork.getAuthor();
-            statement.setString(10, author.getName());
-            statement.setFloat(11, author.getHeight());
-            statement.setString(12, author.getPassportID());
-            statement.setString(13, author.getHairColor().name());
-            statement.setInt(14, author.getLocation().getX());
-            statement.setFloat(15, author.getLocation().getY());
-            statement.setInt(16, author.getLocation().getZ());
-            statement.setLong(17, id);
+            statement.setString(10, username);
 
-            statement.executeUpdate();
+            Person author = labWork.getAuthor();
+            statement.setString(11, author.getName());
+            statement.setFloat(12, author.getHeight());
+            statement.setString(13, author.getPassportID());
+            statement.setString(14, author.getHairColor().name());
+            statement.setInt(15, author.getLocation().getX());
+            statement.setFloat(16, author.getLocation().getY());
+            statement.setInt(17, author.getLocation().getZ());
+
+            statement.setLong(18, id);
+
+            statement.setString(19, username);
+
+            int result = statement.executeUpdate();
+
+            connection.createStatement().execute("COMMIT;");
+
+            return result > 0; // Если true, значит результат не пустой и записи обновлены
         });
     }
 
@@ -349,14 +367,23 @@ public class DatabaseManagerImpl implements DatabaseManager {
     }
 
     @Override
-    public boolean clear() {
-        return handleQuery((Connection connection) -> {
-            String query = "BEGIN TRANSACTION;" +
-                    "TRUNCATE TABLE labwork RESTART IDENTITY;" +
-                    "TRUNCATE TABLE person RESTART IDENTITY;" +
-                    "COMMIT;";
-            Statement statement = connection.createStatement();
-            statement.executeQuery(query);
+    public List<Long> clear(String username) throws DatabaseException {
+        return handleQueryWithExceptionForwarding((Connection connection) -> {
+            String query = "DELETE FROM person" +
+                    " USING labwork, \"user\"" +
+                    "WHERE person.person_id = labwork.person_id AND labwork.user_id = \"user\".id AND \"user\".login = ?" +
+                    " RETURNING labwork.labwork_id;";
+
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, username);
+            ResultSet result = statement.executeQuery();
+
+            ArrayList<Long> ids = new ArrayList<>();
+
+            while (result.next()) {
+                ids.add(result.getLong("labwork_id"));
+            }
+            return ids;
         });
     }
 

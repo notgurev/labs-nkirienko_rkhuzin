@@ -7,6 +7,7 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
@@ -57,7 +58,11 @@ public class VectorWrapper implements CollectionWrapper {
      * TODO должен удалять только те элементы, на которые у юзера есть права.
      */
     public void clear() {
-        databaseManager.clear();
+        labWorks.clear();
+    }
+
+    public void clear(List<Long> ids) {
+        labWorks.removeIf((LabWork labwork) -> ids.contains(labwork.getId()));
     }
 
     /**
@@ -66,14 +71,9 @@ public class VectorWrapper implements CollectionWrapper {
      * @param labWork добавлямый элемент.
      * @return true если успешно
      */
-    public boolean add(LabWork labWork) {
-        Long id = databaseManager.addElement(labWork);
-        if (id != null) {
-            labWork.setId(id);
-            labWorks.add(labWork);
-            return true;
-        }
-        return false;
+    public void add(LabWork labWork, long id) {
+        labWork.setId(id);
+        labWorks.add(labWork);
     }
 
     /**
@@ -127,12 +127,8 @@ public class VectorWrapper implements CollectionWrapper {
      * @param id id элемента
      * @return true, если успешно; false, если нет (например, элемента с таким id нет)
      */
-    public boolean removeByID(long id) {
-        if (databaseManager.removeById(id)) {
-            labWorks.removeIf((labwork) -> labwork.getId() == id);
-            return true;
-        }
-        return false;
+    public void removeByID(long id) {
+        labWorks.removeIf((labwork) -> labwork.getId() == id);
     }
 
     /**
@@ -143,13 +139,9 @@ public class VectorWrapper implements CollectionWrapper {
      * @param newLabWork объект нового элемента.
      * @return true, если успешно; false, если нет (например, элемента с таким id нет)
      */
-    public boolean updateByID(long id, LabWork newLabWork) {
-        if (databaseManager.updateById(newLabWork, id)) {
-            newLabWork.setId(id);
-            labWorks.set(labWorks.indexOf(getByID(id)), newLabWork);
-            return true;
-        }
-        return false;
+    public void updateByID(long id, LabWork newLabWork) {
+        newLabWork.setId(id);
+        labWorks.set(labWorks.indexOf(getByID(id)), newLabWork);
     }
 
     @Override
