@@ -2,7 +2,7 @@ package se1_prog_lab.client;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import se1_prog_lab.client.commands.AbstractCommand;
+import se1_prog_lab.client.commands.BaseCommand;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.client.interfaces.CommandRepository;
@@ -19,15 +19,15 @@ import static se1_prog_lab.util.BetterStrings.multiline;
  */
 @Singleton
 public class CommandInvoker implements CommandRepository {
-    private final HashMap<String, AbstractCommand> commandMap = new HashMap<>(); // HashMap команд
+    private final HashMap<String, BaseCommand> commandMap = new HashMap<>(); // HashMap команд
     private final ClientCommandReceiver clientCommandReceiver;
     private final ServerIO serverIO;
 
     @Inject
-    public CommandInvoker(ClientCommandReceiver clientCommandReceiver, ServerIO serverIO, Set<AbstractCommand> commands) {
+    public CommandInvoker(ClientCommandReceiver clientCommandReceiver, ServerIO serverIO, Set<BaseCommand> commands) {
         this.clientCommandReceiver = clientCommandReceiver;
         this.serverIO = serverIO;
-        addCommand(commands.toArray(new AbstractCommand[0]));
+        addCommand(commands.toArray(new BaseCommand[0]));
         clientCommandReceiver.setHelpText(multiline(commandMap.values().stream()
                 .map(command -> command.getKey() + command.getHelpText()).toArray()));
     }
@@ -37,7 +37,7 @@ public class CommandInvoker implements CommandRepository {
      *
      * @param commands команды.
      */
-    private void addCommand(AbstractCommand... commands) {
+    private void addCommand(BaseCommand... commands) {
         Arrays.stream(commands).forEach(command -> commandMap.put(command.getKey(), command));
     }
 

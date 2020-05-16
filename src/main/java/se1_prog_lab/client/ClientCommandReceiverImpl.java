@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Scanner;
 
-import static se1_prog_lab.util.BetterStrings.coloredYellow;
+import static se1_prog_lab.util.BetterStrings.yellow;
 
 /**
  * Ресивер для клиентских команд (см. паттерн "Команда").
@@ -45,7 +45,7 @@ public class ClientCommandReceiverImpl implements ClientCommandReceiver {
 
     @Override
     public void exit() {
-        System.out.println(coloredYellow("Завершение работы."));
+        System.out.println(yellow("Завершение работы."));
         System.exit(0);
     }
 
@@ -72,7 +72,7 @@ public class ClientCommandReceiverImpl implements ClientCommandReceiver {
     @Override
     public void history() {
         if (commandHistory.isEmpty()) {
-            System.out.println(coloredYellow("История выполненных команд пуста!"));
+            System.out.println(yellow("История выполненных команд пуста!"));
         } else {
             System.out.println("Предыдущие команды (начиная с последней):");
             commandHistory.forEach(System.out::println);

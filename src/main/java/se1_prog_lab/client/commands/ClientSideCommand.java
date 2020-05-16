@@ -8,7 +8,7 @@ import se1_prog_lab.server.interfaces.ServerCommandReceiver;
  * В clientExecute() должна выполнить необходимые действия.
  * Не отправляется на сервер.
  */
-public abstract class ClientSideCommand extends AbstractCommand {
+public abstract class ClientSideCommand extends BaseCommand {
     public ClientSideCommand(String key, String helpText) {
         super(false, helpText, key);
     }

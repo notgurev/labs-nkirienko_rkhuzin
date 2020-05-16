@@ -3,7 +3,7 @@ package se1_prog_lab.client;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
-import se1_prog_lab.client.commands.AbstractCommand;
+import se1_prog_lab.client.commands.BaseCommand;
 import se1_prog_lab.client.commands.concrete.*;
 import se1_prog_lab.client.interfaces.Client;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
@@ -26,7 +26,7 @@ public class ClientModule extends AbstractModule {
         bind(ServerIO.class).to(MyServerIO.class);
         bind(EOTWrapper.class).to(UtfEOTWrapper.class);
 
-        Multibinder<AbstractCommand> commandBinder = Multibinder.newSetBinder(binder(), AbstractCommand.class);
+        Multibinder<BaseCommand> commandBinder = Multibinder.newSetBinder(binder(), BaseCommand.class);
         commandBinder.addBinding().to(Add.class);
         commandBinder.addBinding().to(Clear.class);
         commandBinder.addBinding().to(CountLessThanDescription.class);

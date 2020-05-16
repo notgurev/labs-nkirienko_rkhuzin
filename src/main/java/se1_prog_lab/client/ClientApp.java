@@ -12,7 +12,8 @@ import se1_prog_lab.util.AuthStrings;
 
 import java.util.Scanner;
 
-import static se1_prog_lab.util.BetterStrings.coloredYellow;
+import static se1_prog_lab.util.AuthStrings.*;
+import static se1_prog_lab.util.BetterStrings.yellow;
 
 /**
  * Класс клиентского приложения.
@@ -41,7 +42,7 @@ public class ClientApp implements Client {
      */
     @Override
     public void start() {
-        System.out.println(coloredYellow("Начало работы клиента"));
+        System.out.println(yellow("Начало работы клиента"));
 
         serverIO.tryOpen();
 
@@ -57,9 +58,9 @@ public class ClientApp implements Client {
                 if (command != null) {
                     serverResponse = serverIO.sendAndReceive(command);
                     System.out.println(serverResponse);
-                    if (serverResponse.equals(AuthStrings.INCORRECT_LOGIN_DATA.getMessage())
-                            || serverResponse.equals(AuthStrings.USERNAME_TAKEN.getMessage())
-                            || serverResponse.equals(AuthStrings.SERVER_ERROR.getMessage())
+                    if (serverResponse.equals(INCORRECT_LOGIN_DATA.getMessage())
+                            || serverResponse.equals(USERNAME_TAKEN.getMessage())
+                            || serverResponse.equals(SERVER_ERROR.getMessage())
                     ) break;
                 }
             }

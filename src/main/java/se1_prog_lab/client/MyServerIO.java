@@ -23,8 +23,8 @@ import java.util.Scanner;
 
 import static se1_prog_lab.util.AuthStrings.LOGIN_SUCCESSFUL;
 import static se1_prog_lab.util.AuthStrings.REGISTRATION_SUCCESSFUL;
-import static se1_prog_lab.util.BetterStrings.coloredRed;
-import static se1_prog_lab.util.BetterStrings.coloredYellow;
+import static se1_prog_lab.util.BetterStrings.red;
+import static se1_prog_lab.util.BetterStrings.yellow;
 import static se1_prog_lab.util.ValidatingReader.readString;
 
 /**
@@ -68,10 +68,10 @@ public class MyServerIO implements ServerIO {
                 socketChannel = SocketChannel.open();
                 socketChannel.connect(new InetSocketAddress(HOST, PORT));
                 socketChannel.configureBlocking(false);
-                System.out.println(coloredYellow("Соединение с сервером успешно установлено"));
+                System.out.println(yellow("Соединение с сервером успешно установлено"));
                 return true;
             } catch (IOException e) {
-                errorMessage = coloredRed("Не получилось открыть соединение: " + e.getMessage());
+                errorMessage = red("Не получилось открыть соединение: " + e.getMessage());
             }
         }
         System.out.println(errorMessage);
@@ -147,7 +147,7 @@ public class MyServerIO implements ServerIO {
             }
             stringBuilder.append(new String(ByteArrays.toByteArray(stringBytes)));
         } catch (IOException e) {
-            return coloredRed("При получении ответа возникла ошибка: " + e.getMessage());
+            return red("При получении ответа возникла ошибка: " + e.getMessage());
         }
         return eotWrapper.unwrap(stringBuilder.toString());
     }
@@ -171,7 +171,7 @@ public class MyServerIO implements ServerIO {
                     sendToServer(command);
                     return receiveFromServer();
                 } catch (IOException e) {
-                    System.out.println(coloredRed("Не получилось отправить команду: " + e.getMessage()));
+                    System.out.println(red("Не получилось отправить команду: " + e.getMessage()));
                     closeSocketChannel();
                     if (!tryOpen()) return "Не удалось установить соединение";
                     System.out.println("Повторная отправка команды " + command.getClass().getSimpleName());
@@ -202,7 +202,7 @@ public class MyServerIO implements ServerIO {
         String input;
         do {
             System.out.printf("Введите %s для регистрации или %s для авторизации \n",
-                    coloredYellow("register"), coloredYellow("login"));
+                    yellow("register"), yellow("login"));
             input = consoleScanner.nextLine().trim();
         } while (!(input.equals("login") || input.equals("register")));
 

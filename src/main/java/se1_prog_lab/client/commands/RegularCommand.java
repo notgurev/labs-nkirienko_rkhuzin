@@ -7,7 +7,7 @@ package se1_prog_lab.client.commands;
  * В execute() выполняет необходимые действия.
  * Отправляется на сервер.
  */
-public abstract class RegularCommand extends AbstractCommand {
+public abstract class RegularCommand extends BaseCommand {
     public RegularCommand(String key, String helpText) {
         super(true, helpText, key);
     }

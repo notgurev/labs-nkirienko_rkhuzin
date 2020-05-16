@@ -9,15 +9,15 @@ import java.util.stream.Collectors;
  * Класс со всякими удобствами для вывода в консоль.
  */
 public class BetterStrings {
-    public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK = "\u001B[30m";
-    public static final String ANSI_RED = "\u001B[31m";
-    public static final String ANSI_GREEN = "\u001B[32m";
-    public static final String ANSI_YELLOW = "\u001B[33m";
-    public static final String ANSI_BLUE = "\u001B[34m";
-    public static final String ANSI_PURPLE = "\u001B[35m";
-    public static final String ANSI_CYAN = "\u001B[36m";
-    public static final String ANSI_WHITE = "\u001B[37m";
+    public static final String RESET = "\u001B[0m";
+    public static final String BLACK = "\u001B[30m";
+    public static final String RED = "\u001B[31m";
+    public static final String GREEN = "\u001B[32m";
+    public static final String YELLOW = "\u001B[33m";
+    public static final String BLUE = "\u001B[34m";
+    public static final String PURPLE = "\u001B[35m";
+    public static final String CYAN = "\u001B[36m";
+    public static final String WHITE = "\u001B[37m";
 
     /**
      * Метод, создающий строку из массива строк с переносами строк
@@ -38,8 +38,8 @@ public class BetterStrings {
      * @param color цвет
      * @return покрашенную строку
      */
-    public static String coloredString(String s, String color) {
-        return color + s + ANSI_RESET;
+    public static String colored(String s, String color) {
+        return color + s + RESET;
     }
 
     /**
@@ -48,15 +48,15 @@ public class BetterStrings {
      * @param s строка
      * @return покрашенную строку
      */
-    public static Object blueStringIfNull(Object s) {
-        return s == null ? ANSI_BLUE + "пусто" + ANSI_RESET : s;
+    public static Object blueIfNull(Object s) {
+        return s == null ? colored("пусто", BLUE) : s;
     }
 
-    public static String coloredRed(String s) {
-        return ANSI_RED + s + ANSI_RESET;
+    public static String red(String s) {
+        return colored(s, RED);
     }
 
-    public static String coloredYellow(String s) {
-        return ANSI_YELLOW + s + ANSI_RESET;
+    public static String yellow(String s) {
+        return colored(s, YELLOW);
     }
 }

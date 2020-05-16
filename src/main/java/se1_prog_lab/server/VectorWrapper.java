@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static se1_prog_lab.util.BetterStrings.coloredYellow;
+import static se1_prog_lab.util.BetterStrings.yellow;
 import static se1_prog_lab.util.BetterStrings.multiline;
 
 /**
@@ -20,12 +20,10 @@ import static se1_prog_lab.util.BetterStrings.multiline;
 @Singleton
 public class VectorWrapper implements CollectionWrapper {
     private final LocalDate initDate;
-    private final DatabaseManager databaseManager;
     private Vector<LabWork> labWorks = new Vector<>();
 
     @Inject
-    public VectorWrapper(DatabaseManager databaseManager) {
-        this.databaseManager = databaseManager;
+    public VectorWrapper() {
         initDate = LocalDate.now();
     }
 
@@ -157,14 +155,14 @@ public class VectorWrapper implements CollectionWrapper {
      */
     public String showAll() {
         if (labWorks.isEmpty()) {
-            return coloredYellow("Коллекция пуста!");
+            return yellow("Коллекция пуста!");
         } else {
             return multiline(labWorks.stream().filter(Objects::nonNull).map(LabWork::toString).toArray());
         }
     }
 
     /**
-     * Проверяет, пуста ли коллеция
+     * Проверяет, пуста ли коллекция
      *
      * @return true, если пуста; false, если в ней есть элементы.
      */

@@ -19,8 +19,8 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import static se1_prog_lab.util.BetterStrings.coloredRed;
-import static se1_prog_lab.util.BetterStrings.coloredYellow;
+import static se1_prog_lab.util.BetterStrings.red;
+import static se1_prog_lab.util.BetterStrings.yellow;
 
 
 public class ExecuteScript extends ScriptCommand {
@@ -63,10 +63,10 @@ public class ExecuteScript extends ScriptCommand {
                     if (command instanceof ConstructingCommand) currentLine += LabWork.getNumberOfFields();
                 } catch (SelfCallingScriptException e) {
                     linesWithErrors.add(currentLine);
-                    System.out.println(coloredRed("В скрипте (строка "
+                    System.out.println(red("В скрипте (строка "
                             + currentLine + ") присутствует рекурсивный вызов. Он не будет выполняться."));
                 } catch (NoSuchElementException | NumberFormatException | LabWorkFieldException e) {
-                    System.out.println(coloredRed(
+                    System.out.println(red(
                             "Где-то в скрипте была попытка создать элемент коллекции, но что-то пошло не так."));
                     linesWithErrors.add(currentLine);
                 } catch (Exception e) {
@@ -74,9 +74,9 @@ public class ExecuteScript extends ScriptCommand {
                     linesWithErrors.add(currentLine);
                 }
             }
-            if (!linesWithErrors.isEmpty()) System.out.println(coloredRed(
+            if (!linesWithErrors.isEmpty()) System.out.println(red(
                     "Следующие строки не содержат существующих команд или не могли быть выполнены: " + linesWithErrors.toString()));
-            System.out.println(coloredYellow("Выполенение скрипта " + Arrays.toString(args) + " завершено."));
+            System.out.println(yellow("Выполенение скрипта " + Arrays.toString(args) + " завершено."));
         } catch (FileNotFoundException e) {
             System.out.println("Файл скрипта не найден!");
         } catch (IOException e) {

@@ -9,7 +9,7 @@ import se1_prog_lab.collection.LabWork;
  * В execute() выполняет необходимые действия.
  * Отправляется на сервер.
  */
-public abstract class ConstructingCommand extends AbstractCommand {
+public abstract class ConstructingCommand extends BaseCommand {
     protected LabWork carriedObject;
 
     public ConstructingCommand(String key, String helpText) {

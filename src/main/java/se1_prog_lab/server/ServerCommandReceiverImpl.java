@@ -43,7 +43,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             logger.info("Добавляем элемент в коллекцию");
             Long id = databaseManager.addElement(labWork, authData.getUsername());
             collectionWrapper.add(labWork, id);
-            return coloredYellow("Элемент успешно добавлен в коллекцию");
+            return yellow("Элемент успешно добавлен в коллекцию");
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
             return SERVER_ERROR.getMessage();
@@ -57,9 +57,9 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             List<Long> ids = databaseManager.clear(authData.getUsername());
             if (ids.size() > 0) {
                 collectionWrapper.clear(ids);
-                return coloredYellow("Элементы, на которые вы имели права, удалены из коллекции");
+                return yellow("Элементы, на которые вы имели права, удалены из коллекции");
             }
-            return coloredYellow("Ваших элементов уже нет в коллекции");
+            return yellow("Ваших элементов уже нет в коллекции");
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
             return SERVER_ERROR.getMessage();
@@ -69,7 +69,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     @Override
     public synchronized String countLessThanDescription(String description) {
         logger.info("Добавляем в ответ количество элементов, значение поля description которых меньше " + description);
-        return coloredYellow("Количество элементов, значение поля description которых меньше заданного: " +
+        return yellow("Количество элементов, значение поля description которых меньше заданного: " +
                 collectionWrapper.countLessThanDescription(description));
     }
 
@@ -87,9 +87,9 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     public synchronized String sort() {
         logger.info("Сортируем коллекцию");
         if (collectionWrapper.sort()) {
-            return coloredYellow("Коллекция была успешно отсортирована в естественном порядке!");
+            return yellow("Коллекция была успешно отсортирована в естественном порядке!");
         } else {
-            return coloredYellow("Коллекция пуста!");
+            return yellow("Коллекция пуста!");
         }
     }
 
@@ -103,7 +103,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     public synchronized String printUniqueTunedInWorks() {
         logger.info("Добавляем в ответ уникальные значения поля tunedInWorks");
         if (collectionWrapper.isEmpty()) {
-            return coloredYellow("Коллекция пуста!");
+            return yellow("Коллекция пуста!");
         } else {
             return "Уникальные значения поля tunedInWorks: " +
                     join(", ", collectionWrapper.getUniqueTunedInWorks().toString());
@@ -114,11 +114,11 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     public synchronized String filterGreaterThanMinimalPoint(int minimalPoint) {
         logger.info("Добавляем в ответ элементы, значение поля minimalPoint которых больше " + minimalPoint);
         if (collectionWrapper.isEmpty()) {
-            return coloredYellow("Коллекция пуста!");
+            return yellow("Коллекция пуста!");
         } else {
             String response = collectionWrapper.filterGreaterThanMinimalPoint(minimalPoint);
             if (response.equals("")) {
-                return coloredYellow("Элементов, значение поля minimalPoint которых больше заданного, нет.");
+                return yellow("Элементов, значение поля minimalPoint которых больше заданного, нет.");
             } else return response;
         }
     }
@@ -147,7 +147,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             logger.info("Вставляем элемент в ячейку с индексом " + index);
             Long id = databaseManager.addElement(labWork, authData.getUsername());
             collectionWrapper.insertAtIndex(labWork, index, id);
-            return coloredYellow("Элемент успешно добавлен в коллекцию");
+            return yellow("Элемент успешно добавлен в коллекцию");
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
             return SERVER_ERROR.getMessage();
@@ -161,10 +161,10 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             if (databaseManager.updateById(labWork, id, authData.getUsername())) {
                 collectionWrapper.updateByID(id, labWork);
                 logger.info(format("Элемент успешно заменён (id = %d)", id));
-                return coloredYellow(format("Элемент успешно заменён (id = %d)", id));
+                return yellow(format("Элемент успешно заменён (id = %d)", id));
             } else {
                 logger.info("Элемент с таким id отсутствует в коллекции либо у вас нет прав на его изменение!");
-                return coloredRed("Элемент с таким id отсутствует в коллекции либо у вас нет праав на его изменение!");
+                return red("Элемент с таким id отсутствует в коллекции либо у вас нет праав на его изменение!");
             }
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());

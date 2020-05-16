@@ -5,13 +5,13 @@ import se1_prog_lab.util.AuthData;
 /**
  * Базовый класс команды
  */
-public abstract class AbstractCommand implements Command {
+public abstract class BaseCommand implements Command {
     private final transient boolean  serverSide;
     private final transient String helpText;
     private final transient String key;
     private AuthData authData;
 
-    public AbstractCommand(boolean serverSide, String helpText, String key) {
+    public BaseCommand(boolean serverSide, String helpText, String key) {
         this.serverSide = serverSide;
         this.helpText = helpText;
         this.key = key;
