@@ -2,7 +2,6 @@ package se1_prog_lab.client.commands;
 
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.AuthData;
 
 import java.io.Serializable;
 
@@ -23,16 +22,7 @@ public interface Command extends Serializable {
      */
     boolean clientExecute(String[] args, ClientCommandReceiver clientReceiver);
 
-    /**
-     * @return true, если команду нужно отправить на сервер; false, если не нужно.
-     */
-    boolean isServerSide();
-
     String getHelpText();
 
     String getKey();
-
-    void setAuthData(AuthData authData);
-
-    AuthData getAuthData();
 }

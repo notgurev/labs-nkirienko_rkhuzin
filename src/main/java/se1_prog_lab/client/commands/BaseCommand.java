@@ -1,18 +1,13 @@
 package se1_prog_lab.client.commands;
 
-import se1_prog_lab.util.AuthData;
-
 /**
  * Базовый класс команды
  */
 public abstract class BaseCommand implements Command {
-    private final transient boolean  serverSide;
     private final transient String helpText;
     private final transient String key;
-    private AuthData authData;
 
-    public BaseCommand(boolean serverSide, String helpText, String key) {
-        this.serverSide = serverSide;
+    public BaseCommand(String key, String helpText) {
         this.helpText = helpText;
         this.key = key;
     }
@@ -25,20 +20,5 @@ public abstract class BaseCommand implements Command {
     @Override
     public String getKey() {
         return key;
-    }
-
-    @Override
-    public boolean isServerSide() {
-        return serverSide;
-    }
-
-    @Override
-    public void setAuthData(AuthData authData) {
-        this.authData = authData;
-    }
-
-    @Override
-    public AuthData getAuthData() {
-        return authData;
     }
 }

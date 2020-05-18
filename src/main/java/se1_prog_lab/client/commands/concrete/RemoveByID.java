@@ -1,10 +1,10 @@
 package se1_prog_lab.client.commands.concrete;
 
-import se1_prog_lab.client.commands.RegularCommand;
+import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 
-public class RemoveByID extends RegularCommand {
+public class RemoveByID extends ClientServerSideCommand {
     long id;
 
     public RemoveByID() {

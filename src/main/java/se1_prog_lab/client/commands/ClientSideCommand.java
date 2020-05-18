@@ -10,7 +10,7 @@ import se1_prog_lab.server.interfaces.ServerCommandReceiver;
  */
 public abstract class ClientSideCommand extends BaseCommand {
     public ClientSideCommand(String key, String helpText) {
-        super(false, helpText, key);
+        super(key, helpText);
     }
 
     @Override

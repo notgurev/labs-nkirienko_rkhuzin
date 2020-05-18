@@ -1,5 +1,7 @@
 package se1_prog_lab.client.commands;
 
+import se1_prog_lab.util.AuthData;
+
 /**
  * Обычная клиент-серверная команда.
  * Не создает объект.
@@ -7,8 +9,18 @@ package se1_prog_lab.client.commands;
  * В execute() выполняет необходимые действия.
  * Отправляется на сервер.
  */
-public abstract class RegularCommand extends BaseCommand {
-    public RegularCommand(String key, String helpText) {
-        super(true, helpText, key);
+public abstract class ClientServerSideCommand extends BaseCommand {
+    protected AuthData authData;
+
+    public ClientServerSideCommand(String key, String helpText) {
+        super(key, helpText);
+    }
+
+    public void setAuthData(AuthData authData) {
+        this.authData = authData;
+    }
+
+    public AuthData getAuthData() {
+        return authData;
     }
 }

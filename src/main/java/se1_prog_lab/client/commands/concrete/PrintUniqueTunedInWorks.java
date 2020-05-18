@@ -1,9 +1,9 @@
 package se1_prog_lab.client.commands.concrete;
 
-import se1_prog_lab.client.commands.NonValidatingRegularCommand;
+import se1_prog_lab.client.commands.ServerSideCommand;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 
-public class PrintUniqueTunedInWorks extends NonValidatingRegularCommand {
+public class PrintUniqueTunedInWorks extends ServerSideCommand {
     public PrintUniqueTunedInWorks() {
         super("print_unique_tuned_in_works", " - вывести уникальные значения поля tunedInWorks");
     }

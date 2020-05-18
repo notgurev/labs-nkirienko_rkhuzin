@@ -3,6 +3,7 @@ package se1_prog_lab.client;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
+import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.util.AuthData;
@@ -158,20 +159,21 @@ public class MyServerIO implements ServerIO {
      */
     @Override
     public String sendAndReceive(Command command) {
-        if (command.isServerSide()) {
-            if (!Objects.equals(command.getAuthData(), authData)) command.setAuthData(authData);
+        if (command instanceof ClientServerSideCommand) {
+            ClientServerSideCommand commandToSend = (ClientServerSideCommand) command;
+            if (!Objects.equals(commandToSend.getAuthData(), authData)) commandToSend.setAuthData(authData);
             while (true) {
                 try {
                     if (!isOpen() && !tryOpen()) {
                         return "Команда не будет отправлена, так как не удалось открыть соединение";
                     }
-                    sendToServer(command);
+                    sendToServer(commandToSend);
                     return receiveFromServer();
                 } catch (IOException e) {
                     System.out.println(red("Не получилось отправить команду: " + e.getMessage()));
                     closeSocketChannel();
                     if (!tryOpen()) return "Не удалось установить соединение";
-                    System.out.println("Повторная отправка команды " + command.getClass().getSimpleName());
+                    System.out.println("Повторная отправка команды " + commandToSend.getClass().getSimpleName());
                 }
             }
         }

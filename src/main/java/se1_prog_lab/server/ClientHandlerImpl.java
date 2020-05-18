@@ -3,6 +3,7 @@ package se1_prog_lab.server;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import se1_prog_lab.client.commands.AuthCommand;
+import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.collection.LabWork;
@@ -61,14 +62,14 @@ public class ClientHandlerImpl implements ClientHandler {
             logger.info("Создан clientWriter, попытка получить InputStream с clientSocket");
             InputStream clientInputStream = clientSocket.getInputStream();
             ObjectInputStream objectInput;
-            Command command;
+            ClientServerSideCommand command;
 
             while (true) {
                 objectInput = new ObjectInputStream(clientInputStream);
                 logger.info("Принят объект " + objectInput.getClass().getSimpleName());
-                command = (Command) objectInput.readObject();
+                command = (ClientServerSideCommand) objectInput.readObject();
 
-                Command finalCommand = command;
+                ClientServerSideCommand finalCommand = command;
                 new Thread(() -> {
                     logger.info("Создан поток для команды " + finalCommand.getClass().getSimpleName());
                     String response;

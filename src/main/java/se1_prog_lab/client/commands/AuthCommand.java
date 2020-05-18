@@ -7,9 +7,9 @@ import se1_prog_lab.util.AuthData;
  * Не содержится в банке команд, нельзя напрямую вызвать из консоли.
  * Используется для отправки AuthData на сервер.
  */
-public abstract class AuthCommand extends NonValidatingRegularCommand {
+public abstract class AuthCommand extends ServerSideCommand {
     public AuthCommand(AuthData authData) {
         super(null,null);
-        super.setAuthData(authData);
+        this.authData = authData;
     }
 }

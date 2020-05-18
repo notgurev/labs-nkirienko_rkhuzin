@@ -2,8 +2,8 @@ package se1_prog_lab.client.commands;
 
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 
-public abstract class NonValidatingRegularCommand extends RegularCommand {
-    public NonValidatingRegularCommand(String key, String helpText) {
+public abstract class ServerSideCommand extends ClientServerSideCommand {
+    public ServerSideCommand(String key, String helpText) {
         super(key, helpText);
     }
 
