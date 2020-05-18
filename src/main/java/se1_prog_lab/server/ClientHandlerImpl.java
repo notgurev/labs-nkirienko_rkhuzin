@@ -37,17 +37,16 @@ public class ClientHandlerImpl implements ClientHandler {
     private final Validator validator;
     private final AuthManager authManager;
     private final ExecutorService executorService;
-
-    @Inject
-    private EOTWrapper eotWrapper;
+    private final EOTWrapper eotWrapper;
 
     @Inject
     public ClientHandlerImpl(@Assisted Socket clientSocket, ServerCommandReceiver serverCommandReceiver,
-                             AuthManager authManager, @Assisted ExecutorService executorService) {
+                             AuthManager authManager, @Assisted ExecutorService executorService, EOTWrapper eotWrapper) {
         this.clientSocket = clientSocket;
         this.serverCommandReceiver = serverCommandReceiver;
         this.authManager = authManager;
         this.executorService = executorService;
+        this.eotWrapper = eotWrapper;
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
