@@ -63,9 +63,9 @@ public class AuthManagerImpl implements AuthManager {
      * @param authData данные для регистрации.
      */
     @Override
-    public boolean register(AuthData authData) throws DatabaseException {
+    public void register(AuthData authData) throws DatabaseException {
         try {
-            return databaseManager.addUser(authData.getUsername(), securePassword.hash(authData.getPassword()));
+            databaseManager.addUser(authData.getUsername(), securePassword.hash(authData.getPassword()));
         } catch (PasswordHashException e) {
             logger.warning("Ошибка хеширования пароля: " + e.getMessage());
             throw new DatabaseException(e.getMessage());

@@ -8,5 +8,5 @@ public interface AuthManager {
 
     boolean doesUserExist(String username) throws DatabaseException;
 
-    boolean register(AuthData authData) throws DatabaseException;
+    void register(AuthData authData) throws DatabaseException;
 }
