@@ -1,6 +1,7 @@
 package se1_prog_lab.server;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.DatabaseException;
 import se1_prog_lab.server.interfaces.AuthManager;
@@ -20,6 +21,7 @@ import static se1_prog_lab.util.BetterStrings.*;
 /**
  * Ресивер для серверных команд (см. паттерн "Команда").
  */
+@Singleton
 public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
     private final CollectionWrapper collectionWrapper;
@@ -33,8 +35,15 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
         this.databaseManager = databaseManager;
     }
 
+    @Override
     public void loadCollectionFromDatabase() {
-        databaseManager.loadCollectionFromDatabase(collectionWrapper);
+        try {
+            logger.info("Загружаем коллекцию из базы данных");
+            databaseManager.loadCollectionFromDatabase(collectionWrapper);
+        } catch (DatabaseException e) {
+            logger.severe("Произошла ошибка при попытке загрузить коллекцию из базы данных: " + e.getMessage());
+            System.exit(1);
+        }
     }
 
     @Override

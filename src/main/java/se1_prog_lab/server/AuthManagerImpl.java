@@ -67,6 +67,7 @@ public class AuthManagerImpl implements AuthManager {
         try {
             return databaseManager.addUser(authData.getUsername(), securePassword.hash(authData.getPassword()));
         } catch (PasswordHashException e) {
+            logger.warning("Ошибка хеширования пароля: " + e.getMessage());
             throw new DatabaseException(e.getMessage());
         }
     }

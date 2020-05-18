@@ -10,13 +10,13 @@ public interface DatabaseManager {
 
     boolean updateById(LabWork labWork, long id, String username) throws DatabaseException;
 
-    boolean loadCollectionFromDatabase(CollectionWrapper collectionWrapper);
+    void loadCollectionFromDatabase(CollectionWrapper collectionWrapper) throws DatabaseException;
 
     String getPassword(String username) throws DatabaseException;
 
     boolean doesUserExist(String username) throws DatabaseException;
 
-    boolean addUser(String username, String password) throws DatabaseException;
+    void addUser(String username, String password) throws DatabaseException;
 
     List<Long> clear(String username) throws DatabaseException;
 

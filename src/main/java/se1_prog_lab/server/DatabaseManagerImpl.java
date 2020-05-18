@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 
 /**
  * Класс для работы с базой данных.
- * Я во многом тут не уверен, наверное придется переделывать сигнатуры и так далее.
  */
 @Singleton
 public class DatabaseManagerImpl implements DatabaseManager {
@@ -50,32 +49,39 @@ public class DatabaseManagerImpl implements DatabaseManager {
         }
     }
 
-    public Properties getDBProperties() throws IOException {
+    /**
+     * Получает свойства для подключения к базе данных из файла.
+     *
+     * @return свойства из файла
+     * @throws IOException если не удалось получить свойства
+     */
+    private Properties getDBProperties() throws IOException {
         Properties dbProps = new Properties();
-
         InputStream stream = this.getClass().getClassLoader().getResourceAsStream("database.properties");
         if (stream != null) {
             dbProps.load(stream);
+            return dbProps;
         } else {
             throw new FileNotFoundException("db property file not found");
         }
-
-        return dbProps;
     }
 
     /**
-     * Добавляет элемент в БД.
+     * Добавляет элемент в базу данных.
      *
-     * @param labWork элемент для добавления
-     * @return true, если успешно; false, если нет
+     * @param labWork  добавляемый элемент
+     * @param username имя пользователя (создателя элемента)
+     * @return назначенный базой данных id для этого элемента
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
      */
     @Override
     public Long addElement(LabWork labWork, String username) throws DatabaseException {
-        return this.<Long>handleQueryWithExceptionForwarding((Connection connection) -> {
+        return this.<Long>handleQuery((Connection connection) -> {
 
             Person author = labWork.getAuthor();
             Location authorLocation = author.getLocation();
-            String addPersonSql = "INSERT INTO person (person_name, height, passportID, hair_color, locationX, locationY, locationZ)" +
+            String addPersonSql = "INSERT INTO person (person_name, height, passportID, hair_color, " +
+                    "locationX, locationY, locationZ)" +
                     "VALUES (?, ?, ?, ?::color, ?, ?, ?)";
 
             PreparedStatement authorStatement = connection.prepareStatement(addPersonSql, Statement.RETURN_GENERATED_KEYS);
@@ -86,19 +92,18 @@ public class DatabaseManagerImpl implements DatabaseManager {
             authorStatement.setInt(5, authorLocation.getX());
             authorStatement.setFloat(6, authorLocation.getY());
             authorStatement.setInt(7, authorLocation.getZ());
-
             authorStatement.executeUpdate();
 
             ResultSet rs = authorStatement.getGeneratedKeys();
             if (rs.next()) {
-                String addElementSql = "INSERT INTO labwork (labwork_name, coordinateX, coordinateY, creationDate, minimalPoint, description, tunedInWorks, difficulty, person_id, user_id)" +
+                String addElementSql = "INSERT INTO labwork (labwork_name, coordinateX, coordinateY, creationDate, " +
+                        "minimalPoint, description, tunedInWorks, difficulty, person_id, user_id)" +
                         " SELECT ?, ?, ?, ?, ?, ?, ?, ?::difficulty, ?, id" +
                         " FROM \"user\"" +
                         " WHERE \"user\".login = ?";
 
-                Coordinates coordinates = labWork.getCoordinates();
-
                 PreparedStatement elementStatement = connection.prepareStatement(addElementSql, Statement.RETURN_GENERATED_KEYS);
+                Coordinates coordinates = labWork.getCoordinates();
                 elementStatement.setString(1, labWork.getName());
                 elementStatement.setLong(2, coordinates.getX());
                 elementStatement.setFloat(3, coordinates.getY());
@@ -108,15 +113,11 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 elementStatement.setInt(7, labWork.getTunedInWorks());
                 elementStatement.setString(8, labWork.getDifficulty().name());
                 elementStatement.setLong(9, rs.getLong(1));
-
                 elementStatement.setString(10, username);
 
                 elementStatement.executeUpdate();
-
                 ResultSet result = elementStatement.getGeneratedKeys();
-
                 result.next();
-
 
                 logger.info("В коллекцию добавлен элемент");
                 return result.getLong(1);
@@ -126,81 +127,76 @@ public class DatabaseManagerImpl implements DatabaseManager {
         });
     }
 
-    public boolean handleQuery(SqlConsumer<Connection> queryBody) {
+    /**
+     * Обработка запроса без возврата значения.
+     *
+     * @param queryBody тело запроса (Consumer)
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
+     */
+    private void handleQuery(SqlConsumer<Connection> queryBody) throws DatabaseException {
         try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
             queryBody.accept(connection);
-
-            return true;
         } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return false;
-        }
-    }
-
-    public boolean handleQueryWithExceptionForwarding(SqlConsumer<Connection> queryBody) throws DatabaseException {
-        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
-            queryBody.accept(connection);
-            return true;
-        } catch (SQLException e) {
-            throw new DatabaseException("Ошибка от бд: " + e.getMessage());
-        }
-    }
-
-    public <T> T handleQueryWithExceptionForwarding(SqlFunction<Connection, T> queryBody) throws DatabaseException {
-        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
-            return queryBody.apply(connection);
-        } catch (SQLException e) {
-            throw new DatabaseException(e.getMessage());
-        }
-    }
-
-    public <T> T handleQuery(SqlFunction<Connection, T> queryBody) {
-        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
-            return queryBody.apply(connection);
-        } catch (SQLException e) {
-            logger.severe("Не удалось получить доступ к базе данных: " + e.getMessage());
-            return null;
+            throw new DatabaseException("Ошибка при работе с базой данных: " + e.getMessage());
         }
     }
 
     /**
-     * Удаляет элемент из БД. Понятия не имею, что он должен принимать в качестве аргумента.
-     * Посмотрим по мере выполнения.
+     * Обработка запроса с возвратом значения.
      *
+     * @param queryBody тело запроса (Function)
+     * @param <T>       тип возвращаемого значения
+     * @return запрошенное у базы данных значение
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
+     */
+    private <T> T handleQuery(SqlFunction<Connection, T> queryBody) throws DatabaseException {
+        try (Connection connection = DriverManager.getConnection(dbProps.getProperty("url"), dbProps)) {
+            return queryBody.apply(connection);
+        } catch (SQLException e) {
+            throw new DatabaseException("Ошибка при работе с базой данных: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Удаляет элемент из базы данных по id.
+     *
+     * @param id       id удаляемого элемента
+     * @param username пользователь, который пытается удалить элемент
      * @return true, если успешно; false, если нет
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
      */
     @Override
     public boolean removeById(long id, String username) throws DatabaseException {
-        return handleQueryWithExceptionForwarding((Connection connection) -> {
+        return handleQuery((Connection connection) -> {
             String query =
                     "DELETE from person" +
-                    " USING \"user\", labwork" +
-                    " WHERE person.person_id = labwork.person_id AND labwork.labwork_id = ? AND labwork.user_id = \"user\".id AND \"user\".login = ?;";
+                            " USING \"user\", labwork" +
+                            " WHERE person.person_id = labwork.person_id AND labwork.labwork_id = ? " +
+                            "AND labwork.user_id = \"user\".id AND \"user\".login = ?;";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setLong(1, id);
-
             statement.setString(2, username);
 
             int rowsDeleted = statement.executeUpdate();
-
             return rowsDeleted > 0;
         });
     }
 
     /**
-     * Для команды Update id. Удаляет элемент с данным id и вставляет вместо него новый.
+     * Обновляет элемент базы данных с указанным id.
      *
-     * @param labWork новый элемент
-     * @param id      id старого элемента
+     * @param labWork  новый элемент
+     * @param id       id обновляемого элемента
+     * @param username пользователь, который пытается обновить элемент
      * @return true, если успешно; false, если нет
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
      */
     @Override
     public boolean updateById(LabWork labWork, long id, String username) throws DatabaseException {
-        return handleQueryWithExceptionForwarding((Connection connection) -> {
+        return handleQuery((Connection connection) -> {
             connection.createStatement().execute("BEGIN TRANSACTION;");
-            //(labwork_name, coordinateX, coordinateY, creationDate, minimalPoint, description, tunedInWorks, difficulty, person_id)
             String query =
-                            "UPDATE labwork" +
+                    "UPDATE labwork" +
                             " SET labwork_name = ?," +
                             "coordinateX = ?," +
                             "coordinateY = ?," +
@@ -231,7 +227,6 @@ public class DatabaseManagerImpl implements DatabaseManager {
             statement.setInt(7, labWork.getTunedInWorks());
             statement.setString(8, labWork.getDifficulty().name());
             statement.setLong(9, id);
-
             statement.setString(10, username);
 
             Person author = labWork.getAuthor();
@@ -256,13 +251,14 @@ public class DatabaseManagerImpl implements DatabaseManager {
     }
 
     /**
-     * Загружает коллекцию из БД.
+     * Загружает коллекцию из базы данных.
      *
-     * @return загруженную коллекцию / null, если не удалось загрузить
+     * @param collectionWrapper куда загрузить коллекцию
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
      */
     @Override
-    public boolean loadCollectionFromDatabase(CollectionWrapper collectionWrapper) {
-        return handleQuery((connection -> {
+    public void loadCollectionFromDatabase(CollectionWrapper collectionWrapper) throws DatabaseException {
+        handleQuery((connection -> {
             Vector<LabWork> newCollection = new Vector<>();
             String query = "SELECT * FROM labwork" +
                     " INNER JOIN person ON labwork.person_id = person.person_id";
@@ -295,38 +291,40 @@ public class DatabaseManagerImpl implements DatabaseManager {
     }
 
     /**
-     * Проверяет, соответствуют ли данные (имя пользователя и пароль) в команде реальному пользователю в базе данных
+     * Получает пароль по имени пользователя.
      *
-     * @param login Логин
-     * @return true, если соответствуют; false, если нет.
+     * @param username имя пользователя
+     * @return пароль (хешированный)
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
      */
     @Override
-    public String getPassword(String login) throws DatabaseException {
-        return this.handleQueryWithExceptionForwarding((Connection connection) -> {
-           String query = "SELECT (\"password\")" +
-                   " FROM \"user\"" +
-                   " WHERE \"user\".login = ?";
-           PreparedStatement statement = connection.prepareStatement(query);
-           statement.setString(1, login);
+    public String getPassword(String username) throws DatabaseException {
+        return this.handleQuery((Connection connection) -> {
+            String query = "SELECT (\"password\")" +
+                    " FROM \"user\"" +
+                    " WHERE \"user\".login = ?";
+            PreparedStatement statement = connection.prepareStatement(query);
+            statement.setString(1, username);
 
-           ResultSet result = statement.executeQuery();
+            ResultSet result = statement.executeQuery();
 
-           if (result.next()) {
-               return result.getString("password");
-           }
-           return null;
+            if (result.next()) {
+                return result.getString("password");
+            }
+            return null;
         });
     }
 
     /**
-     * Проверяет, существует (зарегистрирован) ли пользователь
+     * Проверяет, существует ли пользователь.
      *
      * @param username имя пользователя
-     * @return true, если существует; false, если нет.
+     * @return true, если существует; false, если нет
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
      */
     @Override
     public boolean doesUserExist(String username) throws DatabaseException {
-        return this.<Boolean>handleQueryWithExceptionForwarding((Connection connection) -> {
+        return this.<Boolean>handleQuery((Connection connection) -> {
             String query = "SELECT COUNT(*)" +
                     " FROM \"user\"" +
                     " WHERE \"user\".login = ?";
@@ -341,15 +339,15 @@ public class DatabaseManagerImpl implements DatabaseManager {
     }
 
     /**
-     * Добавляет нового пользователя в базу данных
+     * Добавляет пользователя в базу данных.
      *
      * @param username имя пользователя
-     * @param password пароль
-     * @return true, если успешно; false, если нет.
+     * @param password пароль (хешированный)
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
      */
     @Override
-    public boolean addUser(String username, String password) throws DatabaseException {
-        return handleQueryWithExceptionForwarding((Connection connection) -> {
+    public void addUser(String username, String password) throws DatabaseException {
+        handleQuery((Connection connection) -> {
             String query = "INSERT INTO \"user\" (\"login\", \"password\")" +
                     "VALUES (?, ?)";
             PreparedStatement statement = connection.prepareStatement(query);
@@ -360,9 +358,16 @@ public class DatabaseManagerImpl implements DatabaseManager {
         });
     }
 
+    /**
+     * Удаляет все элементы, владельцем которых является пользователь.
+     *
+     * @param username имя пользователя
+     * @return список id элементов, которые были удалены
+     * @throws DatabaseException если что-то пошло не так при работе с базой данных
+     */
     @Override
     public List<Long> clear(String username) throws DatabaseException {
-        return handleQueryWithExceptionForwarding((Connection connection) -> {
+        return handleQuery((Connection connection) -> {
             String query = "DELETE FROM person" +
                     " USING labwork, \"user\"" +
                     "WHERE person.person_id = labwork.person_id AND labwork.user_id = \"user\".id AND \"user\".login = ?" +

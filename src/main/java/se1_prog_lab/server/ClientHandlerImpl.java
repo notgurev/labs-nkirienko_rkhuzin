@@ -57,7 +57,6 @@ public class ClientHandlerImpl implements ClientHandler {
      */
     @Override
     public void run() {
-        serverCommandReceiver.loadCollectionFromDatabase();
         logger.info("Начата обработка запросов");
         try (BufferedWriter clientWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8))) {
             logger.info("Создан clientWriter, попытка получить InputStream с clientSocket");
