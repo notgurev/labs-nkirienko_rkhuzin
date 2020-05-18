@@ -39,19 +39,19 @@ public class MyServerIO implements ServerIO {
     /**
      * Размер буфера по умолчанию.
      */
-    private final int DEFAULT_BUFFER_CAPACITY = 1024;
-    private final int PORT = 6006;
-    private final String HOST = "localhost";
+    private final static int DEFAULT_BUFFER_CAPACITY = 1024;
+    private final static int PORT = 6006;
+    private final static String HOST = "localhost";
     private final Scanner consoleScanner;
     private SocketChannel socketChannel;
     private ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_BUFFER_CAPACITY);
-    @Inject
-    private EOTWrapper eotWrapper;
+    private final EOTWrapper eotWrapper;
     private AuthData authData;
 
     @Inject
-    public MyServerIO(Scanner consoleScanner) {
+    public MyServerIO(Scanner consoleScanner, EOTWrapper eotWrapper) {
         this.consoleScanner = consoleScanner;
+        this.eotWrapper = eotWrapper;
     }
 
     /**
