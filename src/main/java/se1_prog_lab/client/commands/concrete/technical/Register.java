@@ -6,11 +6,11 @@ import se1_prog_lab.util.AuthData;
 
 public class Register extends AuthCommand {
     public Register(AuthData authData) {
-        super(authData);
+        super();
     }
 
     @Override
-    public String serverExecute(ServerCommandReceiver serverReceiver) {
-        return serverReceiver.register(getAuthData());
+    public String serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
+        return serverReceiver.register(authData);
     }
 }

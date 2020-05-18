@@ -2,6 +2,7 @@ package se1_prog_lab.client.commands;
 
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
+import se1_prog_lab.util.AuthData;
 
 import java.io.Serializable;
 
@@ -10,9 +11,10 @@ public interface Command extends Serializable {
      * Метод, выполняемый на сервере
      *
      * @param serverReceiver ресивер команд, который передается сервером как аргумент
+     * @param authData данные для авторизации
      * @return строку-ответ клиенту.
      */
-    String serverExecute(ServerCommandReceiver serverReceiver);
+    String serverExecute(ServerCommandReceiver serverReceiver, AuthData authData);
 
     /**
      * Метод, выполняемый на клиенте

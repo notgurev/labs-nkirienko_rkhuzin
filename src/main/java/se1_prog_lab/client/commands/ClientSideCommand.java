@@ -1,6 +1,7 @@
 package se1_prog_lab.client.commands;
 
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
+import se1_prog_lab.util.AuthData;
 
 /**
  * Клиентская команда.
@@ -14,7 +15,7 @@ public abstract class ClientSideCommand extends BaseCommand {
     }
 
     @Override
-    public final String serverExecute(ServerCommandReceiver clientCommandReceiver) {
+    public final String serverExecute(ServerCommandReceiver clientCommandReceiver, AuthData authData) {
         return null;
     }
 }

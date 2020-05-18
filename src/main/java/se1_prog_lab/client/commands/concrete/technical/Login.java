@@ -6,11 +6,11 @@ import se1_prog_lab.util.AuthData;
 
 public class Login extends AuthCommand {
     public Login(AuthData authData) {
-        super(authData);
+        super();
     }
 
     @Override
-    public String serverExecute(ServerCommandReceiver serverReceiver) {
-        return serverReceiver.login(getAuthData());
+    public String serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
+        return serverReceiver.login(authData);
     }
 }

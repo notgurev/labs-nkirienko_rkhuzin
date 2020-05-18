@@ -3,6 +3,7 @@ package se1_prog_lab.client.commands.concrete;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
+import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ElementCreator;
 
 public class Update extends ConstructingCommand {
@@ -13,8 +14,8 @@ public class Update extends ConstructingCommand {
     }
 
     @Override
-    public String serverExecute(ServerCommandReceiver serverReceiver) {
-        return serverReceiver.update(carriedObject, id, getAuthData());
+    public String serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
+        return serverReceiver.update(carriedObject, id, authData);
     }
 
     @Override

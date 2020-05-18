@@ -4,10 +4,10 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.ClientServerSideCommand;
-import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ByteArrays;
+import se1_prog_lab.util.CommandWrapper;
 import se1_prog_lab.util.interfaces.EOTWrapper;
 
 import java.io.ByteArrayOutputStream;
@@ -17,8 +17,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Scanner;
 
 import static se1_prog_lab.util.AuthStrings.LOGIN_SUCCESSFUL;
 import static se1_prog_lab.util.AuthStrings.REGISTRATION_SUCCESSFUL;
@@ -40,15 +38,13 @@ public class MyServerIO implements ServerIO {
     private final static int DEFAULT_BUFFER_CAPACITY = 1024;
     private final static int PORT = 6006;
     private final static String HOST = "localhost";
-    private final Scanner consoleScanner;
+    private final EOTWrapper eotWrapper;
     private SocketChannel socketChannel;
     private ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_BUFFER_CAPACITY);
-    private final EOTWrapper eotWrapper;
     private AuthData authData;
 
     @Inject
-    public MyServerIO(Scanner consoleScanner, EOTWrapper eotWrapper) {
-        this.consoleScanner = consoleScanner;
+    public MyServerIO(EOTWrapper eotWrapper) {
         this.eotWrapper = eotWrapper;
     }
 
@@ -98,15 +94,15 @@ public class MyServerIO implements ServerIO {
     /**
      * Отправляет команду на сервер.
      *
-     * @param command команда для отправки.
+     * @param commandWrapper обертка команды для отправки
      * @throws IOException если что-то пошло не так.
      */
-    private void sendToServer(Command command) throws IOException {
+    private void sendToServer(CommandWrapper commandWrapper) throws IOException {
         ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream();
         ObjectOutputStream objectStream = new ObjectOutputStream(byteArrayStream);
 
-        System.out.printf("Команда %s готовится к отправке... ", command.getClass().getSimpleName());
-        objectStream.writeObject(command);
+        System.out.printf("Команда %s готовится к отправке... ", commandWrapper.getCommand().getClass().getSimpleName());
+        objectStream.writeObject(commandWrapper);
         byte[] byteArray = byteArrayStream.toByteArray();
         ByteBuffer buffer = getByteBuffer(byteArray.length);
         buffer.clear();
@@ -158,26 +154,22 @@ public class MyServerIO implements ServerIO {
      * @return полученная строка.
      */
     @Override
-    public String sendAndReceive(Command command) {
-        if (command instanceof ClientServerSideCommand) {
-            ClientServerSideCommand commandToSend = (ClientServerSideCommand) command;
-            if (!Objects.equals(commandToSend.getAuthData(), authData)) commandToSend.setAuthData(authData);
-            while (true) {
-                try {
-                    if (!isOpen() && !tryOpen()) {
-                        return "Команда не будет отправлена, так как не удалось открыть соединение";
-                    }
-                    sendToServer(commandToSend);
-                    return receiveFromServer();
-                } catch (IOException e) {
-                    System.out.println(red("Не получилось отправить команду: " + e.getMessage()));
-                    closeSocketChannel();
-                    if (!tryOpen()) return "Не удалось установить соединение";
-                    System.out.println("Повторная отправка команды " + commandToSend.getClass().getSimpleName());
+    public String sendAndReceive(ClientServerSideCommand command) {
+        CommandWrapper commandWrapper = new CommandWrapper(command, authData);
+        while (true) {
+            try {
+                if (!isOpen() && !tryOpen()) {
+                    return "Команда не будет отправлена, так как не удалось открыть соединение";
                 }
+                sendToServer(commandWrapper);
+                return receiveFromServer();
+            } catch (IOException e) {
+                System.out.println(red("Не получилось отправить команду: " + e.getMessage()));
+                closeSocketChannel();
+                if (!tryOpen()) return "Не удалось установить соединение";
+                System.out.println("Повторная отправка команды " + commandWrapper.getCommand().getClass().getSimpleName());
             }
         }
-        return "";
     }
 
     /**
@@ -193,14 +185,16 @@ public class MyServerIO implements ServerIO {
 
     /**
      * Получает от пользователя данные для авторизации и отправляет их на сервер.
-     * @return true, если авторизация успешная
+     *
      * @param authCommand команда для авторизации
+     * @param authData данные для авторизации
+     * @return true, если авторизация успешная
      */
     @Override
-    public String authorize(AuthCommand authCommand) {
+    public String authorize(AuthCommand authCommand, AuthData authData) {
         String response = sendAndReceive(authCommand);
         if (response.equals(REGISTRATION_SUCCESSFUL.getMessage()) || response.equals(LOGIN_SUCCESSFUL.getMessage())) {
-            authData = authCommand.getAuthData();
+            this.authData = authData;
         }
         return response;
     }

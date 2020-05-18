@@ -11,6 +11,7 @@ import se1_prog_lab.exceptions.DatabaseException;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.ClientHandler;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
+import se1_prog_lab.util.CommandWrapper;
 import se1_prog_lab.util.interfaces.EOTWrapper;
 
 import javax.validation.ConstraintViolation;
@@ -62,30 +63,32 @@ public class ClientHandlerImpl implements ClientHandler {
             logger.info("Создан clientWriter, попытка получить InputStream с clientSocket");
             InputStream clientInputStream = clientSocket.getInputStream();
             ObjectInputStream objectInput;
-            ClientServerSideCommand command;
 
             while (true) {
                 objectInput = new ObjectInputStream(clientInputStream);
                 logger.info("Принят объект " + objectInput.getClass().getSimpleName());
-                command = (ClientServerSideCommand) objectInput.readObject();
-
-                ClientServerSideCommand finalCommand = command;
+                CommandWrapper commandWrapper = (CommandWrapper) objectInput.readObject();
+                ClientServerSideCommand command = commandWrapper.getCommand();
                 new Thread(() -> {
-                    logger.info("Создан поток для команды " + finalCommand.getClass().getSimpleName());
+                    String commandName = command.getClass().getSimpleName();
+                    logger.info("Создан поток для команды " + commandName);
                     String response;
                     try {
-
-                        if (!(finalCommand instanceof AuthCommand || authManager.checkAuth(finalCommand.getAuthData()))) {
+                        if (!(command instanceof AuthCommand) && !authManager.checkAuth(commandWrapper.getAuthData())) {
+                            // Если это не AuthCommand и проверка данных авторизации провалена
                             logger.info("Команда содержит некорректные данные для авторизации!");
                             response = AUTH_FAILED.getMessage();
                         } else {
-                            if (finalCommand instanceof ConstructingCommand && !validateCarriedObject(finalCommand)) {
+                            // Обычные команды
+                            if (command instanceof ConstructingCommand && !validateCarriedObject(command)) {
+                                // Команда с объектом
                                 response = "Объект не прошел валидацию, команда не будет выполнена.";
                                 logger.warning("Объект не прошел валидацию, команда не будет выполнена.");
                             } else {
-                                logger.info("Начинается выполнение команды " + finalCommand.getClass().getSimpleName());
-                                response = finalCommand.serverExecute(serverCommandReceiver);
-                                logger.info(format("Команда %s выполнена, отправляем ответ клиенту", finalCommand.getClass().getSimpleName()));
+                                // Остальные команды
+                                logger.info("Начинается выполнение команды " + commandName);
+                                response = command.serverExecute(serverCommandReceiver, commandWrapper.getAuthData());
+                                logger.info(format("Команда %s выполнена, отправляем ответ клиенту", commandName));
                             }
                         }
                     } catch (DatabaseException e) {

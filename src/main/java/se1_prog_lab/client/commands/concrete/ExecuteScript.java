@@ -1,6 +1,7 @@
 package se1_prog_lab.client.commands.concrete;
 
 import com.google.inject.Inject;
+import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.client.commands.ScriptCommand;
@@ -59,7 +60,9 @@ public class ExecuteScript extends ScriptCommand {
                 line = scanner.nextLine().split(" ");
                 try {
                     Command command = commandRepository.parseThenRun(line);
-                    if (command != null) System.out.println(serverIO.sendAndReceive(command));
+                    if (command instanceof ClientServerSideCommand) {
+                        System.out.println(serverIO.sendAndReceive((ClientServerSideCommand) command));
+                    }
                     if (command instanceof ConstructingCommand) currentLine += LabWork.getNumberOfFields();
                 } catch (SelfCallingScriptException e) {
                     linesWithErrors.add(currentLine);

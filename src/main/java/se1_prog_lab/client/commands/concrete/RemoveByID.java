@@ -3,6 +3,7 @@ package se1_prog_lab.client.commands.concrete;
 import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
+import se1_prog_lab.util.AuthData;
 
 public class RemoveByID extends ClientServerSideCommand {
     long id;
@@ -12,8 +13,8 @@ public class RemoveByID extends ClientServerSideCommand {
     }
 
     @Override
-    public String serverExecute(ServerCommandReceiver serverReceiver) {
-        return serverReceiver.removeByID(id, getAuthData());
+    public String serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
+        return serverReceiver.removeByID(id, authData);
     }
 
     @Override

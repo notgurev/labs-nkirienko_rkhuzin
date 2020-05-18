@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
+import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
@@ -60,8 +61,9 @@ public class ClientApp implements Client {
                 String[] input = consoleScanner.nextLine().trim().split(" ");
                 Command command = commandRepository.parseThenRun(input);
 
-                if (command != null) {
-                    serverResponse = serverIO.sendAndReceive(command);
+                if (command instanceof ClientServerSideCommand) {
+                    ClientServerSideCommand serverSideCommand = (ClientServerSideCommand) command;
+                    serverResponse = serverIO.sendAndReceive(serverSideCommand);
                     System.out.println(serverResponse);
                     if (serverResponse.equals(INCORRECT_LOGIN_DATA.getMessage())
                             || serverResponse.equals(USERNAME_TAKEN.getMessage())
@@ -102,7 +104,7 @@ public class ClientApp implements Client {
 
             if (input.equals("login")) authCommand = new Login(authData);
             else authCommand = new Register(authData);
-            response = serverIO.authorize(authCommand);
+            response = serverIO.authorize(authCommand, authData);
 
         } while (!(response.equals(LOGIN_SUCCESSFUL.getMessage())
                 || response.equals(REGISTRATION_SUCCESSFUL.getMessage())));
