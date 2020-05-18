@@ -18,8 +18,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 
-import static se1_prog_lab.util.AuthStrings.LOGIN_SUCCESSFUL;
-import static se1_prog_lab.util.AuthStrings.REGISTRATION_SUCCESSFUL;
 import static se1_prog_lab.util.BetterStrings.red;
 import static se1_prog_lab.util.BetterStrings.yellow;
 
@@ -192,10 +190,7 @@ public class MyServerIO implements ServerIO {
      */
     @Override
     public String authorize(AuthCommand authCommand, AuthData authData) {
-        String response = sendAndReceive(authCommand);
-        if (response.equals(REGISTRATION_SUCCESSFUL.getMessage()) || response.equals(LOGIN_SUCCESSFUL.getMessage())) {
-            this.authData = authData;
-        }
-        return response;
+        this.authData = authData;
+        return sendAndReceive(authCommand);
     }
 }

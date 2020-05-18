@@ -5,7 +5,7 @@ import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 
 public class Register extends AuthCommand {
-    public Register(AuthData authData) {
+    public Register() {
         super();
     }
 

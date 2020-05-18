@@ -102,14 +102,12 @@ public class ClientApp implements Client {
             password = readString(consoleScanner, passwordMessage, false, 1);
             authData = new AuthData(username, password);
 
-            if (input.equals("login")) authCommand = new Login(authData);
-            else authCommand = new Register(authData);
+            if (input.equals("login")) authCommand = new Login();
+            else authCommand = new Register();
             response = serverIO.authorize(authCommand, authData);
-
+            System.out.println(response);
         } while (!(response.equals(LOGIN_SUCCESSFUL.getMessage())
                 || response.equals(REGISTRATION_SUCCESSFUL.getMessage())));
-
-        System.out.println(response);
     }
 }
 

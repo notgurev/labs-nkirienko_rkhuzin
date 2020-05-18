@@ -4,7 +4,6 @@ import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.collection.*;
 import se1_prog_lab.exceptions.LabWorkFieldException;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -53,21 +52,23 @@ public class ElementCreator {
     public static LabWork fromStringArray(String[] args) throws LabWorkFieldException, NumberFormatException, ArrayIndexOutOfBoundsException {
         Arrays.setAll(args, i -> args[i].trim());
         IntStream.range(0, args.length).filter(i -> args[i].equals("")).forEach(i -> args[i] = null);
-        LabWork labWork = new LabWork();
-        labWork.setName(args[0]);
-        labWork.setCoordinates(Long.parseLong(args[1]), Float.parseFloat(args[2]));
-        labWork.setMinimalPoint(args[3] == null ? null : Integer.valueOf(args[3]));
-        labWork.setDescription(args[4]);
-        labWork.setTunedInWorks(args[5] == null ? null : Integer.valueOf(args[5]));
-        labWork.setDifficulty(Difficulty.valueOf(args[6]));
-        labWork.getAuthor().setName(args[7]);
-        labWork.getAuthor().setHeight(args[8] == null ? null : Float.parseFloat(args[8]));
-        labWork.getAuthor().setPassportID(args[9]);
-        labWork.getAuthor().setHairColor(nullableValueOf(Color.class, args[10]));
-        labWork.getAuthor().setLocation(Integer.parseInt(args[11]), Float.parseFloat(args[12]), Integer.valueOf(args[13]));
-        labWork.setId(Long.valueOf(args[14]));
-        labWork.setCreationDate(LocalDateTime.parse(args[15]));
-        return labWork;
+        return new LabWork(
+                args[0],
+                new Coordinates(Long.parseLong(args[1]), Float.parseFloat(args[2])),
+                args[3] == null ? null : Integer.valueOf(args[3]),
+                args[4],
+                args[5] == null ? null : Integer.valueOf(args[5]),
+                Difficulty.valueOf(args[6]),
+                new Person(
+                        args[7],
+                        args[8] == null ? null : Float.parseFloat(args[8]),
+                        args[9],
+                        nullableValueOf(Color.class, args[10]),
+                        new Location(
+                                Integer.parseInt(args[11]), Float.parseFloat(args[12]), Integer.valueOf(args[13])
+                        )
+                )
+        );
     }
 
     public static LabWork createLabWork(LabWorkParams params) {
