@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.Command;
-import se1_prog_lab.client.commands.concrete.technical.Login;
-import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ByteArrays;
@@ -25,7 +23,6 @@ import static se1_prog_lab.util.AuthStrings.LOGIN_SUCCESSFUL;
 import static se1_prog_lab.util.AuthStrings.REGISTRATION_SUCCESSFUL;
 import static se1_prog_lab.util.BetterStrings.red;
 import static se1_prog_lab.util.BetterStrings.yellow;
-import static se1_prog_lab.util.ValidatingReader.readString;
 
 /**
  * Класс для взаимодействия с сервером.
@@ -194,39 +191,15 @@ public class MyServerIO implements ServerIO {
 
     /**
      * Получает от пользователя данные для авторизации и отправляет их на сервер.
+     * @return true, если авторизация успешная
+     * @param authCommand команда для авторизации
      */
     @Override
-    public void authorize() {
-        System.out.println("Для работы с коллекцией зарегистрироваться/авторизоваться");
-
-        String input;
-        do {
-            System.out.printf("Введите %s для регистрации или %s для авторизации \n",
-                    yellow("register"), yellow("login"));
-            input = consoleScanner.nextLine().trim();
-        } while (!(input.equals("login") || input.equals("register")));
-
-        String username, password, response;
-        AuthCommand authCommand;
-        String usernameMessage, passwordMessage;
-        do {
-            if (input.equals("login")) {
-                usernameMessage = "Введите ваше имя пользователя: ";
-                passwordMessage = "Введите ваш пароль: ";
-            } else {
-                usernameMessage = "Придумайте имя пользователя: ";
-                passwordMessage = "Придумайте пароль: ";
-            }
-
-            username = readString(consoleScanner, usernameMessage, false, 1);
-            password = readString(consoleScanner, passwordMessage, false, 1);
-            authData = new AuthData(username, password);
-
-            if (input.equals("login")) authCommand = new Login(authData);
-            else authCommand = new Register(authData);
-
-            response = sendAndReceive(authCommand);
-            System.out.println(response);
-        } while (!(response.equals(REGISTRATION_SUCCESSFUL.getMessage()) || response.equals(LOGIN_SUCCESSFUL.getMessage())));
+    public String authorize(AuthCommand authCommand) {
+        String response = sendAndReceive(authCommand);
+        if (response.equals(REGISTRATION_SUCCESSFUL.getMessage()) || response.equals(LOGIN_SUCCESSFUL.getMessage())) {
+            authData = authCommand.getAuthData();
+        }
+        return response;
     }
 }
