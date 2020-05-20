@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
+import static se1_prog_lab.server.api.ResponseType.*;
 import static se1_prog_lab.util.AuthStrings.AUTH_FAILED;
 import static se1_prog_lab.util.AuthStrings.SERVER_ERROR;
 
@@ -79,13 +80,13 @@ public class ClientHandlerImpl implements ClientHandler {
                         if (!(command instanceof AuthCommand) && !authManager.checkAuth(commandWrapper.getAuthData())) {
                             // Если это не AuthCommand и проверка данных авторизации провалена
                             logger.info("Команда содержит некорректные данные для авторизации!");
-                            response = new Response(ResponseType.AUTH_STATUS, AUTH_FAILED, true);
+                            response = new Response(AUTH_STATUS, AUTH_FAILED, true);
                         } else {
                             // Обычные команды
                             if (command instanceof ConstructingCommand && !validateCarriedObject(command)) {
                                 // Команда с объектом
                                 String message = "Объект не прошел валидацию, команда не будет выполнена.";
-                                response = new Response(ResponseType.PLAIN_TEXT, message, true);
+                                response = new Response(PLAIN_TEXT, message, true);
                                 logger.warning("Объект не прошел валидацию, команда не будет выполнена.");
                             } else {
                                 // Остальные команды
@@ -95,7 +96,7 @@ public class ClientHandlerImpl implements ClientHandler {
                             }
                         }
                     } catch (DatabaseException e) {
-                        response = new Response(ResponseType.PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+                        response = new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
                     }
                     Response newResponse = response;
                     executorService.submit(() -> sendToClient(clientWriter, newResponse));

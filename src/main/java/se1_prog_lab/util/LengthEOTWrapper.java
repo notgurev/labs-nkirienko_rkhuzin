@@ -5,10 +5,7 @@ import se1_prog_lab.exceptions.EOTException;
 import se1_prog_lab.util.interfaces.EOTWrapper;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Класс-обертка для передачи строк.
@@ -18,8 +15,8 @@ public class LengthEOTWrapper implements EOTWrapper {
     /**
      * Символ конца передачи.
      */
-    private final byte EOT_SYMBOL = (byte) 0xFF;
-    private final int LENGTH_MAX_SIZE = 4;
+    private final static byte EOT_SYMBOL = (byte) 0xFF;
+    private final static int LENGTH_MAX_SIZE = 4;
 
     /**
      * Готовит строку к отправке, добавляя в конец символ конца передачи.
@@ -32,9 +29,9 @@ public class LengthEOTWrapper implements EOTWrapper {
         byte[] length = ByteBuffer.allocate(LENGTH_MAX_SIZE).putInt(s.length).array();
         byte[] arrayWithEOT = Arrays.copyOf(s, s.length + 1);
         arrayWithEOT[s.length] = EOT_SYMBOL;
-        byte[] concated = Arrays.copyOf(length, length.length + arrayWithEOT.length);
-        System.arraycopy(arrayWithEOT, 0, concated, length.length, arrayWithEOT.length);
-        return concated;
+        byte[] concatenated = Arrays.copyOf(length, length.length + arrayWithEOT.length);
+        System.arraycopy(arrayWithEOT, 0, concatenated, length.length, arrayWithEOT.length);
+        return concatenated;
     }
 
     /**
@@ -47,7 +44,7 @@ public class LengthEOTWrapper implements EOTWrapper {
     public byte[] unwrap(byte[] s) throws EOTException {
         if (hasEOTSymbol(s)) {
             int length = ByteBuffer.wrap(Arrays.copyOfRange(s, 0, 4)).getInt();
-            return Arrays.copyOfRange(s, LENGTH_MAX_SIZE,LENGTH_MAX_SIZE + length);
+            return Arrays.copyOfRange(s, LENGTH_MAX_SIZE, LENGTH_MAX_SIZE + length);
         }
         return s;
     }

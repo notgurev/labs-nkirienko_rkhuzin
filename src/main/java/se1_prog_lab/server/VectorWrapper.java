@@ -4,18 +4,14 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
-import se1_prog_lab.server.interfaces.DatabaseManager;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static se1_prog_lab.util.BetterStrings.yellow;
-import static se1_prog_lab.util.BetterStrings.multiline;
 
 /**
- * Принципиально данный класс должен только управлять коллекцией, но не оповещать ни о чем пользователя напрямую
- * Если нет туду, то я почти уверен, что метод уже сделан верно и работает.
+ * Класс, управляющий коллекцией в памяти (оболочка).
  */
 @Singleton
 public class VectorWrapper implements CollectionWrapper {
@@ -58,7 +54,7 @@ public class VectorWrapper implements CollectionWrapper {
     /**
      * Добавляет элемент в коллекцию.
      *
-     * @param labWork добавлямый элемент.
+     * @param labWork добавляемый элемент.
      */
     public void add(LabWork labWork, long id) {
         labWork.setId(id);
@@ -71,7 +67,7 @@ public class VectorWrapper implements CollectionWrapper {
      *
      * @param labWork новый элемент
      * @param index   позиция
-     * @param id id
+     * @param id      id
      */
     public void insertAtIndex(LabWork labWork, int index, long id) {
         labWork.setId(id);
@@ -151,11 +147,10 @@ public class VectorWrapper implements CollectionWrapper {
     }
 
     /**
-     * @return все строки содержимого всех элементов коллекции или сообщение, что она пуста.
+     * @return List всех элементов коллекции или сообщение, что она пуста.
      */
-    public List<LabWork> showAll() {
+    public List<LabWork> getListOfAllElements() {
         return labWorks.stream().filter(Objects::nonNull).collect(Collectors.toList());
-        // multiline(labWorks.stream().filter(Objects::nonNull).map(LabWork::toString).toArray())
     }
 
     /**

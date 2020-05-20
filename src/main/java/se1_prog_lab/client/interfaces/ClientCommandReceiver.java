@@ -9,6 +9,8 @@ public interface ClientCommandReceiver {
 
     Scanner getScriptScanner();
 
+    void setScriptScanner(Scanner scanner);
+
     Collection<String> getExecutingScripts();
 
     void help();
@@ -16,8 +18,6 @@ public interface ClientCommandReceiver {
     void history();
 
     void exit();
-
-    void setScriptScanner(Scanner scanner);
 
     void setHelpText(String helpText);
 

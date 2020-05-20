@@ -14,22 +14,19 @@ import se1_prog_lab.client.interfaces.CommandRepository;
 import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.api.Response;
-import se1_prog_lab.server.api.ResponseType;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.AuthStrings;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
-import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
-import static se1_prog_lab.util.AuthStrings.*;
-import static se1_prog_lab.util.BetterStrings.*;
+import static se1_prog_lab.util.AuthStrings.INCORRECT_LOGIN_DATA;
+import static se1_prog_lab.util.AuthStrings.USERNAME_TAKEN;
+import static se1_prog_lab.util.BetterStrings.multiline;
+import static se1_prog_lab.util.BetterStrings.yellow;
 import static se1_prog_lab.util.ValidatingReader.readString;
 
 /**
@@ -91,14 +88,11 @@ public class ClientApp implements Client {
                 Command command = commandRepository.parseThenRun(input);
 
                 if (command instanceof ClientServerSideCommand) {
-                    ClientServerSideCommand serverSideCommand = (ClientServerSideCommand) command;
-                    serverResponse = serverIO.sendAndReceive(serverSideCommand);
+                    serverResponse = serverIO.sendAndReceive((ClientServerSideCommand) command);
                     handleResponse(serverResponse);
                     if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
                         AuthStrings authStatus = (AuthStrings) serverResponse.getMessage();
-                        if (authStatus == INCORRECT_LOGIN_DATA ||
-                            authStatus == USERNAME_TAKEN
-                        ) break;
+                        if (authStatus == INCORRECT_LOGIN_DATA || authStatus == USERNAME_TAKEN) break;
                     }
                 }
             }

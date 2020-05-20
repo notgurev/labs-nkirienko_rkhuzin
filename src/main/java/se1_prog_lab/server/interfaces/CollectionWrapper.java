@@ -27,7 +27,7 @@ public interface CollectionWrapper {
 
     boolean sort();
 
-    Collection<LabWork> showAll();
+    Collection<LabWork> getListOfAllElements();
 
     Set<Integer> getUniqueTunedInWorks();
 

@@ -50,16 +50,15 @@ public class PBKDF2SecurePassword implements SecurePassword {
      * Compares two byte arrays in length-constant time. This comparison method
      * is used so that password hashes cannot be extracted from an on-line
      * system using a timing attack and then attacked off-line.
-     *  ̶у̶к̶р̶а̶д̶е̶н̶ы̶й̶  позаимствованный метод
+     * ̶у̶к̶р̶а̶д̶е̶н̶ы̶й̶  позаимствованный метод
      *
-     * @param   a       the first byte array
-     * @param   b       the second byte array
-     * @return          true if both byte arrays are the same, false if not
+     * @param a the first byte array
+     * @param b the second byte array
+     * @return true if both byte arrays are the same, false if not
      */
-    private boolean slowEquals(byte[] a, byte[] b)
-    {
+    private boolean slowEquals(byte[] a, byte[] b) {
         int diff = a.length ^ b.length;
-        for(int i = 0; i < a.length && i < b.length; i++)
+        for (int i = 0; i < a.length && i < b.length; i++)
             diff |= a[i] ^ b[i];
         return diff == 0;
     }

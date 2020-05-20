@@ -12,14 +12,15 @@ public interface Command extends Serializable {
      * Метод, выполняемый на сервере
      *
      * @param serverReceiver ресивер команд, который передается сервером как аргумент
-     * @param authData данные для авторизации
-     * @return строку-ответ клиенту.
+     * @param authData       данные для авторизации
+     * @return ответ клиенту.
      */
     Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData);
 
     /**
      * Метод, выполняемый на клиенте
-     *  @param args           аргументы команды
+     *
+     * @param args           аргументы команды
      * @param clientReceiver серверный ресивер команд
      * @return true, если выполнилась нормально; false, если нет
      */

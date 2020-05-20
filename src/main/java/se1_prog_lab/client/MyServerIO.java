@@ -7,9 +7,7 @@ import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.exceptions.EOTException;
 import se1_prog_lab.server.api.Response;
-import se1_prog_lab.server.api.ResponseType;
 import se1_prog_lab.util.AuthData;
-import se1_prog_lab.util.ByteArrays;
 import se1_prog_lab.util.CommandWrapper;
 import se1_prog_lab.util.interfaces.EOTWrapper;
 
@@ -17,8 +15,8 @@ import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 
+import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
 import static se1_prog_lab.util.BetterStrings.red;
 import static se1_prog_lab.util.BetterStrings.yellow;
 
@@ -86,7 +84,6 @@ public class MyServerIO implements ServerIO {
         if (byteBuffer == null || byteBuffer.capacity() != capacity) {
             byteBuffer = ByteBuffer.allocate(capacity);
         }
-
         return byteBuffer;
     }
 
@@ -108,9 +105,7 @@ public class MyServerIO implements ServerIO {
 
         buffer.put(byteArray);
         buffer.flip();
-        while (buffer.hasRemaining()) {
-            socketChannel.write(buffer);
-        }
+        while (buffer.hasRemaining()) socketChannel.write(buffer);
         System.out.print("Команда отправлена. \n");
     }
 
@@ -121,7 +116,6 @@ public class MyServerIO implements ServerIO {
      */
     private Response receiveFromServer() {
         byte[] result;
-        Response response;
         try (ByteArrayOutputStream totalBytes = new ByteArrayOutputStream()) {
             ByteBuffer buffer = getByteBuffer();
             buffer.clear();
@@ -137,13 +131,12 @@ public class MyServerIO implements ServerIO {
             }
             result = eotWrapper.unwrap(totalBytes.toByteArray());
             ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(result));
-            response = (Response) inputStream.readObject();
+            return (Response) inputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            return new Response(ResponseType.PLAIN_TEXT, red("При получении ответа возникла ошибка: " + e.getMessage()), true);
+            return new Response(PLAIN_TEXT, red("При получении ответа возникла ошибка: " + e.getMessage()), true);
         } catch (EOTException e) {
-            return new Response(ResponseType.PLAIN_TEXT, red("С сервера пришло битое сообщение"), true);
+            return new Response(PLAIN_TEXT, red("С сервера пришло битое сообщение"), true);
         }
-        return response;
     }
 
     /**
@@ -159,14 +152,14 @@ public class MyServerIO implements ServerIO {
         while (true) {
             try {
                 if (!isOpen() && !tryOpen()) {
-                    return new Response(ResponseType.PLAIN_TEXT, "Команда не будет отправлена, так как не удалось открыть соединение", true);
+                    return new Response(PLAIN_TEXT, "Команда не будет отправлена, так как не удалось открыть соединение", true);
                 }
                 sendToServer(commandWrapper);
                 return receiveFromServer();
             } catch (IOException e) {
                 System.out.println(red("Не получилось отправить команду: " + e.getMessage()));
                 closeSocketChannel();
-                if (!tryOpen()) return new Response(ResponseType.PLAIN_TEXT, "Не удалось установить соединение", true);
+                if (!tryOpen()) return new Response(PLAIN_TEXT, "Не удалось установить соединение", true);
                 System.out.println("Повторная отправка команды " + commandWrapper.getCommand().getClass().getSimpleName());
             }
         }
@@ -187,7 +180,7 @@ public class MyServerIO implements ServerIO {
      * Получает от пользователя данные для авторизации и отправляет их на сервер.
      *
      * @param authCommand команда для авторизации
-     * @param authData данные для авторизации
+     * @param authData    данные для авторизации
      * @return true, если авторизация успешная
      */
     @Override

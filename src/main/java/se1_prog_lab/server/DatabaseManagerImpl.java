@@ -28,7 +28,6 @@ public class DatabaseManagerImpl implements DatabaseManager {
     private static final Logger logger = Logger.getLogger(ServerApp.class.getName());
     private Properties dbProps;
 
-
     /**
      * Конструктор. Подключает драйвер.
      */

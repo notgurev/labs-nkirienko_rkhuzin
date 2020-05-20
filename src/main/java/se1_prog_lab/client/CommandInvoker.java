@@ -6,7 +6,6 @@ import se1_prog_lab.client.commands.BaseCommand;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.client.interfaces.CommandRepository;
-import se1_prog_lab.client.interfaces.ServerIO;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,14 +18,12 @@ import static se1_prog_lab.util.BetterStrings.multiline;
  */
 @Singleton
 public class CommandInvoker implements CommandRepository {
-    private final HashMap<String, BaseCommand> commandMap = new HashMap<>(); // HashMap команд
+    private final HashMap<String, BaseCommand> commandMap = new HashMap<>();
     private final ClientCommandReceiver clientCommandReceiver;
-    private final ServerIO serverIO;
 
     @Inject
-    public CommandInvoker(ClientCommandReceiver clientCommandReceiver, ServerIO serverIO, Set<BaseCommand> commands) {
+    public CommandInvoker(ClientCommandReceiver clientCommandReceiver, Set<BaseCommand> commands) {
         this.clientCommandReceiver = clientCommandReceiver;
-        this.serverIO = serverIO;
         addCommand(commands.toArray(new BaseCommand[0]));
         clientCommandReceiver.setHelpText(multiline(commandMap.values().stream()
                 .map(command -> command.getKey() + command.getHelpText()).toArray()));
@@ -42,7 +39,7 @@ public class CommandInvoker implements CommandRepository {
     }
 
     /**
-     * По ключу достает команду, выполняет её клиентскую часть, добалвяет в историю и возвращает.
+     * По ключу достает команду, выполняет её клиентскую часть, добавляет в историю и возвращает.
      *
      * @param commandKey ключ команды.
      * @param args       аргументы команды.
@@ -51,7 +48,7 @@ public class CommandInvoker implements CommandRepository {
     @Override
     public Command runCommand(String commandKey, String[] args) {
         if (!commandMap.containsKey(commandKey)) {
-            System.out.println("Такой команды не существует. Список комманд: help.");
+            System.out.println("Такой команды не существует. Список команд: help.");
             return null;
         }
         Command command = commandMap.get(commandKey);

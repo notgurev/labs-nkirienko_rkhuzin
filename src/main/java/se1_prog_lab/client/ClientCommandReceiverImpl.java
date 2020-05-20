@@ -16,11 +16,11 @@ import static se1_prog_lab.util.BetterStrings.yellow;
  */
 @Singleton
 public class ClientCommandReceiverImpl implements ClientCommandReceiver {
-    private final Scanner consoleScanner; // Сканнер для считывания команд из консоли
+    private final Scanner consoleScanner; // сканер для считывания команд из консоли
     private final HashSet<String> executingScripts = new HashSet<>(); // Выполняющиеся в данный момент скрипты
     private final LinkedList<String> commandHistory = new LinkedList<>(); // История команд (клиент-сайд)
     private final int HISTORY_SIZE_LIMIT = 13;
-    private Scanner scriptScanner; // Сканнер для считывания содержимого скрипта
+    private Scanner scriptScanner; // сканер для считывания содержимого скрипта
     private String helpText;
 
     @Inject

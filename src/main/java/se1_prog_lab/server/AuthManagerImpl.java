@@ -36,10 +36,7 @@ public class AuthManagerImpl implements AuthManager {
     public boolean checkAuth(AuthData authData) throws DatabaseException {
         try {
             String hashedPassword = databaseManager.getPassword(authData.getUsername());
-            if (hashedPassword == null) {
-                return false;
-            }
-
+            if (hashedPassword == null) return false;
             return securePassword.validatePassword(authData.getPassword(), hashedPassword);
         } catch (PasswordHashException e) {
             throw new DatabaseException(e.getMessage());
