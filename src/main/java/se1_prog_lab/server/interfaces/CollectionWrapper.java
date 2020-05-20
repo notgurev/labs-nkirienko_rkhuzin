@@ -3,6 +3,7 @@ package se1_prog_lab.server.interfaces;
 import se1_prog_lab.collection.LabWork;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -26,11 +27,11 @@ public interface CollectionWrapper {
 
     boolean sort();
 
-    String showAll();
+    Collection<LabWork> showAll();
 
     Set<Integer> getUniqueTunedInWorks();
 
-    String filterGreaterThanMinimalPoint(Integer minimalPoint);
+    Collection<LabWork> filterGreaterThanMinimalPoint(Integer minimalPoint);
 
     void removeByID(long id);
 

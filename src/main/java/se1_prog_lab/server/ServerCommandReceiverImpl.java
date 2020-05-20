@@ -12,6 +12,7 @@ import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -109,7 +110,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     @Override
     public synchronized Response show() {
         logger.info("Добавляем в ответ содержимое коллекции");
-        return new Response(ResponseType.PLAIN_TEXT, collectionWrapper.showAll());
+        return new Response(ResponseType.LABWORK_LIST, collectionWrapper.showAll());
     }
 
     @Override
@@ -130,10 +131,10 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
         if (collectionWrapper.isEmpty()) {
             return new Response(ResponseType.PLAIN_TEXT, yellow("Коллекция пуста!"));
         } else {
-            String message = collectionWrapper.filterGreaterThanMinimalPoint(minimalPoint);
-            if (message.equals("")) {
+            Collection<LabWork> message = collectionWrapper.filterGreaterThanMinimalPoint(minimalPoint);
+            if (message.size() == 0) {
                 return new Response(ResponseType.PLAIN_TEXT, yellow("Элементов, значение поля minimalPoint которых больше заданного, нет."));
-            } else return new Response(ResponseType.PLAIN_TEXT, message);
+            } else return new Response(ResponseType.LABWORK_LIST, message);
         }
     }
 

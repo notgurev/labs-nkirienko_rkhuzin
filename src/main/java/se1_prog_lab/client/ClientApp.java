@@ -12,21 +12,24 @@ import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.interfaces.Client;
 import se1_prog_lab.client.interfaces.CommandRepository;
 import se1_prog_lab.client.interfaces.ServerIO;
+import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.api.ResponseType;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.AuthStrings;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
 import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
 import static se1_prog_lab.util.AuthStrings.*;
-import static se1_prog_lab.util.BetterStrings.blueIfNull;
-import static se1_prog_lab.util.BetterStrings.yellow;
+import static se1_prog_lab.util.BetterStrings.*;
 import static se1_prog_lab.util.ValidatingReader.readString;
 
 /**
@@ -60,6 +63,11 @@ public class ClientApp implements Client {
                 AuthStrings authStatus = (AuthStrings) response.getMessage();
                 System.out.println(authStatus.getMessage());
                 break;
+            case LABWORK_LIST:
+                Collection<?> labWorks = (Collection<?>) response.getMessage();
+                List<LabWork> parameterizedLabWorks = labWorks.stream().map((labWork) -> (LabWork) labWork).collect(Collectors.toList());
+                String lines = multiline(parameterizedLabWorks.stream().map(LabWork::toString).toArray());
+                System.out.println(lines);
         }
     }
 

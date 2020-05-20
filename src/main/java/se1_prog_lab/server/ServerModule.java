@@ -2,6 +2,7 @@ package se1_prog_lab.server;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.interfaces.*;
 import se1_prog_lab.util.LengthEOTWrapper;
 import se1_prog_lab.util.interfaces.EOTWrapper;

@@ -85,10 +85,10 @@ public class VectorWrapper implements CollectionWrapper {
      * @param minimalPoint значение поля для фильтра.
      * @return все строки содержимого всех элементов, попадающих под условие.
      */
-    public String filterGreaterThanMinimalPoint(Integer minimalPoint) {
-        return multiline(labWorks.stream()
+    public List<LabWork> filterGreaterThanMinimalPoint(Integer minimalPoint) {
+        return labWorks.stream()
                 .filter(labWork -> (labWork.getMinimalPoint() != null && labWork.getMinimalPoint() > minimalPoint))
-                .map(LabWork::toString).toArray());
+                .collect(Collectors.toList());
     }
 
 
@@ -153,12 +153,9 @@ public class VectorWrapper implements CollectionWrapper {
     /**
      * @return все строки содержимого всех элементов коллекции или сообщение, что она пуста.
      */
-    public String showAll() {
-        if (labWorks.isEmpty()) {
-            return yellow("Коллекция пуста!");
-        } else {
-            return multiline(labWorks.stream().filter(Objects::nonNull).map(LabWork::toString).toArray());
-        }
+    public List<LabWork> showAll() {
+        return labWorks.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        // multiline(labWorks.stream().filter(Objects::nonNull).map(LabWork::toString).toArray())
     }
 
     /**
