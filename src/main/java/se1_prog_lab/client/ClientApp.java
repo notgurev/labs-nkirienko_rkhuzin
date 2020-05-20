@@ -12,11 +12,20 @@ import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.interfaces.Client;
 import se1_prog_lab.client.interfaces.CommandRepository;
 import se1_prog_lab.client.interfaces.ServerIO;
+import se1_prog_lab.server.api.Response;
+import se1_prog_lab.server.api.ResponseType;
 import se1_prog_lab.util.AuthData;
+import se1_prog_lab.util.AuthStrings;
 
+import java.util.HashMap;
 import java.util.Scanner;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
+import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
+import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
 import static se1_prog_lab.util.AuthStrings.*;
+import static se1_prog_lab.util.BetterStrings.blueIfNull;
 import static se1_prog_lab.util.BetterStrings.yellow;
 import static se1_prog_lab.util.ValidatingReader.readString;
 
@@ -42,6 +51,18 @@ public class ClientApp implements Client {
         clientApp.start();
     }
 
+    public void handleResponse(Response response) {
+        switch (response.getResponseType()) {
+            case PLAIN_TEXT:
+                System.out.println((String) response.getMessage());
+                break;
+            case AUTH_STATUS:
+                AuthStrings authStatus = (AuthStrings) response.getMessage();
+                System.out.println(authStatus.getMessage());
+                break;
+        }
+    }
+
     /**
      * Консоль.
      */
@@ -51,7 +72,7 @@ public class ClientApp implements Client {
 
         serverIO.tryOpen();
 
-        String serverResponse;
+        Response serverResponse;
         while (true) {
 
             authorize();
@@ -64,11 +85,13 @@ public class ClientApp implements Client {
                 if (command instanceof ClientServerSideCommand) {
                     ClientServerSideCommand serverSideCommand = (ClientServerSideCommand) command;
                     serverResponse = serverIO.sendAndReceive(serverSideCommand);
-                    System.out.println(serverResponse);
-                    if (serverResponse.equals(INCORRECT_LOGIN_DATA.getMessage())
-                            || serverResponse.equals(USERNAME_TAKEN.getMessage())
-                            || serverResponse.equals(SERVER_ERROR.getMessage())
-                    ) break;
+                    handleResponse(serverResponse);
+                    if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
+                        AuthStrings authStatus = (AuthStrings) serverResponse.getMessage();
+                        if (authStatus == INCORRECT_LOGIN_DATA ||
+                            authStatus == USERNAME_TAKEN
+                        ) break;
+                    }
                 }
             }
         }
@@ -84,7 +107,8 @@ public class ClientApp implements Client {
             input = consoleScanner.nextLine().trim();
         } while (!(input.equals("login") || input.equals("register")));
 
-        String username, password, response;
+        String username, password;
+        Response response;
         AuthCommand authCommand;
         String usernameMessage, passwordMessage;
         AuthData authData;
@@ -105,9 +129,8 @@ public class ClientApp implements Client {
             if (input.equals("login")) authCommand = new Login();
             else authCommand = new Register();
             response = serverIO.authorize(authCommand, authData);
-            System.out.println(response);
-        } while (!(response.equals(LOGIN_SUCCESSFUL.getMessage())
-                || response.equals(REGISTRATION_SUCCESSFUL.getMessage())));
+            handleResponse(response);
+        } while (response.isRejected());
     }
 }
 

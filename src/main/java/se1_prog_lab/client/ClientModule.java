@@ -9,7 +9,7 @@ import se1_prog_lab.client.interfaces.Client;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.client.interfaces.CommandRepository;
 import se1_prog_lab.client.interfaces.ServerIO;
-import se1_prog_lab.util.UtfEOTWrapper;
+import se1_prog_lab.util.LengthEOTWrapper;
 import se1_prog_lab.util.interfaces.EOTWrapper;
 
 import java.util.Scanner;
@@ -24,7 +24,7 @@ public class ClientModule extends AbstractModule {
         bind(CommandRepository.class).to(CommandInvoker.class);
         bind(ClientCommandReceiver.class).to(ClientCommandReceiverImpl.class);
         bind(ServerIO.class).to(MyServerIO.class);
-        bind(EOTWrapper.class).to(UtfEOTWrapper.class);
+        bind(EOTWrapper.class).to(LengthEOTWrapper.class);
 
         Multibinder<BaseCommand> commandBinder = Multibinder.newSetBinder(binder(), BaseCommand.class);
         commandBinder.addBinding().to(Add.class);

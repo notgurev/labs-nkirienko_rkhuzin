@@ -1,6 +1,7 @@
 package se1_prog_lab.client.commands;
 
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
+import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 
@@ -14,7 +15,7 @@ public interface Command extends Serializable {
      * @param authData данные для авторизации
      * @return строку-ответ клиенту.
      */
-    String serverExecute(ServerCommandReceiver serverReceiver, AuthData authData);
+    Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData);
 
     /**
      * Метод, выполняемый на клиенте

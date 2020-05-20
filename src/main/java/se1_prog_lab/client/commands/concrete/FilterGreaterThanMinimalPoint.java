@@ -2,6 +2,8 @@ package se1_prog_lab.client.commands.concrete;
 
 import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
+import se1_prog_lab.server.api.Response;
+import se1_prog_lab.server.api.ResponseType;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 
@@ -13,7 +15,7 @@ public class FilterGreaterThanMinimalPoint extends ClientServerSideCommand {
     }
 
     @Override
-    public String serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
+    public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.filterGreaterThanMinimalPoint(minimalPoint);
     }
 

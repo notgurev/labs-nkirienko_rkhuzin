@@ -1,9 +1,11 @@
 package se1_prog_lab.util.interfaces;
 
+import se1_prog_lab.exceptions.EOTException;
+
 public interface EOTWrapper {
-    String wrap(String s);
+    byte[] wrap(byte[] s);
 
-    String unwrap(String s);
+    byte[] unwrap(byte[] s) throws EOTException;
 
-    boolean hasEOTSymbol(String s);
+    boolean hasEOTSymbol(byte[] s) throws EOTException;
 }

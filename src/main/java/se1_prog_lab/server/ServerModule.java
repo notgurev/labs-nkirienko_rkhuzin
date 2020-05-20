@@ -3,7 +3,7 @@ package se1_prog_lab.server;
 import com.google.inject.AbstractModule;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import se1_prog_lab.server.interfaces.*;
-import se1_prog_lab.util.UtfEOTWrapper;
+import se1_prog_lab.util.LengthEOTWrapper;
 import se1_prog_lab.util.interfaces.EOTWrapper;
 
 /**
@@ -14,7 +14,7 @@ public class ServerModule extends AbstractModule {
     protected void configure() {
         bind(Server.class).to(ServerApp.class);
         bind(CollectionWrapper.class).to(VectorWrapper.class);
-        bind(EOTWrapper.class).to(UtfEOTWrapper.class);
+        bind(EOTWrapper.class).to(LengthEOTWrapper.class);
         bind(ServerCommandReceiver.class).to(ServerCommandReceiverImpl.class);
         bind(DatabaseManager.class).to(DatabaseManagerImpl.class);
         bind(AuthManager.class).to(AuthManagerImpl.class);

@@ -5,14 +5,15 @@ import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.interfaces.ServerIO;
+import se1_prog_lab.exceptions.EOTException;
+import se1_prog_lab.server.api.Response;
+import se1_prog_lab.server.api.ResponseType;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ByteArrays;
 import se1_prog_lab.util.CommandWrapper;
 import se1_prog_lab.util.interfaces.EOTWrapper;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
@@ -118,30 +119,31 @@ public class MyServerIO implements ServerIO {
      *
      * @return полученная строка.
      */
-    private String receiveFromServer() {
-        StringBuilder stringBuilder;
-        try {
+    private Response receiveFromServer() {
+        byte[] result;
+        Response response;
+        try (ByteArrayOutputStream totalBytes = new ByteArrayOutputStream()) {
             ByteBuffer buffer = getByteBuffer();
             buffer.clear();
-            stringBuilder = new StringBuilder();
-            ArrayList<Byte> stringBytes = new ArrayList<>();
-            String stringSlice = "";
             byte[] readBytes;
-            while (!eotWrapper.hasEOTSymbol(stringSlice)) {
+            while (!eotWrapper.hasEOTSymbol(totalBytes.toByteArray())) {
                 if (socketChannel.read(buffer) > 0) {
                     buffer.flip();
                     readBytes = new byte[buffer.limit()];
                     buffer.get(readBytes);
-                    stringBytes.addAll(ByteArrays.toList(readBytes));
-                    stringSlice = new String(readBytes);
+                    totalBytes.write(readBytes);
                     buffer.clear();
                 }
             }
-            stringBuilder.append(new String(ByteArrays.toByteArray(stringBytes)));
-        } catch (IOException e) {
-            return red("При получении ответа возникла ошибка: " + e.getMessage());
+            result = eotWrapper.unwrap(totalBytes.toByteArray());
+            ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(result));
+            response = (Response) inputStream.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            return new Response(ResponseType.PLAIN_TEXT, red("При получении ответа возникла ошибка: " + e.getMessage()), true);
+        } catch (EOTException e) {
+            return new Response(ResponseType.PLAIN_TEXT, red("С сервера пришло битое сообщение"), true);
         }
-        return eotWrapper.unwrap(stringBuilder.toString());
+        return response;
     }
 
     /**
@@ -152,19 +154,19 @@ public class MyServerIO implements ServerIO {
      * @return полученная строка.
      */
     @Override
-    public String sendAndReceive(ClientServerSideCommand command) {
+    public Response sendAndReceive(ClientServerSideCommand command) {
         CommandWrapper commandWrapper = new CommandWrapper(command, authData);
         while (true) {
             try {
                 if (!isOpen() && !tryOpen()) {
-                    return "Команда не будет отправлена, так как не удалось открыть соединение";
+                    return new Response(ResponseType.PLAIN_TEXT, "Команда не будет отправлена, так как не удалось открыть соединение", true);
                 }
                 sendToServer(commandWrapper);
                 return receiveFromServer();
             } catch (IOException e) {
                 System.out.println(red("Не получилось отправить команду: " + e.getMessage()));
                 closeSocketChannel();
-                if (!tryOpen()) return "Не удалось установить соединение";
+                if (!tryOpen()) return new Response(ResponseType.PLAIN_TEXT, "Не удалось установить соединение", true);
                 System.out.println("Повторная отправка команды " + commandWrapper.getCommand().getClass().getSimpleName());
             }
         }
@@ -189,7 +191,7 @@ public class MyServerIO implements ServerIO {
      * @return true, если авторизация успешная
      */
     @Override
-    public String authorize(AuthCommand authCommand, AuthData authData) {
+    public Response authorize(AuthCommand authCommand, AuthData authData) {
         this.authData = authData;
         return sendAndReceive(authCommand);
     }

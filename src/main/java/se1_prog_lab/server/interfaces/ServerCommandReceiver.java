@@ -1,34 +1,35 @@
 package se1_prog_lab.server.interfaces;
 
 import se1_prog_lab.collection.LabWork;
+import se1_prog_lab.server.api.Response;
 import se1_prog_lab.util.AuthData;
 
 public interface ServerCommandReceiver {
     void loadCollectionFromDatabase();
 
-    String add(LabWork labWork, AuthData authData);
+    Response add(LabWork labWork, AuthData authData);
 
-    String clear(AuthData authData);
+    Response clear(AuthData authData);
 
-    String countLessThanDescription(String description);
+    Response countLessThanDescription(String description);
 
-    String info();
+    Response info();
 
-    String printUniqueTunedInWorks();
+    Response printUniqueTunedInWorks();
 
-    String show();
+    Response show();
 
-    String sort();
+    Response sort();
 
-    String filterGreaterThanMinimalPoint(int minimalPoint);
+    Response filterGreaterThanMinimalPoint(int minimalPoint);
 
-    String removeByID(long id, AuthData authData);
+    Response removeByID(long id, AuthData authData);
 
-    String insertAt(LabWork labWork, int index, AuthData authData);
+    Response insertAt(LabWork labWork, int index, AuthData authData);
 
-    String update(LabWork labWork, long id, AuthData authData);
+    Response update(LabWork labWork, long id, AuthData authData);
 
-    String register(AuthData authData);
+    Response register(AuthData authData);
 
-    String login(AuthData authData);
+    Response login(AuthData authData);
 }

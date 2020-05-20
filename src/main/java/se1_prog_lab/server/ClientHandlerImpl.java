@@ -8,6 +8,8 @@ import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.DatabaseException;
+import se1_prog_lab.server.api.Response;
+import se1_prog_lab.server.api.ResponseType;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.ClientHandler;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
@@ -59,7 +61,7 @@ public class ClientHandlerImpl implements ClientHandler {
     @Override
     public void run() {
         logger.info("Начата обработка запросов");
-        try (BufferedWriter clientWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), StandardCharsets.UTF_8))) {
+        try (OutputStream clientWriter = clientSocket.getOutputStream()) {
             logger.info("Создан clientWriter, попытка получить InputStream с clientSocket");
             InputStream clientInputStream = clientSocket.getInputStream();
             ObjectInputStream objectInput;
@@ -72,17 +74,18 @@ public class ClientHandlerImpl implements ClientHandler {
                 new Thread(() -> {
                     String commandName = command.getClass().getSimpleName();
                     logger.info("Создан поток для команды " + commandName);
-                    String response;
+                    Response response;
                     try {
                         if (!(command instanceof AuthCommand) && !authManager.checkAuth(commandWrapper.getAuthData())) {
                             // Если это не AuthCommand и проверка данных авторизации провалена
                             logger.info("Команда содержит некорректные данные для авторизации!");
-                            response = AUTH_FAILED.getMessage();
+                            response = new Response(ResponseType.AUTH_STATUS, AUTH_FAILED, true);
                         } else {
                             // Обычные команды
                             if (command instanceof ConstructingCommand && !validateCarriedObject(command)) {
                                 // Команда с объектом
-                                response = "Объект не прошел валидацию, команда не будет выполнена.";
+                                String message = "Объект не прошел валидацию, команда не будет выполнена.";
+                                response = new Response(ResponseType.PLAIN_TEXT, message, true);
                                 logger.warning("Объект не прошел валидацию, команда не будет выполнена.");
                             } else {
                                 // Остальные команды
@@ -92,9 +95,9 @@ public class ClientHandlerImpl implements ClientHandler {
                             }
                         }
                     } catch (DatabaseException e) {
-                        response = SERVER_ERROR.getMessage();
+                        response = new Response(ResponseType.PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
                     }
-                    String newResponse = response;
+                    Response newResponse = response;
                     executorService.submit(() -> sendToClient(clientWriter, newResponse));
                 }).start();
             }
@@ -111,10 +114,11 @@ public class ClientHandlerImpl implements ClientHandler {
      * @param clientWriter writer клиенту.
      * @param message      ответ клиенту.
      */
-    private void sendToClient(BufferedWriter clientWriter, String message) {
-        try {
+    private void sendToClient(OutputStream clientWriter, Response message) {
+        try (ByteArrayOutputStream byteStream = new ByteArrayOutputStream(); ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteStream)) {
             logger.info("Отправка ответа клиенту");
-            clientWriter.write(eotWrapper.wrap(message));
+            objectOutputStream.writeObject(message);
+            clientWriter.write(eotWrapper.wrap(byteStream.toByteArray()));
             clientWriter.flush();
         } catch (IOException e) {
             logger.severe(format("Не удалось отправить ответ клиенту: %s", e.getMessage()));
