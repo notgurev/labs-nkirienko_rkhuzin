@@ -5,7 +5,7 @@ public interface ClientView {
 
     void disposeLoginWindow();
 
-    void initMainWindow();
+    void initMainWindow(String username);
 
     void disposeMainWindow();
 

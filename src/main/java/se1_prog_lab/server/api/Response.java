@@ -1,5 +1,7 @@
 package se1_prog_lab.server.api;
 
+import se1_prog_lab.util.AuthStrings;
+
 import java.io.Serializable;
 
 public class Response implements Serializable {
@@ -28,7 +30,14 @@ public class Response implements Serializable {
     }
 
     public String getStringMessage() {
-        return message.toString();
+        switch (RESPONSE_TYPE) {
+            case AUTH_STATUS:
+                return ((AuthStrings) message).getMessage();
+            case PLAIN_TEXT:
+                return message.toString();
+            default:
+                return "";
+        }
     }
 
     public boolean isRejected() {

@@ -188,4 +188,9 @@ public class MyServerIO implements ServerIO {
         this.authData = authData;
         return sendAndReceive(authCommand);
     }
+
+    @Override
+    public String getUsername() {
+        return authData.getUsername();
+    }
 }

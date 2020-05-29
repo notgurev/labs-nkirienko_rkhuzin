@@ -28,8 +28,8 @@ public class ClientGUI implements ClientView {
     }
 
     @Override
-    public void initMainWindow() {
-        mainFrame = new MainFrame(controller);
+    public void initMainWindow(String username) {
+        mainFrame = new MainFrame(controller, username);
     }
 
     @Override

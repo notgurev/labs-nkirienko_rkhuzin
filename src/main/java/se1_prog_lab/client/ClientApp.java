@@ -14,7 +14,6 @@ import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.util.AuthData;
-import se1_prog_lab.util.AuthStrings;
 
 import javax.swing.*;
 import java.util.Collection;
@@ -23,8 +22,6 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import static se1_prog_lab.util.BetterStrings.multiline;
-import static se1_prog_lab.util.BetterStrings.yellow;
-import static se1_prog_lab.util.ValidatingReader.readString;
 
 /**
  * Класс клиентского приложения.
@@ -105,7 +102,7 @@ public class ClientApp implements ClientController {
             view.simpleAlert(authResponse.getStringMessage());
         } else {
             view.disposeLoginWindow();
-            view.initMainWindow();
+            view.initMainWindow(serverIO.getUsername());
         }
     }
 

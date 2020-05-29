@@ -11,4 +11,6 @@ public interface ServerIO {
     Response sendAndReceive(ClientServerSideCommand command);
 
     Response authorize(AuthCommand authCommand, AuthData authData);
+
+    String getUsername();
 }
