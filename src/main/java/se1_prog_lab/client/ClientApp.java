@@ -86,81 +86,35 @@ public class ClientApp implements ClientController {
 
     @Override
     public void login(String username, String password) {
-        Response response;
         AuthCommand authCommand;
         AuthData authData = new AuthData(username, password);
         authCommand = new Login();
-        response = serverIO.authorize(authCommand, authData);
-        handleResponse(response);
-        handleAuthResponse(response);
+        handleAuthResponse(serverIO.authorize(authCommand, authData));
     }
 
     @Override
     public void register(String username, String password) {
-        Response response;
         AuthCommand authCommand;
         AuthData authData = new AuthData(username, password);
         authCommand = new Register();
-        response = serverIO.authorize(authCommand, authData);
-        handleResponse(response);
-        handleAuthResponse(response);
+        handleAuthResponse(serverIO.authorize(authCommand, authData));
     }
 
     private void handleAuthResponse(Response authResponse) {
         if (authResponse.isRejected()) {
-            // todo это тупо, надо убирать эти геттеры и напрямую возвращать String
-            AuthStrings authStatus = (AuthStrings) authResponse.getMessage();
-            view.simpleAlert(authStatus.getMessage());
+            view.simpleAlert(authResponse.getStringMessage());
         } else {
             view.disposeLoginWindow();
             view.initMainWindow();
         }
     }
 
-    private void authorize() {
-        System.out.println("Для работы с коллекцией зарегистрироваться/авторизоваться");
-
-        String input;
-        do {
-            System.out.printf("Введите %s для регистрации или %s для авторизации \n",
-                    yellow("register"), yellow("login"));
-            input = consoleScanner.nextLine().trim();
-        } while (!(input.equals("login") || input.equals("register")));
-
-        String username, password;
-        Response response;
-        AuthCommand authCommand;
-        String usernameMessage, passwordMessage;
-        AuthData authData;
-        do {
-
-            if (input.equals("login")) {
-                usernameMessage = "Введите ваше имя пользователя: ";
-                passwordMessage = "Введите ваш пароль: ";
-            } else {
-                usernameMessage = "Придумайте имя пользователя: ";
-                passwordMessage = "Придумайте пароль: ";
-            }
-
-            username = readString(consoleScanner, usernameMessage, false, 1);
-            password = readString(consoleScanner, passwordMessage, false, 1);
-            authData = new AuthData(username, password);
-
-            if (input.equals("login")) authCommand = new Login();
-            else authCommand = new Register();
-            response = serverIO.authorize(authCommand, authData);
-            handleResponse(response);
-        } while (response.isRejected());
-    }
-
+    // еще пригодится
     public void handleResponse(Response response) {
         switch (response.getResponseType()) {
             case PLAIN_TEXT:
-                System.out.println((String) response.getMessage());
-                break;
             case AUTH_STATUS:
-                AuthStrings authStatus = (AuthStrings) response.getMessage();
-                System.out.println(authStatus.getMessage());
+                System.out.println(response.getStringMessage());
                 break;
             case LABWORK_LIST:
                 Collection<?> labWorks = (Collection<?>) response.getMessage();

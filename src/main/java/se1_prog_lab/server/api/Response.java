@@ -27,6 +27,10 @@ public class Response implements Serializable {
         return message;
     }
 
+    public String getStringMessage() {
+        return message.toString();
+    }
+
     public boolean isRejected() {
         return isRejected;
     }
