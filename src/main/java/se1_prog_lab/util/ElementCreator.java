@@ -97,7 +97,7 @@ public class ElementCreator {
      * @param <T>      тип Enum
      * @return null или константу Enum
      */
-    private static <T extends Enum<T>> T nullableValueOf(Class<T> enumType, String s) {
+    public static <T extends Enum<T>> T nullableValueOf(Class<T> enumType, String s) {
         if (s == null || !hasSuchConstant(enumType, s)) {
             return null;
         } else {

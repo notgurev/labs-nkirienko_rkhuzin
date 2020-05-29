@@ -278,7 +278,7 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 labWorkParams.setAuthorName(rs.getString("person_name"));
                 labWorkParams.setAuthorHeight(rs.getFloat("height"));
                 labWorkParams.setAuthorPassportID(rs.getString("passportid"));
-                labWorkParams.setAuthorHairColor(Color.valueOf(rs.getString("hair_color")));
+                labWorkParams.setAuthorHairColor(ElementCreator.nullableValueOf(Color.class, rs.getString("hair_color")));
                 labWorkParams.setAuthorLocationX(rs.getInt("locationx"));
                 labWorkParams.setAuthorLocationY(rs.getFloat("locationy"));
                 labWorkParams.setAuthorLocationZ(rs.getInt("locationz"));
