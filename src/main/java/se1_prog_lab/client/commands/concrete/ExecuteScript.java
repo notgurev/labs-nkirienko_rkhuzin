@@ -23,7 +23,7 @@ import java.util.Scanner;
 import static se1_prog_lab.util.BetterStrings.red;
 import static se1_prog_lab.util.BetterStrings.yellow;
 
-
+@Deprecated
 public class ExecuteScript extends ScriptCommand {
     private final CommandRepository commandRepository;
     private final ServerIO serverIO;

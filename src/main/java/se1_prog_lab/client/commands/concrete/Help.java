@@ -2,7 +2,7 @@ package se1_prog_lab.client.commands.concrete;
 
 import se1_prog_lab.client.commands.ClientSideCommand;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
-
+@Deprecated // todo заменить на tooltip
 public class Help extends ClientSideCommand {
     public Help() {
         super("help", " - вывести справку по доступным командам");

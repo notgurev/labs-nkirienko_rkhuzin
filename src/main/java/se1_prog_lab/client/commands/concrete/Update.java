@@ -6,7 +6,7 @@ import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.ElementCreator;
-
+// todo поменять clientExecute
 public class Update extends ConstructingCommand {
     long id;
 

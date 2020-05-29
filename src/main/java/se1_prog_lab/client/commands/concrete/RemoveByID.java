@@ -5,7 +5,7 @@ import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
-
+// todo норм, но используется часто
 public class RemoveByID extends ClientServerSideCommand {
     long id;
 
