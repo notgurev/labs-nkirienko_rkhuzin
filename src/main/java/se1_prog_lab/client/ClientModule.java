@@ -5,7 +5,9 @@ import com.google.inject.Provides;
 import com.google.inject.multibindings.Multibinder;
 import se1_prog_lab.client.commands.BaseCommand;
 import se1_prog_lab.client.commands.concrete.*;
-import se1_prog_lab.client.interfaces.Client;
+import se1_prog_lab.client.gui.ClientGUI;
+import se1_prog_lab.client.gui.ClientView;
+import se1_prog_lab.client.interfaces.ClientController;
 import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.client.interfaces.CommandRepository;
 import se1_prog_lab.client.interfaces.ServerIO;
@@ -20,11 +22,12 @@ import java.util.Scanner;
 public class ClientModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(Client.class).to(ClientApp.class);
+        bind(ClientController.class).to(ClientApp.class);
         bind(CommandRepository.class).to(CommandInvoker.class);
         bind(ClientCommandReceiver.class).to(ClientCommandReceiverImpl.class);
         bind(ServerIO.class).to(MyServerIO.class);
         bind(EOTWrapper.class).to(LengthEOTWrapper.class);
+        bind(ClientView.class).to(ClientGUI.class);
 
         Multibinder<BaseCommand> commandBinder = Multibinder.newSetBinder(binder(), BaseCommand.class);
         commandBinder.addBinding().to(Add.class);
