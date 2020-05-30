@@ -37,7 +37,6 @@ public class ClientModule extends AbstractModule {
         commandBinder.addBinding().to(Clear.class);
         commandBinder.addBinding().to(CountLessThanDescription.class);
         commandBinder.addBinding().to(ExecuteScript.class);
-        commandBinder.addBinding().to(Exit.class);
         commandBinder.addBinding().to(FilterGreaterThanMinimalPoint.class);
         commandBinder.addBinding().to(Help.class);
         commandBinder.addBinding().to(History.class);
