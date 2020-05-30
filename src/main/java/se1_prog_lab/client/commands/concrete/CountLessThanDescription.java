@@ -9,8 +9,9 @@ import se1_prog_lab.util.AuthData;
 public class CountLessThanDescription extends ClientServerSideCommand {
     String description;
 
-    public CountLessThanDescription() {
+    public CountLessThanDescription(String description) {
         super("count_less_than_description", " description - вывести количество элементов, значение поля description которых меньше заданного");
+        this.description = description;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package se1_prog_lab.client.gui;
 
+import se1_prog_lab.client.commands.concrete.CountLessThanDescription;
 import se1_prog_lab.client.interfaces.ClientController;
 
 import javax.swing.*;
@@ -32,6 +33,10 @@ public class MainFrame extends JFrame {
 
         JButton countLessThanDesc = new JButton("Посчитать < описания"); // хз как подписать
         toolBar.add(countLessThanDesc);
+        countLessThanDesc.addActionListener(e -> {
+            String description = JOptionPane.showInputDialog("Введите описание:");
+            controller.executeServerCommand(new CountLessThanDescription(description));
+        });
 
         add(toolBar, BorderLayout.PAGE_START);
     }

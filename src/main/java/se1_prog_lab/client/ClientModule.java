@@ -35,7 +35,6 @@ public class ClientModule extends AbstractModule {
         Multibinder<BaseCommand> commandBinder = Multibinder.newSetBinder(binder(), BaseCommand.class);
         commandBinder.addBinding().to(Add.class);
         commandBinder.addBinding().to(Clear.class);
-        commandBinder.addBinding().to(CountLessThanDescription.class);
         commandBinder.addBinding().to(ExecuteScript.class);
         commandBinder.addBinding().to(FilterGreaterThanMinimalPoint.class);
         commandBinder.addBinding().to(Help.class);
