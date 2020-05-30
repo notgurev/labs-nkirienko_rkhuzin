@@ -32,4 +32,6 @@ public interface ServerCommandReceiver {
     Response register(AuthData authData);
 
     Response login(AuthData authData);
+
+    Response getCollectionPage(int firstIndex, int lastIndex);
 }

@@ -6,7 +6,7 @@ import java.util.Collection;
 
 public class ClientData implements ClientModel {
     Collection<LabWork> bufferedCollectionPage;
-    long pageNumber;
+    int pageNumber;
     int pageSize;
 
     @Override
@@ -25,7 +25,7 @@ public class ClientData implements ClientModel {
     }
 
     @Override
-    public void setPageNumber(long pageNumber) {
+    public void setPageNumber(int pageNumber) {
         this.pageNumber = pageNumber;
     }
 

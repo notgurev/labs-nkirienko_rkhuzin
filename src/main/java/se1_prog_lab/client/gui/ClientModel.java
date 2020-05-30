@@ -11,7 +11,7 @@ public interface ClientModel {
 
     long getPageNumber();
 
-    void setPageNumber(long pageNumber);
+    void setPageNumber(int pageNumber);
 
     int getPageSize();
 

@@ -8,6 +8,7 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 
 /**
@@ -132,6 +133,11 @@ public class VectorWrapper implements CollectionWrapper {
     }
 
     @Override
+    public Collection<LabWork> getCollectionSlice(int firstIndex, int lastIndex) {
+        return IntStream.rangeClosed(firstIndex, lastIndex).mapToObj(index -> labWorks.get(index)).collect(Collectors.toList());
+    }
+
+    @Override
     public void setVector(Vector<LabWork> labWorkVector) {
         labWorks = labWorkVector;
     }
@@ -143,7 +149,7 @@ public class VectorWrapper implements CollectionWrapper {
      * @return количество таких элементов
      */
     public long countLessThanDescription(String description) {
-        return labWorks.stream().filter(labWork -> labWork.getDescription().compareTo(description) < 0).count();
+        return labWorks.stream().filter(Objects::nonNull).filter(labWork -> labWork.getDescription().compareTo(description) < 0).count();
     }
 
     /**

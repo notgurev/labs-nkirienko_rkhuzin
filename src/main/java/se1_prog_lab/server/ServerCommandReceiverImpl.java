@@ -222,4 +222,11 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
         }
     }
+
+    @Override
+    public Response getCollectionPage(int firstIndex, int lastIndex) {
+        logger.info(format("Добавляем в ответ содержимое коллекции с индекса %d до индекса %d", firstIndex, lastIndex));
+        //todo почему list?
+        return new Response(LABWORK_LIST, collectionWrapper.getCollectionSlice(firstIndex, lastIndex));
+    }
 }

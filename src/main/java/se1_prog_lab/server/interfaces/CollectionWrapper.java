@@ -38,4 +38,6 @@ public interface CollectionWrapper {
     void insertAtIndex(LabWork labWork, int index, long id);
 
     void updateByID(long id, LabWork labWork);
+
+    Collection<LabWork> getCollectionSlice(int firstIndex, int lastIndex);
 }
