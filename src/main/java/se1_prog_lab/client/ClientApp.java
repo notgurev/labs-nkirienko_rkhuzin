@@ -5,23 +5,30 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
+import se1_prog_lab.client.commands.ClientServerSideCommand;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
+import se1_prog_lab.client.gui.ClientModel;
 import se1_prog_lab.client.gui.ClientView;
 import se1_prog_lab.client.interfaces.ClientController;
-import se1_prog_lab.client.interfaces.CommandRepository;
 import se1_prog_lab.client.interfaces.ServerIO;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.util.AuthData;
+import se1_prog_lab.util.AuthStrings;
 
+import javax.annotation.Nonnull;
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 
-import static se1_prog_lab.util.BetterStrings.multiline;
+import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
+import static se1_prog_lab.server.api.ResponseType.LABWORK_LIST;
+import static se1_prog_lab.util.AuthStrings.INCORRECT_LOGIN_DATA;
+import static se1_prog_lab.util.AuthStrings.USERNAME_TAKEN;
 
 /**
  * Класс клиентского приложения.
@@ -29,55 +36,42 @@ import static se1_prog_lab.util.BetterStrings.multiline;
  */
 @Singleton
 public class ClientApp implements ClientController {
-    private final Scanner consoleScanner;
-    private final CommandRepository commandRepository;
     private final ServerIO serverIO;
     private final ClientView view;
+    private final ClientModel model;
 
     @Inject
-    public ClientApp(Scanner consoleScanner, CommandRepository commandRepository, ServerIO serverIO, ClientView view) {
-        this.consoleScanner = consoleScanner;
-        this.commandRepository = commandRepository;
+    public ClientApp(ServerIO serverIO, ClientView view, ClientModel model) {
+        this.model = model;
         this.serverIO = serverIO;
         this.view = view;
     }
 
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ClientModule());
-
         ClientController controller = injector.getInstance(ClientController.class);
         controller.start();
     }
 
-
-    /**
-     * Консоль.
-     */
     @Override
     public void start() {
         SwingUtilities.invokeLater(view::initLoginWindow);
         serverIO.tryOpen();
+    }
 
-//        Response serverResponse;
-//        while (true) {
-//
-//            authorize();
-//
-//            while (true) {
-//                System.out.print(">> ");
-//                String[] input = consoleScanner.nextLine().trim().split(" ");
-//                Command command = commandRepository.parseThenRun(input);
-//
-//                if (command instanceof ClientServerSideCommand) {
-//                    serverResponse = serverIO.sendAndReceive((ClientServerSideCommand) command);
-//                    handleResponse(serverResponse);
-//                    if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
-//                        AuthStrings authStatus = (AuthStrings) serverResponse.getMessage();
-//                        if (authStatus == INCORRECT_LOGIN_DATA || authStatus == USERNAME_TAKEN) break;
-//                    }
-//                }
-//            }
-//        }
+    @Override
+    public void executeServerCommand(@Nonnull ClientServerSideCommand command) {
+        Response serverResponse = serverIO.sendAndReceive(command);
+        handleResponse(serverResponse);
+        if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
+            AuthStrings authStatus = (AuthStrings) serverResponse.getMessage();
+            if (authStatus == INCORRECT_LOGIN_DATA || authStatus == USERNAME_TAKEN) getBackToLoginWindow();
+        }
+    }
+
+    private void getBackToLoginWindow() {
+        view.disposeMainWindow();
+        view.initLoginWindow();
     }
 
     @Override
@@ -105,18 +99,11 @@ public class ClientApp implements ClientController {
         }
     }
 
-    // еще пригодится
     public void handleResponse(Response response) {
-        switch (response.getResponseType()) {
-            case PLAIN_TEXT:
-            case AUTH_STATUS:
-                System.out.println(response.getStringMessage());
-                break;
-            case LABWORK_LIST:
-                Collection<?> labWorks = (Collection<?>) response.getMessage();
-                List<LabWork> parameterizedLabWorks = labWorks.stream().map((labWork) -> (LabWork) labWork).collect(Collectors.toList());
-                String lines = multiline(parameterizedLabWorks.stream().map(LabWork::toString).toArray());
-                System.out.println(lines);
+        if (response.getResponseType() == LABWORK_LIST) {
+            model.setBufferedCollectionPage(response.getCollection());
+        } else {
+            view.simpleAlert(response.getStringMessage());
         }
     }
 }

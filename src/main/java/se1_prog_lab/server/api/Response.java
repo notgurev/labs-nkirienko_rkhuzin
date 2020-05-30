@@ -1,8 +1,10 @@
 package se1_prog_lab.server.api;
 
+import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.util.AuthStrings;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 public class Response implements Serializable {
     private final ResponseType RESPONSE_TYPE;
@@ -38,6 +40,16 @@ public class Response implements Serializable {
             default:
                 return "";
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<LabWork> getCollection() {
+        /* если что-то пойдет не так
+        List<LabWork> parameterizedLabWorks =
+                        ((Collection<?>) response.getMessage()).stream().map((labWork) ->
+                                (LabWork) labWork).collect(Collectors.toList());
+         */
+        return (Collection<LabWork>) message;
     }
 
     public boolean isRejected() {

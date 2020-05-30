@@ -110,6 +110,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     @Override
     public synchronized Response show() {
         logger.info("Добавляем в ответ содержимое коллекции");
+        //todo почему list?
         return new Response(LABWORK_LIST, collectionWrapper.getListOfAllElements());
     }
 
