@@ -19,7 +19,7 @@ import static java.lang.String.format;
 import static java.lang.String.join;
 import static se1_prog_lab.server.api.ResponseType.*;
 import static se1_prog_lab.util.AuthStrings.*;
-import static se1_prog_lab.util.BetterStrings.*;
+import static se1_prog_lab.util.BetterStrings.multiline;
 
 /**
  * Ресивер для серверных команд (см. паттерн "Команда").
@@ -55,7 +55,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             logger.info("Добавляем элемент в коллекцию");
             Long id = databaseManager.addElement(labWork, authData.getUsername());
             collectionWrapper.add(labWork, id);
-            return new Response(PLAIN_TEXT, yellow("Элемент успешно добавлен в коллекцию"));
+            return new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
             return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
@@ -69,9 +69,9 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             List<Long> ids = databaseManager.clear(authData.getUsername());
             if (ids.size() > 0) {
                 collectionWrapper.clear(ids);
-                return new Response(PLAIN_TEXT, yellow("Элементы, на которые вы имели права, удалены из коллекции"));
+                return new Response(PLAIN_TEXT, "Элементы, на которые вы имели права, удалены из коллекции");
             }
-            return new Response(PLAIN_TEXT, yellow("Ваших элементов уже нет в коллекции"));
+            return new Response(PLAIN_TEXT, "Ваших элементов уже нет в коллекции");
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
             return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
@@ -81,8 +81,8 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     @Override
     public synchronized Response countLessThanDescription(String description) {
         logger.info("Добавляем в ответ количество элементов, значение поля description которых меньше " + description);
-        String message = yellow("Количество элементов, значение поля description которых меньше заданного: " +
-                collectionWrapper.countLessThanDescription(description));
+        String message = "Количество элементов, значение поля description которых меньше заданного: " +
+                collectionWrapper.countLessThanDescription(description);
         return new Response(PLAIN_TEXT, message);
     }
 
@@ -101,9 +101,9 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     public synchronized Response sort() {
         logger.info("Сортируем коллекцию");
         if (collectionWrapper.sort()) {
-            return new Response(PLAIN_TEXT, yellow("Коллекция была успешно отсортирована в естественном порядке!"));
+            return new Response(PLAIN_TEXT, "Коллекция была успешно отсортирована в естественном порядке!");
         } else {
-            return new Response(PLAIN_TEXT, yellow("Коллекция пуста!"));
+            return new Response(PLAIN_TEXT, "Коллекция пуста!");
         }
     }
 
@@ -118,7 +118,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     public synchronized Response printUniqueTunedInWorks() {
         logger.info("Добавляем в ответ уникальные значения поля tunedInWorks");
         if (collectionWrapper.isEmpty()) {
-            return new Response(PLAIN_TEXT, yellow("Коллекция пуста!"));
+            return new Response(PLAIN_TEXT, "Коллекция пуста!");
         } else {
             String message = "Уникальные значения поля tunedInWorks: " +
                     join(", ", collectionWrapper.getUniqueTunedInWorks().toString());
@@ -130,11 +130,11 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     public synchronized Response filterGreaterThanMinimalPoint(int minimalPoint) {
         logger.info("Добавляем в ответ элементы, значение поля minimalPoint которых больше " + minimalPoint);
         if (collectionWrapper.isEmpty()) {
-            return new Response(PLAIN_TEXT, yellow("Коллекция пуста!"));
+            return new Response(PLAIN_TEXT, "Коллекция пуста!");
         } else {
             Collection<LabWork> message = collectionWrapper.filterGreaterThanMinimalPoint(minimalPoint);
             if (message.size() == 0) {
-                return new Response(PLAIN_TEXT, yellow("Элементов, значение поля minimalPoint которых больше заданного, нет."));
+                return new Response(PLAIN_TEXT, "Элементов, значение поля minimalPoint которых больше заданного, нет.");
             } else return new Response(LABWORK_LIST, message);
         }
     }
@@ -165,7 +165,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             logger.info("Вставляем элемент в ячейку с индексом " + index);
             Long id = databaseManager.addElement(labWork, authData.getUsername());
             collectionWrapper.insertAtIndex(labWork, index, id);
-            return new Response(PLAIN_TEXT, yellow("Элемент успешно добавлен в коллекцию"));
+            return new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
             return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
@@ -179,10 +179,10 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             if (databaseManager.updateById(labWork, id, authData.getUsername())) {
                 collectionWrapper.updateByID(id, labWork);
                 logger.info(format("Элемент успешно заменён (id = %d)", id));
-                return new Response(PLAIN_TEXT, yellow(format("Элемент успешно заменён (id = %d)", id)));
+                return new Response(PLAIN_TEXT, format("Элемент успешно заменён (id = %d)", id));
             } else {
                 logger.info("Элемент с таким id отсутствует в коллекции либо у вас нет прав на его изменение!");
-                return new Response(PLAIN_TEXT, red("Элемент с таким id отсутствует в коллекции либо у вас нет праав на его изменение!"));
+                return new Response(PLAIN_TEXT, "Элемент с таким id отсутствует в коллекции либо у вас нет праав на его изменение!");
             }
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());

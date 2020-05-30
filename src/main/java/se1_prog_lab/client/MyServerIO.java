@@ -17,8 +17,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
-import static se1_prog_lab.util.BetterStrings.red;
-import static se1_prog_lab.util.BetterStrings.yellow;
 
 /**
  * Класс для взаимодействия с сервером.
@@ -59,10 +57,10 @@ public class MyServerIO implements ServerIO {
                 socketChannel = SocketChannel.open();
                 socketChannel.connect(new InetSocketAddress(HOST, PORT));
                 socketChannel.configureBlocking(false);
-                System.out.println(yellow("Соединение с сервером успешно установлено"));
+                System.out.println("Соединение с сервером успешно установлено");
                 return true;
             } catch (IOException e) {
-                errorMessage = red("Не получилось открыть соединение: " + e.getMessage());
+                errorMessage = "Не получилось открыть соединение: " + e.getMessage();
             }
         }
         System.out.println(errorMessage);
@@ -133,9 +131,9 @@ public class MyServerIO implements ServerIO {
             ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(result));
             return (Response) inputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            return new Response(PLAIN_TEXT, red("При получении ответа возникла ошибка: " + e.getMessage()), true);
+            return new Response(PLAIN_TEXT, "При получении ответа возникла ошибка: " + e.getMessage(), true);
         } catch (EOTException e) {
-            return new Response(PLAIN_TEXT, red("С сервера пришло битое сообщение"), true);
+            return new Response(PLAIN_TEXT, "С сервера пришло битое сообщение", true);
         }
     }
 
@@ -157,7 +155,7 @@ public class MyServerIO implements ServerIO {
                 sendToServer(commandWrapper);
                 return receiveFromServer();
             } catch (IOException e) {
-                System.out.println(red("Не получилось отправить команду: " + e.getMessage()));
+                System.out.println("Не получилось отправить команду: " + e.getMessage());
                 closeSocketChannel();
                 if (!tryOpen()) return new Response(PLAIN_TEXT, "Не удалось установить соединение", true);
                 System.out.println("Повторная отправка команды " + commandWrapper.getCommand().getClass().getSimpleName());

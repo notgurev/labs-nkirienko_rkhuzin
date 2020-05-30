@@ -8,7 +8,7 @@ import javax.validation.constraints.Positive;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import static se1_prog_lab.util.BetterStrings.blueIfNull;
+import static se1_prog_lab.util.BetterStrings.emptyIfNull;
 import static se1_prog_lab.util.BetterStrings.multiline;
 
 
@@ -66,9 +66,9 @@ public class LabWork implements Comparable<LabWork>, Serializable {
                 "Имя: " + name,
                 coordinates.toString(),
                 "Дата создания: " + creationDate.withNano(0),
-                "minimalPoint: " + blueIfNull(minimalPoint),
+                "minimalPoint: " + emptyIfNull(minimalPoint),
                 "Описание: " + description,
-                "tunedInWorks: " + blueIfNull(tunedInWorks),
+                "tunedInWorks: " + emptyIfNull(tunedInWorks),
                 "Сложность: " + difficulty.name(),
                 author.toString() + '\n'
         );

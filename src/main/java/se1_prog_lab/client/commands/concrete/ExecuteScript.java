@@ -20,9 +20,6 @@ import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
-import static se1_prog_lab.util.BetterStrings.red;
-import static se1_prog_lab.util.BetterStrings.yellow;
-
 @Deprecated
 public class ExecuteScript extends ScriptCommand {
     private final CommandRepository commandRepository;
@@ -66,20 +63,20 @@ public class ExecuteScript extends ScriptCommand {
                     if (command instanceof ConstructingCommand) currentLine += LabWork.getNumberOfFields();
                 } catch (SelfCallingScriptException e) {
                     linesWithErrors.add(currentLine);
-                    System.out.println(red("В скрипте (строка "
-                            + currentLine + ") присутствует рекурсивный вызов. Он не будет выполняться."));
+                    System.out.println("В скрипте (строка "
+                            + currentLine + ") присутствует рекурсивный вызов. Он не будет выполняться.");
                 } catch (NoSuchElementException | NumberFormatException | LabWorkFieldException e) {
-                    System.out.println(red(
-                            "Где-то в скрипте была попытка создать элемент коллекции, но что-то пошло не так."));
+                    System.out.println("Где-то в скрипте была попытка создать элемент коллекции, но что-то пошло не так.");
                     linesWithErrors.add(currentLine);
                 } catch (Exception e) {
                     e.printStackTrace();
                     linesWithErrors.add(currentLine);
                 }
             }
-            if (!linesWithErrors.isEmpty()) System.out.println(red(
-                    "Следующие строки не содержат существующих команд или не могли быть выполнены: " + linesWithErrors.toString()));
-            System.out.println(yellow("Выполенение скрипта " + Arrays.toString(args) + " завершено."));
+            if (!linesWithErrors.isEmpty()) System.out.println(
+                    "Следующие строки не содержат существующих команд или не могли быть выполнены: " +
+                            linesWithErrors.toString());
+            System.out.println("Выполенение скрипта " + Arrays.toString(args) + " завершено.");
         } catch (FileNotFoundException e) {
             System.out.println("Файл скрипта не найден!");
         } catch (IOException e) {

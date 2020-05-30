@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
 
-import static se1_prog_lab.util.BetterStrings.blueIfNull;
+import static se1_prog_lab.util.BetterStrings.emptyIfNull;
 import static se1_prog_lab.util.BetterStrings.multiline;
 
 /**
@@ -42,9 +42,9 @@ public class Person implements Serializable {
     @Override
     public String toString() {
         return multiline("Имя: " + name,
-                "Рост: " + blueIfNull(height),
+                "Рост: " + emptyIfNull(height),
                 "Номер паспорта: " + passportID,
-                "Цвет волос: " + blueIfNull(hairColor),
+                "Цвет волос: " + emptyIfNull(hairColor),
                 location.toString());
     }
 
