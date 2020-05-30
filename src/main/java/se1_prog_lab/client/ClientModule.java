@@ -33,19 +33,6 @@ public class ClientModule extends AbstractModule {
         bind(ClientModel.class).to(ClientData.class);
 
         Multibinder<BaseCommand> commandBinder = Multibinder.newSetBinder(binder(), BaseCommand.class);
-        commandBinder.addBinding().to(Add.class);
-        commandBinder.addBinding().to(Clear.class);
-        commandBinder.addBinding().to(ExecuteScript.class);
-        commandBinder.addBinding().to(FilterGreaterThanMinimalPoint.class);
-        commandBinder.addBinding().to(Help.class);
-        commandBinder.addBinding().to(History.class);
-        commandBinder.addBinding().to(Info.class);
-        commandBinder.addBinding().to(InsertAt.class);
-        commandBinder.addBinding().to(PrintUniqueTunedInWorks.class);
-        commandBinder.addBinding().to(RemoveByID.class);
-        commandBinder.addBinding().to(Show.class);
-        commandBinder.addBinding().to(Sort.class);
-        commandBinder.addBinding().to(Update.class);
     }
 
     @Provides
