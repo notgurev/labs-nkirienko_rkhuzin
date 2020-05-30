@@ -55,9 +55,8 @@ public class ClientApp implements ClientController {
      */
     @Override
     public void start() {
-        serverIO.tryOpen();
         SwingUtilities.invokeLater(view::initLoginWindow);
-
+        serverIO.tryOpen();
 
 //        Response serverResponse;
 //        while (true) {
@@ -102,7 +101,7 @@ public class ClientApp implements ClientController {
             view.simpleAlert(authResponse.getStringMessage());
         } else {
             view.disposeLoginWindow();
-            view.initMainWindow(serverIO.getUsername());
+            SwingUtilities.invokeLater(() -> view.initMainWindow(serverIO.getUsername()));
         }
     }
 

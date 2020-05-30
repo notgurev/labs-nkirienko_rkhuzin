@@ -70,7 +70,7 @@ public class MyServerIO implements ServerIO {
     }
 
     private boolean isOpen() {
-        return socketChannel.isOpen();
+        return (socketChannel != null) && socketChannel.isOpen();
     }
 
     private ByteBuffer getByteBuffer() {
