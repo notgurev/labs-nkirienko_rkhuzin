@@ -4,6 +4,7 @@ import se1_prog_lab.client.interfaces.ClientController;
 
 import javax.swing.*;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 import static javax.swing.SwingConstants.*;
@@ -23,16 +24,16 @@ public class MainFrame extends JFrame {
     }
 
     private void createToolBar() {
-        // тулбар для комманд
         JToolBar toolBar = new JToolBar(HORIZONTAL);
         toolBar.setFloatable(false);
 
-        // todo Кнопки команд (пока хз как к контроллеру привязать)
         JButton add = new JButton("Добавить");
-        JButton countLessThanDesc = new JButton("Посчитать < описания"); // хз как подписать
+        toolBar.add(add);
 
-        // todo я устал
-        // http://java-online.ru/swing-menu.xhtml
+        JButton countLessThanDesc = new JButton("Посчитать < описания"); // хз как подписать
+        toolBar.add(countLessThanDesc);
+
+        add(toolBar, BorderLayout.PAGE_START);
     }
 
     private void createMenuBar(String username) {
