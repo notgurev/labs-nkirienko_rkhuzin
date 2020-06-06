@@ -1,6 +1,6 @@
 package se1_prog_lab.util;
 
-import se1_prog_lab.client.interfaces.ClientCommandReceiver;
+import se1_prog_lab.client.ClientCommandReceiver;
 import se1_prog_lab.collection.*;
 import se1_prog_lab.exceptions.LabWorkFieldException;
 

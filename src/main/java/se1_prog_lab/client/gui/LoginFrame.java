@@ -1,6 +1,6 @@
 package se1_prog_lab.client.gui;
 
-import se1_prog_lab.client.interfaces.ClientController;
+import se1_prog_lab.client.ClientController;
 
 import javax.swing.*;
 import java.awt.*;

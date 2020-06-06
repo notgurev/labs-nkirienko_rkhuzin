@@ -1,7 +1,7 @@
 package se1_prog_lab.client.commands.concrete;
 
+import se1_prog_lab.client.ClientCommandReceiver;
 import se1_prog_lab.client.commands.ClientServerSideCommand;
-import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
@@ -10,7 +10,6 @@ public class CountLessThanDescription extends ClientServerSideCommand {
     String description;
 
     public CountLessThanDescription(String description) {
-        super("count_less_than_description", " description - вывести количество элементов, значение поля description которых меньше заданного");
         this.description = description;
     }
 

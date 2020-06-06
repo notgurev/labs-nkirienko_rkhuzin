@@ -1,4 +1,4 @@
-package se1_prog_lab.client.interfaces;
+package se1_prog_lab.client;
 
 import se1_prog_lab.client.commands.ClientServerSideCommand;
 

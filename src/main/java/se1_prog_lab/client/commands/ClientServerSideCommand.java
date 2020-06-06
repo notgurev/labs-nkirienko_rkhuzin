@@ -8,7 +8,4 @@ package se1_prog_lab.client.commands;
  * Отправляется на сервер.
  */
 public abstract class ClientServerSideCommand extends BaseCommand {
-    public ClientServerSideCommand(String key, String helpText) {
-        super(key, helpText);
-    }
 }

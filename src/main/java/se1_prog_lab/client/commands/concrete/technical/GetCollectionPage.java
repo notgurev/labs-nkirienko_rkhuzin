@@ -9,7 +9,7 @@ public class GetCollectionPage extends ServerSideCommand {
     int firstIndex, lastIndex;
 
     public GetCollectionPage(int page, int pageSize) {
-        super(null, null);
+        super();
         firstIndex = page - 1;
         lastIndex = firstIndex + pageSize - 1;
     }

@@ -10,20 +10,12 @@ import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.gui.ClientModel;
 import se1_prog_lab.client.gui.ClientView;
-import se1_prog_lab.client.interfaces.ClientController;
-import se1_prog_lab.client.interfaces.ServerIO;
-import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.util.AuthData;
 import se1_prog_lab.util.AuthStrings;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
 import static se1_prog_lab.server.api.ResponseType.LABWORK_LIST;

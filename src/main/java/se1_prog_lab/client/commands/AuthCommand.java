@@ -6,7 +6,4 @@ package se1_prog_lab.client.commands;
  * Используется для отправки AuthData на сервер.
  */
 public abstract class AuthCommand extends ServerSideCommand {
-    public AuthCommand() {
-        super(null, null);
-    }
 }

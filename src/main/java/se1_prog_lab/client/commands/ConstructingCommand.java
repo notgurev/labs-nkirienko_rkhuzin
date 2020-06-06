@@ -12,10 +12,6 @@ import se1_prog_lab.collection.LabWork;
 public abstract class ConstructingCommand extends ClientServerSideCommand {
     protected LabWork carriedObject;
 
-    public ConstructingCommand(String key, String helpText) {
-        super(key, helpText);
-    }
-
     public LabWork getCarriedObject() {
         return carriedObject;
     }

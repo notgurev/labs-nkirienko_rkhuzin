@@ -1,7 +1,7 @@
 package se1_prog_lab.client.commands.concrete;
 
+import se1_prog_lab.client.ClientCommandReceiver;
 import se1_prog_lab.client.commands.ConstructingCommand;
-import se1_prog_lab.client.interfaces.ClientCommandReceiver;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
@@ -9,10 +9,6 @@ import se1_prog_lab.util.ElementCreator;
 // todo повнимательнее
 public class InsertAt extends ConstructingCommand {
     int index;
-
-    public InsertAt() {
-        super("insert_at", " index - добавить новый элемент в заданную позицию");
-    }
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {

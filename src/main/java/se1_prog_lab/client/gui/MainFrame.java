@@ -1,16 +1,15 @@
 package se1_prog_lab.client.gui;
 
+import se1_prog_lab.client.ClientController;
 import se1_prog_lab.client.commands.concrete.*;
-import se1_prog_lab.client.interfaces.ClientController;
 
 import javax.swing.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import static javax.swing.SwingConstants.*;
 import static javax.swing.SwingConstants.CENTER;
+import static javax.swing.SwingConstants.HORIZONTAL;
 
 public class MainFrame extends JFrame {
     private final ClientController controller;

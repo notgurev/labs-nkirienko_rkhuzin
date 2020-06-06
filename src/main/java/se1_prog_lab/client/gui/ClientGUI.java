@@ -2,7 +2,7 @@ package se1_prog_lab.client.gui;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import se1_prog_lab.client.interfaces.ClientController;
+import se1_prog_lab.client.ClientController;
 
 import javax.swing.*;
 
