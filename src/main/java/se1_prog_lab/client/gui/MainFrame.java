@@ -48,33 +48,55 @@ public class MainFrame extends JFrame {
         // Меню
         JMenuBar jMenuBar = new JMenuBar();
 
-        // Отображение юзернейма
+        // Отображение юзернейма (меню)
         jMenuBar.add(new JLabel(username, userIcon, CENTER));
 
-        // Вид
-        JMenu view = new JMenu("Вид");
-        ButtonGroup viewGroup = new ButtonGroup();
+        {
+            // Вид (меню) todo функционал
+            JMenu view = new JMenu("Вид");
+            ButtonGroup viewGroup = new ButtonGroup();
 
-        JRadioButtonMenuItem spreadsheet = new JRadioButtonMenuItem("Таблица");
-        viewGroup.add(spreadsheet);
-        view.add(spreadsheet);
-        spreadsheet.addActionListener(this::setSpreadsheetMode);
+            JRadioButtonMenuItem spreadsheet = new JRadioButtonMenuItem("Таблица");
+            viewGroup.add(spreadsheet);
+            view.add(spreadsheet);
+            spreadsheet.addActionListener(this::setSpreadsheetMode);
 
-        JRadioButtonMenuItem visualization = new JRadioButtonMenuItem("Визуализация");
-        viewGroup.add(visualization);
-        view.add(visualization);
-        visualization.addActionListener(this::setVisualizationMode);
+            JRadioButtonMenuItem visualization = new JRadioButtonMenuItem("Визуализация");
+            viewGroup.add(visualization);
+            view.add(visualization);
+            visualization.addActionListener(this::setVisualizationMode);
 
-        jMenuBar.add(view);
+            jMenuBar.add(view);
+        }
+
+        {
+            // Язык (меню) todo функционал и дефолты
+            JMenu language = new JMenu("Язык");
+            jMenuBar.add(language);
+            ButtonGroup languageGroup = new ButtonGroup();
+            JRadioButtonMenuItem russian = new JRadioButtonMenuItem("Русский");
+            language.add(russian);
+            languageGroup.add(russian);
+            JRadioButtonMenuItem slovenian = new JRadioButtonMenuItem("Slovenščina");
+            language.add(slovenian);
+            languageGroup.add(slovenian);
+            JRadioButtonMenuItem polish = new JRadioButtonMenuItem("Polski");
+            language.add(polish);
+            languageGroup.add(polish);
+            JRadioButtonMenuItem ecuador = new JRadioButtonMenuItem("Español (Ecuador)");
+            language.add(ecuador);
+            languageGroup.add(ecuador);
+        }
 
         setJMenuBar(jMenuBar);
     }
 
     public void setSpreadsheetMode(ActionEvent e) {
-        // отображение в виде таблица
+        // todo отображение в виде таблица
     }
 
     public void setVisualizationMode(ActionEvent e) {
-        // отображение в виде визуализации
+        // todo отображение в виде визуализации
+        // todo паттерн стратегия
     }
 }
