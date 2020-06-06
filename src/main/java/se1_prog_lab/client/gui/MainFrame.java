@@ -3,6 +3,7 @@ package se1_prog_lab.client.gui;
 import se1_prog_lab.client.commands.concrete.Clear;
 import se1_prog_lab.client.commands.concrete.CountLessThanDescription;
 import se1_prog_lab.client.commands.concrete.Info;
+import se1_prog_lab.client.commands.concrete.PrintUniqueTunedInWorks;
 import se1_prog_lab.client.interfaces.ClientController;
 
 import javax.swing.*;
@@ -46,6 +47,10 @@ public class MainFrame extends JFrame {
         // Info
         addToolBarButton("Информация", e -> {
             controller.executeServerCommand(new Info());
+        });
+        // Print unique tuned in works
+        addToolBarButton("Уникальные tuned in works", e -> {
+            controller.executeServerCommand(new PrintUniqueTunedInWorks()); // todo проверить с непустой коллекцией
         });
 
         add(toolBar, BorderLayout.PAGE_START);
