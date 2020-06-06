@@ -31,8 +31,6 @@ public class ClientModule extends AbstractModule {
         bind(EOTWrapper.class).to(LengthEOTWrapper.class);
         bind(ClientView.class).to(ClientGUI.class);
         bind(ClientModel.class).to(ClientData.class);
-
-        Multibinder<BaseCommand> commandBinder = Multibinder.newSetBinder(binder(), BaseCommand.class);
     }
 
     @Provides
