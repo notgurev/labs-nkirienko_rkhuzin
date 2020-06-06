@@ -1,5 +1,6 @@
 package se1_prog_lab.client.gui;
 
+import se1_prog_lab.client.commands.concrete.Clear;
 import se1_prog_lab.client.commands.concrete.CountLessThanDescription;
 import se1_prog_lab.client.interfaces.ClientController;
 
@@ -36,6 +37,10 @@ public class MainFrame extends JFrame {
         addToolBarButton("Посчитать < описания", e -> {
             String description = JOptionPane.showInputDialog("Введите описание:");
             controller.executeServerCommand(new CountLessThanDescription(description));
+        });
+        // Clear
+        addToolBarButton("Очистить", e -> {
+            controller.executeServerCommand(new Clear());
         });
 
         add(toolBar, BorderLayout.PAGE_START);
