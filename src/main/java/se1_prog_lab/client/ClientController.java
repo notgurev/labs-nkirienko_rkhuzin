@@ -12,4 +12,6 @@ public interface ClientController {
     void login(String username, String password);
 
     void register(String username, String password);
+
+    void openConstructingFrame();
 }

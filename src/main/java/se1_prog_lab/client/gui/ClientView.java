@@ -10,4 +10,6 @@ public interface ClientView {
     void disposeMainWindow();
 
     void simpleAlert(String alertText);
+
+    void initConstructingFrame();
 }

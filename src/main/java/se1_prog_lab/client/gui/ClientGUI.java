@@ -11,6 +11,7 @@ public class ClientGUI implements ClientView {
     private final ClientController controller;
     private LoginFrame loginFrame;
     private MainFrame mainFrame;
+    private ConstructingFrame constructingFrame;
 
     @Inject
     public ClientGUI(ClientController controller) {
@@ -40,5 +41,10 @@ public class ClientGUI implements ClientView {
     @Override
     public void simpleAlert(String alertText) {
         JOptionPane.showMessageDialog(loginFrame, alertText);
+    }
+
+    @Override
+    public void initConstructingFrame() {
+        constructingFrame = new ConstructingFrame(controller);
     }
 }

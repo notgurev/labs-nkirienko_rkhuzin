@@ -82,6 +82,11 @@ public class ClientApp implements ClientController {
         handleAuthResponse(serverIO.authorize(authCommand, authData));
     }
 
+    @Override
+    public void openConstructingFrame() {
+        view.initConstructingFrame();
+    }
+
     private void handleAuthResponse(Response authResponse) {
         if (authResponse.isRejected()) {
             view.simpleAlert(authResponse.getStringMessage());

@@ -31,28 +31,22 @@ public class MainFrame extends JFrame {
         toolBar.setFloatable(false);
 
         // Add
-        addToolBarButton("Добавить", e -> {/*TODO функционал add*/});
+        addToolBarButton("Добавить", e -> {/*TODO функционал add*/
+            controller.openConstructingFrame();
+        });
         // Count less than description
         addToolBarButton("Посчитать < описания", e -> {
             String description = JOptionPane.showInputDialog("Введите описание:");
             controller.executeServerCommand(new CountLessThanDescription(description));
         });
         // Clear
-        addToolBarButton("Очистить", e -> {
-            controller.executeServerCommand(new Clear());
-        });
+        addToolBarButton("Очистить", e -> controller.executeServerCommand(new Clear()));
         // Info
-        addToolBarButton("Информация", e -> {
-            controller.executeServerCommand(new Info());
-        });
-        // Print unique tuned in works
-        addToolBarButton("Уникальные tuned in works", e -> {
-            controller.executeServerCommand(new PrintUniqueTunedInWorks()); // todo проверить с непустой коллекцией
-        });
-        // Sort
-        addToolBarButton("Сортировать на сервере", e -> {
-            controller.executeServerCommand(new Sort()); // todo проверить с непустой коллекцией
-        });
+        addToolBarButton("Информация", e -> controller.executeServerCommand(new Info()));
+        // Print unique tuned in works // todo проверить с непустой коллекцией
+        addToolBarButton("Уникальные tuned in works", e -> controller.executeServerCommand(new PrintUniqueTunedInWorks()));
+        // Sort // todo проверить с непустой коллекцией
+        addToolBarButton("Сортировать на сервере", e -> controller.executeServerCommand(new Sort()));
 
         add(toolBar, BorderLayout.PAGE_START);
     }
