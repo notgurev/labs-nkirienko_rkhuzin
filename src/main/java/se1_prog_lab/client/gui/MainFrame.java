@@ -7,12 +7,14 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import static javax.swing.SwingConstants.*;
 import static javax.swing.SwingConstants.CENTER;
 
 public class MainFrame extends JFrame {
-    private ClientController controller;
+    private final ClientController controller;
+    private JToolBar toolBar;
 
     public MainFrame(ClientController controller, String username) {
         this.controller = controller;
@@ -25,20 +27,24 @@ public class MainFrame extends JFrame {
     }
 
     private void createToolBar() {
-        JToolBar toolBar = new JToolBar(HORIZONTAL);
+        toolBar = new JToolBar(HORIZONTAL);
         toolBar.setFloatable(false);
 
-        JButton add = new JButton("Добавить");
-        toolBar.add(add);
-
-        JButton countLessThanDesc = new JButton("Посчитать < описания"); // хз как подписать
-        toolBar.add(countLessThanDesc);
-        countLessThanDesc.addActionListener(e -> {
+        // Add
+        addToolBarButton("Добавить", e -> {/*TODO функционал add*/});
+        // Count less than description
+        addToolBarButton("Посчитать < описания", e -> {
             String description = JOptionPane.showInputDialog("Введите описание:");
             controller.executeServerCommand(new CountLessThanDescription(description));
         });
 
         add(toolBar, BorderLayout.PAGE_START);
+    }
+
+    private void addToolBarButton(String text, ActionListener actionListener) {
+        JButton button = new JButton(text);
+        toolBar.add(button);
+        button.addActionListener(actionListener);
     }
 
     private void createMenuBar(String username) {
