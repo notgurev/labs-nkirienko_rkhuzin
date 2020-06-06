@@ -5,7 +5,7 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
-import se1_prog_lab.client.commands.ClientServerSideCommand;
+import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.gui.ClientModel;
@@ -52,7 +52,7 @@ public class ClientApp implements ClientController {
     }
 
     @Override
-    public void executeServerCommand(@Nonnull ClientServerSideCommand command) {
+    public void executeServerCommand(@Nonnull BasicCommand command) {
         Response serverResponse = serverIO.sendAndReceive(command);
         handleResponse(serverResponse);
         if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {

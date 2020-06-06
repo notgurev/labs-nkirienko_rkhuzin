@@ -3,13 +3,12 @@ package se1_prog_lab.server;
 import com.google.inject.Inject;
 import com.google.inject.assistedinject.Assisted;
 import se1_prog_lab.client.commands.AuthCommand;
-import se1_prog_lab.client.commands.ClientServerSideCommand;
+import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.DatabaseException;
 import se1_prog_lab.server.api.Response;
-import se1_prog_lab.server.api.ResponseType;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.ClientHandler;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
@@ -22,13 +21,13 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
-import static se1_prog_lab.server.api.ResponseType.*;
+import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
+import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
 import static se1_prog_lab.util.AuthStrings.AUTH_FAILED;
 import static se1_prog_lab.util.AuthStrings.SERVER_ERROR;
 
@@ -71,7 +70,7 @@ public class ClientHandlerImpl implements ClientHandler {
                 objectInput = new ObjectInputStream(clientInputStream);
                 logger.info("Принят объект " + objectInput.getClass().getSimpleName());
                 CommandWrapper commandWrapper = (CommandWrapper) objectInput.readObject();
-                ClientServerSideCommand command = commandWrapper.getCommand();
+                BasicCommand command = commandWrapper.getCommand();
                 new Thread(() -> {
                     String commandName = command.getClass().getSimpleName();
                     logger.info("Создан поток для команды " + commandName);

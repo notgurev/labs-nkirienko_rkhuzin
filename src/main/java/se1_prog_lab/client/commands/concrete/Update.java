@@ -1,35 +1,19 @@
 package se1_prog_lab.client.commands.concrete;
 
-import se1_prog_lab.client.ClientCommandReceiver;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
-import se1_prog_lab.util.ElementCreator;
 // todo поменять clientExecute
 public class Update extends ConstructingCommand {
     long id;
 
-    @Override
-    public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.update(carriedObject, id, authData);
+    public Update(long id) {
+        this.id = id;
     }
 
     @Override
-    public boolean clientExecute(String[] args, ClientCommandReceiver clientReceiver) {
-        boolean scriptMode = !clientReceiver.getExecutingScripts().isEmpty();
-        try {
-            id = Long.parseLong(args[0]);
-            if (id < 0) {
-                if (!scriptMode) System.out.println("Ошибка, id должен быть больше нуля!");
-                else throw new NumberFormatException();
-            }
-            carriedObject = ElementCreator.buildLabWork(clientReceiver);
-            return true;
-        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            if (!scriptMode) System.out.println("Введите корректный целочисленный id в качестве аргумента!");
-            else throw new RuntimeException();
-            return false;
-        }
+    public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
+        return serverReceiver.update(carriedObject, id, authData);
     }
 }

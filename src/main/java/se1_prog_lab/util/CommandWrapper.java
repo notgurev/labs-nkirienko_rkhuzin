@@ -1,19 +1,19 @@
 package se1_prog_lab.util;
 
-import se1_prog_lab.client.commands.ClientServerSideCommand;
+import se1_prog_lab.client.commands.BasicCommand;
 
 import java.io.Serializable;
 
 public class CommandWrapper implements Serializable {
-    private final ClientServerSideCommand command;
+    private final BasicCommand command;
     private final AuthData authData;
 
-    public CommandWrapper(ClientServerSideCommand command, AuthData authData) {
+    public CommandWrapper(BasicCommand command, AuthData authData) {
         this.command = command;
         this.authData = authData;
     }
 
-    public ClientServerSideCommand getCommand() {
+    public BasicCommand getCommand() {
         return command;
     }
 

@@ -3,7 +3,7 @@ package se1_prog_lab.client;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
-import se1_prog_lab.client.commands.ClientServerSideCommand;
+import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.exceptions.EOTException;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.util.AuthData;
@@ -144,7 +144,7 @@ public class MyServerIO implements ServerIO {
      * @return полученная строка.
      */
     @Override
-    public Response sendAndReceive(ClientServerSideCommand command) {
+    public Response sendAndReceive(BasicCommand command) {
         CommandWrapper commandWrapper = new CommandWrapper(command, authData);
         while (true) {
             try {
