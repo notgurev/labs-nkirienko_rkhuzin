@@ -10,4 +10,9 @@ public class Clear extends BasicCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.clear(authData);
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Удалить все свои элементов коллекции";
+    }
 }

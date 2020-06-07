@@ -10,4 +10,9 @@ public class PrintUniqueTunedInWorks extends BasicCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.printUniqueTunedInWorks();
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Получить уникальные значения поля tunedInWorks";
+    }
 }

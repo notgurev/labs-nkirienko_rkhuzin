@@ -10,4 +10,9 @@ public class Sort extends BasicCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.sort();
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Отсортировать коллекцию на сервере";
+    }
 }

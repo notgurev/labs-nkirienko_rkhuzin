@@ -16,6 +16,7 @@ public class MainFrame extends JFrame {
     private JToolBar toolBar;
 
     public MainFrame(ClientController controller, String username) {
+        super("Управление и обзор");
         this.controller = controller;
         setMinimumSize(new Dimension(0, 500));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -47,6 +48,9 @@ public class MainFrame extends JFrame {
         addToolBarButton("Уникальные tuned in works", e -> controller.executeServerCommand(new PrintUniqueTunedInWorks()));
         // Sort // todo проверить с непустой коллекцией
         addToolBarButton("Сортировать на сервере", e -> controller.executeServerCommand(new Sort()));
+
+        // Журнал
+        addToolBarButton("Журнал", e -> controller.openJournalFrame());
 
         add(toolBar, BorderLayout.PAGE_START);
     }

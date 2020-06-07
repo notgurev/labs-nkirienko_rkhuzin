@@ -11,4 +11,9 @@ public class Info extends BasicCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.info();
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Получить информацию о коллекции";
+    }
 }

@@ -15,4 +15,9 @@ public class Add extends ConstructingCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.add(carriedObject, authData);
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Добавить элемент";
+    }
 }

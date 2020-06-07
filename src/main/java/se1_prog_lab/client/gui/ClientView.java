@@ -1,5 +1,7 @@
 package se1_prog_lab.client.gui;
 
+import java.util.LinkedList;
+
 public interface ClientView {
     void initLoginWindow();
 
@@ -12,4 +14,6 @@ public interface ClientView {
     void simpleAlert(String alertText);
 
     void initConstructingFrame();
+
+    void initJournalFrame(LinkedList<String> journal);
 }

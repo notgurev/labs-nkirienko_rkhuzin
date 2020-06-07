@@ -16,4 +16,9 @@ public class CountLessThanDescription extends BasicCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.countLessThanDescription(description);
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Подсчет элементов с полем description < заданного";
+    }
 }

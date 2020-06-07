@@ -1,11 +1,11 @@
 package se1_prog_lab.client.commands.concrete.technical;
 
-import se1_prog_lab.client.commands.BasicCommand;
+import se1_prog_lab.client.commands.NoJournalEntryCommand;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.util.AuthData;
 
-public class GetCollectionPage extends BasicCommand {
+public class GetCollectionPage extends NoJournalEntryCommand {
     int firstIndex, lastIndex;
 
     public GetCollectionPage(int page, int pageSize) {

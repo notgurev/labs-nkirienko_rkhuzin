@@ -11,4 +11,9 @@ public class Show extends BasicCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.show();
     }
+
+    @Override
+    public String getJournalEntry() {
+        return null; // todo?
+    }
 }

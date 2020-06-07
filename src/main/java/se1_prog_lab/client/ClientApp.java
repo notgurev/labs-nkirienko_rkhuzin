@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.BasicCommand;
+import se1_prog_lab.client.commands.NoJournalEntryCommand;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.gui.ClientModel;
@@ -58,6 +59,8 @@ public class ClientApp implements ClientController {
         if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
             AuthStrings authStatus = (AuthStrings) serverResponse.getMessage();
             if (authStatus == INCORRECT_LOGIN_DATA || authStatus == USERNAME_TAKEN) getBackToLoginWindow();
+        } else {
+            if (!(command instanceof NoJournalEntryCommand)) model.addJournalEntry(command.getJournalEntry());
         }
     }
 
@@ -85,6 +88,11 @@ public class ClientApp implements ClientController {
     @Override
     public void openConstructingFrame() {
         view.initConstructingFrame();
+    }
+
+    @Override
+    public void openJournalFrame() {
+        view.initJournalFrame(model.getJournal());
     }
 
     private void handleAuthResponse(Response authResponse) {

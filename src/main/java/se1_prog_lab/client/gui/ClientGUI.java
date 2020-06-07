@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 import se1_prog_lab.client.ClientController;
 
 import javax.swing.*;
+import java.util.LinkedList;
 
 @Singleton
 public class ClientGUI implements ClientView {
@@ -12,6 +13,7 @@ public class ClientGUI implements ClientView {
     private LoginFrame loginFrame;
     private MainFrame mainFrame;
     private ConstructingFrame constructingFrame;
+    private JournalFrame journalFrame;
 
     @Inject
     public ClientGUI(ClientController controller) {
@@ -46,5 +48,10 @@ public class ClientGUI implements ClientView {
     @Override
     public void initConstructingFrame() {
         constructingFrame = new ConstructingFrame(controller);
+    }
+
+    @Override
+    public void initJournalFrame(LinkedList<String> journal) {
+        journalFrame = new JournalFrame(journal);
     }
 }

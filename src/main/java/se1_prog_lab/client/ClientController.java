@@ -14,4 +14,6 @@ public interface ClientController {
     void register(String username, String password);
 
     void openConstructingFrame();
+
+    void openJournalFrame();
 }

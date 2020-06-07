@@ -17,4 +17,9 @@ public class RemoveByID extends BasicCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.removeByID(id, authData);
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Удалить элемент с id=" + id;
+    }
 }

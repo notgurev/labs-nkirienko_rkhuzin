@@ -15,4 +15,6 @@ public interface Command extends Serializable {
      * @return ответ клиенту.
      */
     Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData);
+
+    String getJournalEntry();
 }

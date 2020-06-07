@@ -16,4 +16,9 @@ public class InsertAt extends ConstructingCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.insertAt(carriedObject, index, authData);
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Добавить элемент в позицию " + index;
+    }
 }

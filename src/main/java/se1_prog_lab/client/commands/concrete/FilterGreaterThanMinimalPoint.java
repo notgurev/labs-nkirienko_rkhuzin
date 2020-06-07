@@ -17,4 +17,9 @@ public class FilterGreaterThanMinimalPoint extends BasicCommand {
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.filterGreaterThanMinimalPoint(minimalPoint);
     }
+
+    @Override
+    public String getJournalEntry() {
+        return "Получить элементы, значение minimalPoint которых больше заданного";
+    }
 }
