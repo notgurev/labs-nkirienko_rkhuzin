@@ -8,7 +8,7 @@ import java.util.LinkedList;
 public class ClientData implements ClientModel {
     private Collection<LabWork> bufferedCollectionPage;
     private int pageNumber;
-    private int pageSize;
+    private int pageSize = 10;
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
     private final static int JOURNAL_SIZE_LIMIT = 13;
 
