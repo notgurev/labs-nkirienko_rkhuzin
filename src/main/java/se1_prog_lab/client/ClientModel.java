@@ -1,4 +1,4 @@
-package se1_prog_lab.client.gui;
+package se1_prog_lab.client;
 
 import se1_prog_lab.collection.LabWork;
 

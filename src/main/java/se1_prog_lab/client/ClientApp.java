@@ -9,7 +9,6 @@ import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.client.commands.NoJournalEntryCommand;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
-import se1_prog_lab.client.gui.ClientModel;
 import se1_prog_lab.client.gui.ClientView;
 import se1_prog_lab.server.api.Response;
 import se1_prog_lab.util.AuthData;

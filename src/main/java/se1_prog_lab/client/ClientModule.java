@@ -2,9 +2,7 @@ package se1_prog_lab.client;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
-import se1_prog_lab.client.gui.ClientData;
 import se1_prog_lab.client.gui.ClientGUI;
-import se1_prog_lab.client.gui.ClientModel;
 import se1_prog_lab.client.gui.ClientView;
 import se1_prog_lab.util.LengthEOTWrapper;
 import se1_prog_lab.util.interfaces.EOTWrapper;
