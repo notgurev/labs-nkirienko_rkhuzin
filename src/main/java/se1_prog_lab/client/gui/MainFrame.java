@@ -19,6 +19,8 @@ public class MainFrame extends JFrame {
     private Mode mode = Mode.SPREADSHEET;
     private DrawStrategy drawStrategy;
     private JMenu strategy;
+    private int selectedPage = 1;
+    private JLabel selectedPageLabel;
 
     enum Mode {
         VISUALIZATION,
@@ -40,6 +42,16 @@ public class MainFrame extends JFrame {
     private void createToolBar() {
         toolBar = new JToolBar(HORIZONTAL);
         toolBar.setFloatable(false);
+
+        {
+            // Переключение страниц
+            addToolBarButton("◀", e -> changeSelectedPage(-1));
+
+            selectedPageLabel = new JLabel(" " + selectedPage + " ");
+            toolBar.add(selectedPageLabel);
+
+            addToolBarButton("▶", e -> changeSelectedPage(+1));
+        }
 
         // Add
         addToolBarButton("Добавить", e -> {/*TODO функционал add*/
@@ -63,6 +75,13 @@ public class MainFrame extends JFrame {
         addToolBarButton("Журнал", e -> controller.openJournalFrame());
 
         add(toolBar, BorderLayout.PAGE_START);
+    }
+
+    private void changeSelectedPage(int change) {
+        selectedPage += change;
+        // получить от сервера нужную страницу
+        // перерисовать таблицу/визуализацию этой страницы
+        selectedPageLabel.setText(" " + selectedPage + " ");
     }
 
     private void addToolBarButton(String text, ActionListener actionListener) {
