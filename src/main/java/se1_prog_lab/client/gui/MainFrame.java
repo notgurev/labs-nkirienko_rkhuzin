@@ -96,6 +96,7 @@ public class MainFrame extends JFrame {
             view.add(visualization);
             visualization.addActionListener(this::setVisualizationMode);
 
+            spreadsheet.setSelected(true);
             jMenuBar.add(view);
         }
 
