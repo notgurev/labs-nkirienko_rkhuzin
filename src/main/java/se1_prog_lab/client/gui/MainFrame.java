@@ -2,6 +2,8 @@ package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientController;
 import se1_prog_lab.client.commands.concrete.*;
+import se1_prog_lab.client.gui.strategies.DrawStrategyOne;
+import se1_prog_lab.client.gui.strategies.DrawStrategyTwo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,6 +16,14 @@ import static javax.swing.SwingConstants.HORIZONTAL;
 public class MainFrame extends JFrame {
     private final ClientController controller;
     private JToolBar toolBar;
+    private Mode mode = Mode.SPREADSHEET;
+    private DrawStrategy drawStrategy;
+    private JMenu strategy;
+
+    enum Mode {
+        VISUALIZATION,
+        SPREADSHEET
+    }
 
     public MainFrame(ClientController controller, String username) {
         super("Управление и обзор");
@@ -108,15 +118,34 @@ public class MainFrame extends JFrame {
             languageGroup.add(ecuador);
         }
 
+        {
+            strategy = new JMenu("Форма рисуемых объектов");
+            jMenuBar.add(strategy);
+            ButtonGroup strategies = new ButtonGroup();
+            JRadioButtonMenuItem strategy1 = new JRadioButtonMenuItem("ФОРМА 1"); // todo нормальные названия
+            strategy.add(strategy1);
+            strategies.add(strategy1);
+            JRadioButtonMenuItem strategy2 = new JRadioButtonMenuItem("ФОРМА 2");
+            strategy.add(strategy2);
+            strategies.add(strategy2);
+
+            strategy.setEnabled(mode != Mode.SPREADSHEET);
+        }
+
         setJMenuBar(jMenuBar);
     }
 
     public void setSpreadsheetMode(ActionEvent e) {
+        mode = Mode.SPREADSHEET;
+        drawStrategy = new DrawStrategyOne();
+        strategy.setEnabled(false);
         // todo отображение в виде таблица
     }
 
     public void setVisualizationMode(ActionEvent e) {
+        mode = Mode.VISUALIZATION;
+        drawStrategy = new DrawStrategyTwo();
+        strategy.setEnabled(true);
         // todo отображение в виде визуализации
-        // todo паттерн стратегия
     }
 }
