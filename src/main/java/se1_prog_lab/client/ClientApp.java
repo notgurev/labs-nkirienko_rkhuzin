@@ -10,12 +10,16 @@ import se1_prog_lab.client.commands.NoJournalEntryCommand;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.gui.ClientView;
+import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.AuthStrings;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
+
+import java.util.Collection;
+import java.util.LinkedList;
 
 import static se1_prog_lab.shared.api.ResponseType.AUTH_STATUS;
 import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
@@ -27,21 +31,24 @@ import static se1_prog_lab.shared.api.AuthStrings.USERNAME_TAKEN;
  * Controller.
  */
 @Singleton
-public class ClientApp implements ClientController {
+public class ClientApp implements ClientCore {
     private final ServerIO serverIO;
     private final ClientView view;
-    private final ClientModel model;
+    private final static int JOURNAL_SIZE_LIMIT = 13;
+    private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
+    private Collection<LabWork> bufferedCollectionPage;
+    private int pageNumber;
+    private int pageSize = 10;
 
     @Inject
-    public ClientApp(ServerIO serverIO, ClientView view, ClientModel model) {
-        this.model = model;
+    public ClientApp(ServerIO serverIO, ClientView view) {
         this.serverIO = serverIO;
         this.view = view;
     }
 
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ClientModule());
-        ClientController controller = injector.getInstance(ClientController.class);
+        ClientCore controller = injector.getInstance(ClientCore.class);
         controller.start();
     }
 
@@ -49,6 +56,13 @@ public class ClientApp implements ClientController {
     public void start() {
         SwingUtilities.invokeLater(view::initLoginWindow);
         serverIO.tryOpen();
+    }
+
+    private void addJournalEntry(String entry) {
+        if (entry != null) journal.addFirst(entry);
+        while (journal.size() > JOURNAL_SIZE_LIMIT) {
+            journal.removeLast();
+        }
     }
 
     @Override
@@ -59,7 +73,7 @@ public class ClientApp implements ClientController {
             AuthStrings authStatus = (AuthStrings) serverResponse.getMessage();
             if (authStatus == INCORRECT_LOGIN_DATA || authStatus == USERNAME_TAKEN) getBackToLoginWindow();
         } else {
-            if (!(command instanceof NoJournalEntryCommand)) model.addJournalEntry(command.getJournalEntry());
+            if (!(command instanceof NoJournalEntryCommand)) addJournalEntry(command.getJournalEntry());
         }
     }
 
@@ -91,7 +105,7 @@ public class ClientApp implements ClientController {
 
     @Override
     public void openJournalFrame() {
-        view.initJournalFrame(model.getJournal());
+        view.initJournalFrame(journal);
     }
 
     private void handleAuthResponse(Response authResponse) {
@@ -105,7 +119,7 @@ public class ClientApp implements ClientController {
 
     public void handleResponse(Response response) {
         if (response.getResponseType() == LABWORK_LIST) {
-            model.setBufferedCollectionPage(response.getCollection());
+            bufferedCollectionPage = response.getCollection();
         } else {
             view.simpleAlert(response.getStringMessage());
         }

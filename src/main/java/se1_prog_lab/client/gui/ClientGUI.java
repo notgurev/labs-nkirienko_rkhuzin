@@ -2,21 +2,21 @@ package se1_prog_lab.client.gui;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import se1_prog_lab.client.ClientController;
+import se1_prog_lab.client.ClientCore;
 
 import javax.swing.*;
 import java.util.LinkedList;
 
 @Singleton
 public class ClientGUI implements ClientView {
-    private final ClientController controller;
+    private final ClientCore controller;
     private LoginFrame loginFrame;
     private MainFrame mainFrame;
     private ConstructingFrame constructingFrame;
     private JournalFrame journalFrame;
 
     @Inject
-    public ClientGUI(ClientController controller) {
+    public ClientGUI(ClientCore controller) {
         this.controller = controller;
     }
 

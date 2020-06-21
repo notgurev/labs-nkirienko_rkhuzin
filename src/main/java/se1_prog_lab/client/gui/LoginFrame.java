@@ -1,15 +1,15 @@
 package se1_prog_lab.client.gui;
 
-import se1_prog_lab.client.ClientController;
+import se1_prog_lab.client.ClientCore;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 
 public class LoginFrame extends JFrame {
-    private final ClientController controller;
+    private final ClientCore controller;
 
-    public LoginFrame(ClientController controller) throws HeadlessException {
+    public LoginFrame(ClientCore controller) throws HeadlessException {
         super("Авторизация");
         this.controller = controller;
         setSize(300, 300);

@@ -1,15 +1,15 @@
 package se1_prog_lab.client.gui;
 
-import se1_prog_lab.client.ClientController;
+import se1_prog_lab.client.ClientCore;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ConstructingFrame extends JFrame {
-    private final ClientController controller;
+    private final ClientCore controller;
     private final JPanel panel;
 
-    public ConstructingFrame(ClientController controller) throws HeadlessException {
+    public ConstructingFrame(ClientCore controller) throws HeadlessException {
         this.controller = controller;
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(true);

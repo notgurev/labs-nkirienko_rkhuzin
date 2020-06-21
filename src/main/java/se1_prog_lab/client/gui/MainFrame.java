@@ -1,6 +1,6 @@
 package se1_prog_lab.client.gui;
 
-import se1_prog_lab.client.ClientController;
+import se1_prog_lab.client.ClientCore;
 import se1_prog_lab.client.commands.concrete.*;
 import se1_prog_lab.client.gui.strategies.DrawStrategyOne;
 import se1_prog_lab.client.gui.strategies.DrawStrategyTwo;
@@ -14,7 +14,7 @@ import static javax.swing.SwingConstants.CENTER;
 import static javax.swing.SwingConstants.HORIZONTAL;
 
 public class MainFrame extends JFrame {
-    private final ClientController controller;
+    private final ClientCore controller;
     private JToolBar toolBar;
     private Mode mode = Mode.SPREADSHEET;
     private DrawStrategy drawStrategy;
@@ -22,7 +22,7 @@ public class MainFrame extends JFrame {
     private int selectedPage = 1;
     private JLabel selectedPageLabel;
 
-    public MainFrame(ClientController controller, String username) {
+    public MainFrame(ClientCore controller, String username) {
         super("Управление и обзор");
         this.controller = controller;
         setMinimumSize(new Dimension(0, 500));

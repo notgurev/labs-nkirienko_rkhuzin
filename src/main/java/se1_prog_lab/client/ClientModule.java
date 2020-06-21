@@ -12,10 +12,9 @@ import se1_prog_lab.shared.api.EOTWrapper;
 public class ClientModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(ClientController.class).to(ClientApp.class);
+        bind(ClientCore.class).to(ClientApp.class);
         bind(ServerIO.class).to(MyServerIO.class);
         bind(EOTWrapper.class).to(LengthEOTWrapper.class);
         bind(ClientView.class).to(ClientGUI.class);
-        bind(ClientModel.class).to(ClientData.class);
     }
 }
