@@ -1,8 +1,7 @@
-package se1_prog_lab.util;
+package se1_prog_lab.shared.api;
 
 import com.google.inject.Singleton;
 import se1_prog_lab.exceptions.EOTException;
-import se1_prog_lab.util.interfaces.EOTWrapper;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;

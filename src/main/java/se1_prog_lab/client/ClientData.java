@@ -6,11 +6,11 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 public class ClientData implements ClientModel {
+    private final static int JOURNAL_SIZE_LIMIT = 13;
+    private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
     private Collection<LabWork> bufferedCollectionPage;
     private int pageNumber;
     private int pageSize = 10;
-    private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
-    private final static int JOURNAL_SIZE_LIMIT = 13;
 
     @Override
     public void addJournalEntry(String entry) {

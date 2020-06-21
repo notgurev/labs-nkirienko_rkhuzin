@@ -4,12 +4,12 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.DatabaseException;
-import se1_prog_lab.server.api.Response;
+import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.AuthData;
+import se1_prog_lab.shared.api.AuthData;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.logging.Logger;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
-import static se1_prog_lab.server.api.ResponseType.*;
-import static se1_prog_lab.util.AuthStrings.*;
-import static se1_prog_lab.util.BetterStrings.multiline;
+import static se1_prog_lab.shared.api.ResponseType.*;
+import static se1_prog_lab.shared.api.AuthStrings.*;
+import static se1_prog_lab.shared.util.BetterStrings.multiline;
 
 /**
  * Ресивер для серверных команд (см. паттерн "Команда").

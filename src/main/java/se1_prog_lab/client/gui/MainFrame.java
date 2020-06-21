@@ -22,11 +22,6 @@ public class MainFrame extends JFrame {
     private int selectedPage = 1;
     private JLabel selectedPageLabel;
 
-    enum Mode {
-        VISUALIZATION,
-        SPREADSHEET
-    }
-
     public MainFrame(ClientController controller, String username) {
         super("Управление и обзор");
         this.controller = controller;
@@ -167,5 +162,10 @@ public class MainFrame extends JFrame {
         drawStrategy = new DrawStrategyTwo();
         strategy.setEnabled(true);
         // todo отображение в виде визуализации
+    }
+
+    enum Mode {
+        VISUALIZATION,
+        SPREADSHEET
     }
 }

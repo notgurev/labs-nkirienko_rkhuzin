@@ -1,4 +1,4 @@
-package se1_prog_lab.util;
+package se1_prog_lab.shared.api;
 
 /**
  * Класс для передачи ключей авторизации между сервером и клиентом.

@@ -10,17 +10,17 @@ import se1_prog_lab.client.commands.NoJournalEntryCommand;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.gui.ClientView;
-import se1_prog_lab.server.api.Response;
-import se1_prog_lab.util.AuthData;
-import se1_prog_lab.util.AuthStrings;
+import se1_prog_lab.shared.api.Response;
+import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.AuthStrings;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
 
-import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
-import static se1_prog_lab.server.api.ResponseType.LABWORK_LIST;
-import static se1_prog_lab.util.AuthStrings.INCORRECT_LOGIN_DATA;
-import static se1_prog_lab.util.AuthStrings.USERNAME_TAKEN;
+import static se1_prog_lab.shared.api.ResponseType.AUTH_STATUS;
+import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
+import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
+import static se1_prog_lab.shared.api.AuthStrings.USERNAME_TAKEN;
 
 /**
  * Класс клиентского приложения.

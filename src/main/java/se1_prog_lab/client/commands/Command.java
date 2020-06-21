@@ -1,8 +1,8 @@
 package se1_prog_lab.client.commands;
 
-import se1_prog_lab.server.api.Response;
+import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.AuthData;
+import se1_prog_lab.shared.api.AuthData;
 
 import java.io.Serializable;
 

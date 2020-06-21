@@ -8,12 +8,12 @@ import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.DatabaseException;
-import se1_prog_lab.server.api.Response;
+import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.ClientHandler;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.CommandWrapper;
-import se1_prog_lab.util.interfaces.EOTWrapper;
+import se1_prog_lab.shared.api.CommandWrapper;
+import se1_prog_lab.shared.api.EOTWrapper;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -26,10 +26,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
-import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
-import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
-import static se1_prog_lab.util.AuthStrings.AUTH_FAILED;
-import static se1_prog_lab.util.AuthStrings.SERVER_ERROR;
+import static se1_prog_lab.shared.api.ResponseType.AUTH_STATUS;
+import static se1_prog_lab.shared.api.ResponseType.PLAIN_TEXT;
+import static se1_prog_lab.shared.api.AuthStrings.AUTH_FAILED;
+import static se1_prog_lab.shared.api.AuthStrings.SERVER_ERROR;
 
 /**
  * Класс для работы с каждым клиентом в отдельном потоке.

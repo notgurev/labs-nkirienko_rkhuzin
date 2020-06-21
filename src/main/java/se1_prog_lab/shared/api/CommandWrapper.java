@@ -1,4 +1,4 @@
-package se1_prog_lab.util;
+package se1_prog_lab.shared.api;
 
 import se1_prog_lab.client.commands.BasicCommand;
 

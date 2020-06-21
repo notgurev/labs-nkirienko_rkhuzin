@@ -8,7 +8,7 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
 import se1_prog_lab.server.interfaces.SqlFunction;
-import se1_prog_lab.util.ElementCreator;
+import se1_prog_lab.shared.util.ElementCreator;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

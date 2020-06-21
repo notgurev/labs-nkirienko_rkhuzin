@@ -5,7 +5,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-import static se1_prog_lab.util.BetterStrings.multiline;
+import static se1_prog_lab.shared.util.BetterStrings.multiline;
 
 /**
  * Класс координат лаб. работы (?)

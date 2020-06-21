@@ -1,7 +1,6 @@
-package se1_prog_lab.server.api;
+package se1_prog_lab.shared.api;
 
 import se1_prog_lab.collection.LabWork;
-import se1_prog_lab.util.AuthStrings;
 
 import java.io.Serializable;
 import java.util.Collection;

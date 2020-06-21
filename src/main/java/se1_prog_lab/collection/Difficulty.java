@@ -1,6 +1,5 @@
 package se1_prog_lab.collection;
 
-
 import java.io.Serializable;
 
 /**

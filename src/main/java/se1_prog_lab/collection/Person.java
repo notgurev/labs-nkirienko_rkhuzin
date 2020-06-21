@@ -8,13 +8,15 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
 
-import static se1_prog_lab.util.BetterStrings.emptyIfNull;
-import static se1_prog_lab.util.BetterStrings.multiline;
+import static se1_prog_lab.shared.util.BetterStrings.emptyIfNull;
+import static se1_prog_lab.shared.util.BetterStrings.multiline;
 
 /**
  * Класс человека-автора лабораторной работы.
  */
 public class Person implements Serializable {
+    @NotNull
+    private final Location location;
     @NotEmpty
     @NotNull
     private String name;
@@ -24,8 +26,6 @@ public class Person implements Serializable {
     @NotNull
     private String passportID;
     private Color hairColor;
-    @NotNull
-    private final Location location;
 
     public Person() {
         location = new Location();

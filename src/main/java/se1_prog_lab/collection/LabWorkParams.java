@@ -38,84 +38,84 @@ public class LabWorkParams {
         return name;
     }
 
-    public long getCoordinateX() {
-        return coordinateX;
-    }
-
-    public Float getCoordinateY() {
-        return coordinateY;
-    }
-
-    public Integer getMinimalPoint() {
-        return minimalPoint;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Integer getTunedInWorks() {
-        return tunedInWorks;
-    }
-
-    public Difficulty getDifficulty() {
-        return difficulty;
-    }
-
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    public Float getAuthorHeight() {
-        return authorHeight;
-    }
-
-    public String getAuthorPassportID() {
-        return authorPassportID;
-    }
-
-    public Color getAuthorHairColor() {
-        return authorHairColor;
-    }
-
     public void setName(String name) {
         this.name = name;
+    }
+
+    public long getCoordinateX() {
+        return coordinateX;
     }
 
     public void setCoordinateX(long coordinateX) {
         this.coordinateX = coordinateX;
     }
 
+    public Float getCoordinateY() {
+        return coordinateY;
+    }
+
     public void setCoordinateY(Float coordinateY) {
         this.coordinateY = coordinateY;
+    }
+
+    public Integer getMinimalPoint() {
+        return minimalPoint;
     }
 
     public void setMinimalPoint(Integer minimalPoint) {
         this.minimalPoint = minimalPoint;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Integer getTunedInWorks() {
+        return tunedInWorks;
     }
 
     public void setTunedInWorks(Integer tunedInWorks) {
         this.tunedInWorks = tunedInWorks;
     }
 
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public String getAuthorName() {
+        return authorName;
     }
 
     public void setAuthorName(String authorName) {
         this.authorName = authorName;
     }
 
+    public Float getAuthorHeight() {
+        return authorHeight;
+    }
+
     public void setAuthorHeight(Float authorHeight) {
         this.authorHeight = authorHeight;
     }
 
+    public String getAuthorPassportID() {
+        return authorPassportID;
+    }
+
     public void setAuthorPassportID(String authorPassportID) {
         this.authorPassportID = authorPassportID;
+    }
+
+    public Color getAuthorHairColor() {
+        return authorHairColor;
     }
 
     public void setAuthorHairColor(Color authorHairColor) {
@@ -126,20 +126,20 @@ public class LabWorkParams {
         return authorLocationX;
     }
 
-    public float getAuthorLocationY() {
-        return authorLocationY;
-    }
-
-    public Integer getAuthorLocationZ() {
-        return authorLocationZ;
-    }
-
     public void setAuthorLocationX(Integer authorLocationX) {
         this.authorLocationX = authorLocationX;
     }
 
+    public float getAuthorLocationY() {
+        return authorLocationY;
+    }
+
     public void setAuthorLocationY(float authorLocationY) {
         this.authorLocationY = authorLocationY;
+    }
+
+    public Integer getAuthorLocationZ() {
+        return authorLocationZ;
     }
 
     public void setAuthorLocationZ(Integer authorLocationZ) {
@@ -150,12 +150,12 @@ public class LabWorkParams {
         return id;
     }
 
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
     }
 
     public void setCreationDate(LocalDateTime creationDate) {

@@ -5,17 +5,17 @@ import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.exceptions.EOTException;
-import se1_prog_lab.server.api.Response;
-import se1_prog_lab.util.AuthData;
-import se1_prog_lab.util.CommandWrapper;
-import se1_prog_lab.util.interfaces.EOTWrapper;
+import se1_prog_lab.shared.api.Response;
+import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.CommandWrapper;
+import se1_prog_lab.shared.api.EOTWrapper;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
+import static se1_prog_lab.shared.api.ResponseType.PLAIN_TEXT;
 
 /**
  * Класс для взаимодействия с сервером.

@@ -1,4 +1,4 @@
-package se1_prog_lab.util.interfaces;
+package se1_prog_lab.shared.api;
 
 import se1_prog_lab.exceptions.EOTException;
 

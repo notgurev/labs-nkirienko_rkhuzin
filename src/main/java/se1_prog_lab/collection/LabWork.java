@@ -8,8 +8,8 @@ import javax.validation.constraints.Positive;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import static se1_prog_lab.util.BetterStrings.emptyIfNull;
-import static se1_prog_lab.util.BetterStrings.multiline;
+import static se1_prog_lab.shared.util.BetterStrings.emptyIfNull;
+import static se1_prog_lab.shared.util.BetterStrings.multiline;
 
 
 /**
@@ -20,9 +20,9 @@ public class LabWork implements Comparable<LabWork>, Serializable {
      * Количество полей, чтобы скрипт знал, сколько пропускать строк.
      */
     private static final int NUMBER_OF_FIELDS = 14;
+    private final Person author;
     @Positive // без NotNull т.к. сервер сам назначает ID
     private Long id; // > 0, unique, auto-gen, not null
-
     @NotEmpty
     @NotNull
     private String name;
@@ -38,7 +38,6 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private Integer tunedInWorks;
     @NotNull
     private Difficulty difficulty;
-    private final Person author;
 
     public LabWork() {
         author = new Person();
@@ -53,10 +52,6 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         this.tunedInWorks = tunedInWorks;
         this.difficulty = difficulty;
         this.author = author;
-    }
-
-    public static int getNumberOfFields() {
-        return NUMBER_OF_FIELDS;
     }
 
     @Override
@@ -74,31 +69,43 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         );
     }
 
+    public Long getId() {
+        return id;
+    }
+
     /**
-     * "Предустановка" id при чтении из CSV, когда неясно, есть ли коллизии с другими id.
-     *
      * @param id устанавливаемый id.
-     * @throws LabWorkFieldException если id не соответствует ограничениям (для скрипта).
+     * @throws LabWorkFieldException если id не соответствует ограничениям.
      */
     public void setId(Long id) throws LabWorkFieldException {
         if (id == null || id < 0) throw new LabWorkFieldException();
         this.id = id;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) throws LabWorkFieldException {
+        if (name == null || name.equals("")) throw new LabWorkFieldException();
+        this.name = name;
     }
 
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
     public Difficulty getDifficulty() {
         return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) throws LabWorkFieldException {
+        if (difficulty == null) throw new LabWorkFieldException();
+        this.difficulty = difficulty;
     }
 
     public String getDescription() {
@@ -132,21 +139,11 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         this.minimalPoint = minimalPoint;
     }
 
-    public void setName(String name) throws LabWorkFieldException {
-        if (name == null || name.equals("")) throw new LabWorkFieldException();
-        this.name = name;
-    }
-
     public void setCoordinates(long x, Float y) throws LabWorkFieldException {
         if (y == null || x > 625) throw new LabWorkFieldException();
         coordinates = new Coordinates();
         this.coordinates.setX(x);
         this.coordinates.setY(y);
-    }
-
-    public void setDifficulty(Difficulty difficulty) throws LabWorkFieldException {
-        if (difficulty == null) throw new LabWorkFieldException();
-        this.difficulty = difficulty;
     }
 
     public Person getAuthor() {
@@ -162,9 +159,5 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     @Override
     public int compareTo(LabWork o) {
         return (int) (id - o.getId());
-    }
-
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
     }
 }

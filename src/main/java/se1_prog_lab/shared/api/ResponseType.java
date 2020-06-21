@@ -1,4 +1,4 @@
-package se1_prog_lab.server.api;
+package se1_prog_lab.shared.api;
 
 import java.io.Serializable;
 
