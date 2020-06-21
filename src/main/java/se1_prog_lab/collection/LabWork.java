@@ -1,25 +1,16 @@
 package se1_prog_lab.collection;
 
-import se1_prog_lab.exceptions.LabWorkFieldException;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import static se1_prog_lab.shared.util.BetterStrings.emptyIfNull;
-import static se1_prog_lab.shared.util.BetterStrings.multiline;
-
 
 /**
  * Класс лабораторной работы (элемента коллекции).
  */
 public class LabWork implements Comparable<LabWork>, Serializable {
-    /**
-     * Количество полей, чтобы скрипт знал, сколько пропускать строк.
-     */
-    private static final int NUMBER_OF_FIELDS = 14;
     private final Person author;
     @Positive // без NotNull т.к. сервер сам назначает ID
     private Long id; // > 0, unique, auto-gen, not null
@@ -43,7 +34,8 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         author = new Person();
     }
 
-    public LabWork(String name, Coordinates coordinates, Integer minimalPoint, String description, Integer tunedInWorks, Difficulty difficulty, Person author) {
+    public LabWork(String name, Coordinates coordinates, Integer minimalPoint, String description,
+                   Integer tunedInWorks, Difficulty difficulty, Person author) {
         this.name = name;
         this.coordinates = coordinates;
         this.minimalPoint = minimalPoint;
@@ -56,29 +48,24 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 
     @Override
     public String toString() {
-        return multiline(
-                "ID: " + id,
-                "Имя: " + name,
-                coordinates.toString(),
-                "Дата создания: " + creationDate.withNano(0),
-                "minimalPoint: " + emptyIfNull(minimalPoint),
-                "Описание: " + description,
-                "tunedInWorks: " + emptyIfNull(tunedInWorks),
-                "Сложность: " + difficulty.name(),
-                author.toString() + '\n'
-        );
+        return "LabWork{" +
+                "author=" + author +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", coordinates=" + coordinates +
+                ", creationDate=" + creationDate +
+                ", minimalPoint=" + minimalPoint +
+                ", description='" + description + '\'' +
+                ", tunedInWorks=" + tunedInWorks +
+                ", difficulty=" + difficulty +
+                '}';
     }
 
     public Long getId() {
         return id;
     }
 
-    /**
-     * @param id устанавливаемый id.
-     * @throws LabWorkFieldException если id не соответствует ограничениям.
-     */
-    public void setId(Long id) throws LabWorkFieldException {
-        if (id == null || id < 0) throw new LabWorkFieldException();
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -86,8 +73,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return name;
     }
 
-    public void setName(String name) throws LabWorkFieldException {
-        if (name == null || name.equals("")) throw new LabWorkFieldException();
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -103,8 +89,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return difficulty;
     }
 
-    public void setDifficulty(Difficulty difficulty) throws LabWorkFieldException {
-        if (difficulty == null) throw new LabWorkFieldException();
+    public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
 
@@ -112,8 +97,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return description;
     }
 
-    public void setDescription(String description) throws LabWorkFieldException {
-        if (description == null || description.equals("")) throw new LabWorkFieldException();
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -122,7 +106,6 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     }
 
     public void setTunedInWorks(Integer tunedInWorks) {
-        // Нет условий
         this.tunedInWorks = tunedInWorks;
     }
 
@@ -134,13 +117,11 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return minimalPoint;
     }
 
-    public void setMinimalPoint(Integer minimalPoint) throws LabWorkFieldException {
-        if (minimalPoint != null && minimalPoint <= 0) throw new LabWorkFieldException();
+    public void setMinimalPoint(Integer minimalPoint) {
         this.minimalPoint = minimalPoint;
     }
 
-    public void setCoordinates(long x, Float y) throws LabWorkFieldException {
-        if (y == null || x > 625) throw new LabWorkFieldException();
+    public void setCoordinates(long x, Float y) {
         coordinates = new Coordinates();
         this.coordinates.setX(x);
         this.coordinates.setY(y);

@@ -3,8 +3,6 @@ package se1_prog_lab.collection;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-import static se1_prog_lab.shared.util.BetterStrings.multiline;
-
 /**
  * Класс местоположения Person.
  */
@@ -27,11 +25,11 @@ public class Location implements Serializable {
 
     @Override
     public String toString() {
-        return multiline(
-                "Местоположение по X: " + x,
-                "Местоположение по Y: " + y,
-                "Местоположение по Z: " + z
-        );
+        return "Location{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
     }
 
     public Integer getX() {

@@ -1,12 +1,11 @@
 package se1_prog_lab.shared.util;
 
 import se1_prog_lab.collection.*;
-import se1_prog_lab.exceptions.LabWorkFieldException;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
 
-import static se1_prog_lab.shared.util.ValidatingReader.*;
+import static se1_prog_lab.shared.util.ValidatingReader.hasSuchConstant;
 
 /**
  * Класс, предоставляющий методы для создания экземпляров LabWork
@@ -18,7 +17,7 @@ public class ElementCreator {
      * @param args массив полей
      * @return созданный LabWork
      */
-    public static LabWork fromStringArray(String[] args) throws LabWorkFieldException, NumberFormatException, ArrayIndexOutOfBoundsException {
+    public static LabWork fromStringArray(String[] args) throws NumberFormatException, ArrayIndexOutOfBoundsException {
         Arrays.setAll(args, i -> args[i].trim());
         IntStream.range(0, args.length).filter(i -> args[i].equals("")).forEach(i -> args[i] = null);
         return new LabWork(

@@ -26,7 +26,10 @@ public class Coordinates implements Serializable {
 
     @Override
     public String toString() {
-        return multiline("Координата X: " + x, "Координата Y: " + y);
+        return "Coordinates{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
     }
 
     public long getX() {
