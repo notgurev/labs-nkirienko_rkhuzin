@@ -13,8 +13,11 @@ public class FloatPropertyField extends PropertyField {
     public boolean validateValue(Validator validator) {
         try {
             Float input = field.getText().equals("") ? null : Float.parseFloat(field.getText());
-            return validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty();
-        } catch (NumberFormatException e) {
+            if (validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty()) {
+                labWorkField.set(labWorkParams, input);
+                return true;
+            } else return false;
+        } catch (NumberFormatException | IllegalAccessException e) {
             return false;
         }
     }

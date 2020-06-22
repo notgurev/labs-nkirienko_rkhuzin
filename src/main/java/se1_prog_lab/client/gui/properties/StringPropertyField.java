@@ -13,6 +13,13 @@ public class StringPropertyField extends PropertyField {
     public boolean validateValue(Validator validator) {
         String input = field.getText();
         if (input.equals("")) input = null;
-        return validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty();
+        if (validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty()) {
+            try {
+                labWorkField.set(labWorkParams, input);
+            } catch (IllegalAccessException e) {
+                return false;
+            }
+            return true;
+        } else return false;
     }
 }

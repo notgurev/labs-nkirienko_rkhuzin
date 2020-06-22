@@ -45,6 +45,31 @@ public class LabWorkParams {
     @NotNull
     private Integer authorLocationZ;
 
+    public LabWorkParams() {
+    }
+
+    public LabWorkParams(String name, long coordinateX, Float coordinateY,
+                         Integer minimalPoint, String description, Integer tunedInWorks,
+                         Difficulty difficulty, String authorName, Float authorHeight,
+                         String authorPassportID, Color authorHairColor, Integer authorLocationX,
+                         float authorLocationY, Integer authorLocationZ) {
+        this.name = name;
+        this.coordinateX = coordinateX;
+        this.coordinateY = coordinateY;
+        this.creationDate = LocalDateTime.now();
+        this.minimalPoint = minimalPoint;
+        this.description = description;
+        this.tunedInWorks = tunedInWorks;
+        this.difficulty = difficulty;
+        this.authorName = authorName;
+        this.authorHeight = authorHeight;
+        this.authorPassportID = authorPassportID;
+        this.authorHairColor = authorHairColor;
+        this.authorLocationX = authorLocationX;
+        this.authorLocationY = authorLocationY;
+        this.authorLocationZ = authorLocationZ;
+    }
+
     public String getName() {
         return name;
     }

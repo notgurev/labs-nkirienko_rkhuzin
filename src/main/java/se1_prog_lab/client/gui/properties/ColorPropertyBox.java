@@ -19,8 +19,10 @@ public class ColorPropertyBox extends EnumPropertyBox {
     public boolean validateValue(Validator validator) {
         try {
             Color input = Color.valueOf(Objects.requireNonNull(comboBox.getSelectedItem()).toString());
-            validator.validateValue(LabWorkParams.class, propertyName, input);
-            return true;
+            if (validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty()) {
+                labWorkParams.setAuthorHairColor(input);
+                return true;
+            } else return false;
         } catch (IllegalArgumentException e) {
             return false;
         }

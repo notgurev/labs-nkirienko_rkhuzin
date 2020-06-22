@@ -13,8 +13,11 @@ public class LongPropertyField extends PropertyField {
     public boolean validateValue(Validator validator) {
         try {
             Long input = field.getText().equals("") ? null : Long.parseLong(field.getText());
-            return validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty();
-        } catch (NumberFormatException e) {
+            if (validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty()) {
+                labWorkField.set(labWorkParams, input);
+                return true;
+            } else return false;
+        } catch (NumberFormatException | IllegalAccessException e) {
             return false;
         }
     }

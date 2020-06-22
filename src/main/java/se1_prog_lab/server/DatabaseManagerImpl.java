@@ -9,6 +9,7 @@ import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
 import se1_prog_lab.server.interfaces.SqlFunction;
 import se1_prog_lab.shared.util.ElementCreator;
+import se1_prog_lab.shared.util.EnumUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -107,7 +108,7 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 elementStatement.setLong(2, coordinates.getX());
                 elementStatement.setFloat(3, coordinates.getY());
                 elementStatement.setTimestamp(4, Timestamp.valueOf(labWork.getCreationDate()));
-                elementStatement.setInt(5, labWork.getMinimalPoint());
+                elementStatement.setInt(5, labWork.getMinimalPoint()); // todo не поддерживает null, надо фиксить
                 elementStatement.setString(6, labWork.getDescription());
                 elementStatement.setInt(7, labWork.getTunedInWorks());
                 elementStatement.setString(8, labWork.getDifficulty().name());
@@ -278,7 +279,7 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 labWorkParams.setAuthorName(rs.getString("person_name"));
                 labWorkParams.setAuthorHeight(rs.getFloat("height"));
                 labWorkParams.setAuthorPassportID(rs.getString("passportid"));
-                labWorkParams.setAuthorHairColor(ElementCreator.nullableValueOf(Color.class, rs.getString("hair_color")));
+                labWorkParams.setAuthorHairColor(EnumUtils.nullableValueOf(Color.class, rs.getString("hair_color")));
                 labWorkParams.setAuthorLocationX(rs.getInt("locationx"));
                 labWorkParams.setAuthorLocationY(rs.getFloat("locationy"));
                 labWorkParams.setAuthorLocationZ(rs.getInt("locationz"));

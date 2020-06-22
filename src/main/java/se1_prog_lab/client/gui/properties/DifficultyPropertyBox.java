@@ -22,8 +22,10 @@ public class DifficultyPropertyBox extends EnumPropertyBox {
             String item = Objects.requireNonNull(comboBox.getSelectedItem()).toString();
             Difficulty input = item.equals("-") ? null :
                     Difficulty.valueOf(Objects.requireNonNull(comboBox.getSelectedItem()).toString());
-            validator.validateValue(LabWorkParams.class, propertyName, input);
-            return true;
+            if (validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty()) {
+                labWorkParams.setDifficulty(input);
+                return true;
+            } else return false;
         } catch (IllegalArgumentException e) {
             return false;
         }

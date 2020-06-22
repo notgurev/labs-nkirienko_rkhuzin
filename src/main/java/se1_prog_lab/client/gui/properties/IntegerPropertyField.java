@@ -13,8 +13,11 @@ public class IntegerPropertyField extends PropertyField {
     public boolean validateValue(Validator validator) {
         try {
             Integer input = field.getText().equals("") ? null : Integer.parseInt(field.getText());
-            return validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty();
-        } catch (NumberFormatException e) {
+            if (validator.validateValue(LabWorkParams.class, propertyName, input).isEmpty()) {
+                labWorkField.set(labWorkParams, input);
+                return true;
+            } else return false;
+        } catch (NumberFormatException | IllegalAccessException e) {
             return false;
         }
     }

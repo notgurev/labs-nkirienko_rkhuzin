@@ -1,7 +1,11 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
+import se1_prog_lab.client.commands.concrete.Add;
 import se1_prog_lab.client.gui.properties.*;
+import se1_prog_lab.collection.LabWork;
+import se1_prog_lab.collection.LabWorkParams;
+import se1_prog_lab.shared.util.ElementCreator;
 
 import javax.swing.*;
 import javax.validation.Validation;
@@ -15,6 +19,7 @@ public class ConstructingFrame extends JFrame {
     private final JPanel panel;
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     private final Map<String, Property> properties = new LinkedHashMap<>();
+    private final LabWorkParams labWorkParams = new LabWorkParams();
 
     public ConstructingFrame(ClientCore controller) throws HeadlessException {
         this.controller = controller;
@@ -46,15 +51,15 @@ public class ConstructingFrame extends JFrame {
         // Кнопка проверки полей
         JButton checkButton = new JButton("Проверить");
         checkButton.addActionListener(e -> {
-            if (checkFields()) controller.simpleAlert("Данные введены верно!");
+            if (checkProperties()) controller.simpleAlert("Данные введены верно!");
         });
         panel.add(checkButton);
 
         // Кнопка создания
         JButton createButton = new JButton("Создать");
         createButton.addActionListener(e -> {
-            if (checkFields()) {
-//                new LabWorkParams()
+            if (checkProperties()) {
+                controller.executeServerCommand(new Add(createLabWork()));
             }
         });
         panel.add(createButton);
@@ -64,7 +69,11 @@ public class ConstructingFrame extends JFrame {
         setVisible(true);
     }
 
-    private boolean checkFields() {
+    private LabWork createLabWork() {
+        return ElementCreator.createLabWork(labWorkParams);
+    }
+
+    private boolean checkProperties() {
         for (Property property : properties.values()) {
             if (!property.validateValue(validator)) {
                 controller.simpleAlert("Неправильно введено поле \"" + property.getLabelText() + "'");
@@ -88,6 +97,7 @@ public class ConstructingFrame extends JFrame {
 
     private void addProperties(Property... properties) {
         for (Property property : properties) {
+            property.setLabWorkParams(labWorkParams);
             if (property instanceof PropertyField) addPropertyField((PropertyField) property);
             else addPropertyBox((EnumPropertyBox) property);
         }
