@@ -14,24 +14,26 @@ import static javax.swing.SwingConstants.CENTER;
 import static javax.swing.SwingConstants.HORIZONTAL;
 
 public class MainFrame extends JFrame {
-    private final ClientCore controller;
+    private final ClientCore clientCore;
     private JToolBar toolBar;
     private Mode mode = Mode.SPREADSHEET;
     private DrawStrategy drawStrategy;
     private JMenu strategy;
     private JLabel selectedPageLabel;
 
-    private final VisualizationPanel visualizationPanel = new VisualizationPanel();
-    private final SpreadsheetPanel spreadsheetPanel = new SpreadsheetPanel();
+    private final VisualizationPanel visualizationPanel;
+    private final SpreadsheetPanel spreadsheetPanel;
 
-    public MainFrame(ClientCore controller, String username) {
+    public MainFrame(ClientCore clientCore, String username) {
         super("Управление и обзор");
-        this.controller = controller;
+        this.clientCore = clientCore;
         setMinimumSize(new Dimension(0, 500));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
         createMenuBar(username);
         createToolBar();
+        spreadsheetPanel = new SpreadsheetPanel(this.clientCore);
+        visualizationPanel = new VisualizationPanel();
         getContentPane().add(spreadsheetPanel);
         pack();
         setVisible(true);
@@ -43,42 +45,42 @@ public class MainFrame extends JFrame {
 
         // Переключение страниц
         addToolBarButton("◀", e -> changeSelectedPage(-1));
-        selectedPageLabel = new JLabel(" " + controller.getSelectedPage() + " ");
+        selectedPageLabel = new JLabel(" " + clientCore.getSelectedPage() + " ");
         toolBar.add(selectedPageLabel);
         addToolBarButton("▶", e -> changeSelectedPage(+1));
 
         // Add
-        addToolBarButton("Добавить", e -> controller.openConstructingFrame());
+        addToolBarButton("Добавить", e -> clientCore.openConstructingFrame());
 
         // Count less than description
         addToolBarButton("Посчитать < описания", e -> {
             String description = JOptionPane.showInputDialog("Введите описание:");
-            controller.executeServerCommand(new CountLessThanDescription(description));
+            clientCore.executeServerCommand(new CountLessThanDescription(description));
         });
 
         // Clear
-        addToolBarButton("Очистить", e -> controller.executeServerCommand(new Clear()));
+        addToolBarButton("Очистить", e -> clientCore.executeServerCommand(new Clear()));
 
         // Info
-        addToolBarButton("Информация", e -> controller.executeServerCommand(new Info()));
+        addToolBarButton("Информация", e -> clientCore.executeServerCommand(new Info()));
 
         // Print unique tuned in works
-        addToolBarButton("Уникальные tuned in works", e -> controller.executeServerCommand(new PrintUniqueTunedInWorks()));
+        addToolBarButton("Уникальные tuned in works", e -> clientCore.executeServerCommand(new PrintUniqueTunedInWorks()));
 
         // Sort // todo пофиксить поломку на null
-        addToolBarButton("Сортировать на сервере", e -> controller.executeServerCommand(new Sort()));
+        addToolBarButton("Сортировать на сервере", e -> clientCore.executeServerCommand(new Sort()));
 
         // Журнал
-        addToolBarButton("Журнал", e -> controller.openJournalFrame());
+        addToolBarButton("Журнал", e -> clientCore.openJournalFrame());
 
         add(toolBar, BorderLayout.PAGE_START);
     }
 
     private void changeSelectedPage(int change) {
-        if (controller.getSelectedPage() != 0 || change > 0) controller.setSelectedPage(controller.getSelectedPage() + change);
-        // получить от сервера нужную страницу
-        // перерисовать таблицу/визуализацию этой страницы
-        selectedPageLabel.setText(" " + controller.getSelectedPage() + " ");
+        if (clientCore.getSelectedPage() != 0 || change > 0)
+            clientCore.setSelectedPage(clientCore.getSelectedPage() + change);
+        clientCore.updateCollectionPage();
+        selectedPageLabel.setText(" " + clientCore.getSelectedPage() + " ");
     }
 
     private void addToolBarButton(String text, ActionListener actionListener) {
@@ -170,6 +172,11 @@ public class MainFrame extends JFrame {
         getContentPane().add(visualizationPanel);
         revalidate();
         repaint();
+    }
+
+    public void update() {
+        spreadsheetPanel.update();
+        visualizationPanel.update();
     }
 
     enum Mode {

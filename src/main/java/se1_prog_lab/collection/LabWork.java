@@ -46,6 +46,27 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         this.author = author;
     }
 
+    public String[] toArray() {
+        return new String[]{
+                id.toString(),
+                name,
+                Long.toString(coordinates.getX()),
+                Float.toString(coordinates.getY()),
+                creationDate.toString(),
+                minimalPoint.toString(),
+                description,
+                tunedInWorks.toString(),
+                difficulty.name(),
+                author.getName(),
+                author.getHeight().toString(),
+                author.getPassportID(),
+                author.getHairColor().toString(),
+                author.getLocation().getX().toString(),
+                Float.toString(author.getLocation().getY()),
+                author.getLocation().getZ().toString(),
+        };
+    }
+
     @Override
     public String toString() {
         return "LabWork{" +

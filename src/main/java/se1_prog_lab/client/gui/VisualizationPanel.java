@@ -7,4 +7,10 @@ public class VisualizationPanel extends JPanel {
     public VisualizationPanel() {
         setBackground(new Color(0xEE0F0F));
     }
+
+    public void update() {
+        // todo
+        revalidate();
+        repaint();
+    }
 }

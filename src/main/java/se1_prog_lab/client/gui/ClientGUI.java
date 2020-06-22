@@ -54,4 +54,14 @@ public class ClientGUI implements ClientView {
     public void initJournalFrame(LinkedList<String> journal) {
         journalFrame = new JournalFrame(journal);
     }
+
+    @Override
+    public void update() {
+        mainFrame.update();
+    }
+
+    @Override
+    public boolean isMainFrameInitialized() {
+        return !(mainFrame == null);
+    }
 }

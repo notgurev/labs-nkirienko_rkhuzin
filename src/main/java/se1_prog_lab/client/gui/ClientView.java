@@ -16,4 +16,8 @@ public interface ClientView {
     void initConstructingFrame();
 
     void initJournalFrame(LinkedList<String> journal);
+
+    void update();
+
+    boolean isMainFrameInitialized();
 }

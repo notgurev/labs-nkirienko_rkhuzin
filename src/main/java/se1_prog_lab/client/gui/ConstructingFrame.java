@@ -35,7 +35,7 @@ public class ConstructingFrame extends JFrame {
                 new StringPropertyField("name", "Название (не пустое)"),
                 new LongPropertyField("coordinateX", "Координата X (<=625)"),
                 new FloatPropertyField("coordinateY", "Координата Y (не пустая)"),
-                new IntegerPropertyField("minimalPoint", "Минимальный балл (положительный)"),
+                new IntegerPropertyField("minimalPoint", "Минимальная оценка (положительная)"),
                 new StringPropertyField("description", "Описание (не пустое)"),
                 new IntegerPropertyField("tunedInWorks", "Настроенные работы"),
                 new DifficultyPropertyBox("difficulty", "Сложность"),
@@ -70,6 +70,7 @@ public class ConstructingFrame extends JFrame {
     }
 
     private LabWork createLabWork() {
+        dispose();
         return ElementCreator.createLabWork(labWorkParams);
     }
 

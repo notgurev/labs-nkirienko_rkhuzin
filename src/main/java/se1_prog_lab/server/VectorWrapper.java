@@ -8,7 +8,6 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 
 /**
@@ -71,7 +70,7 @@ public class VectorWrapper implements CollectionWrapper {
      * @param id      id
      */
     public void insertAtIndex(LabWork labWork, int index, long id) {
-        labWork.setId(id);
+        labWork.setId(id); // todo запретить вставку хрен пойми куда
         labWorks.setSize(index);
         labWorks.add(index, labWork);
     }
@@ -133,8 +132,18 @@ public class VectorWrapper implements CollectionWrapper {
     }
 
     @Override
-    public Collection<LabWork> getCollectionSlice(int firstIndex, int lastIndex) {
-        return IntStream.rangeClosed(firstIndex, lastIndex).mapToObj(index -> labWorks.get(index)).collect(Collectors.toList());
+    public Collection<LabWork> getCollectionSlice(int firstIndex, int size) {
+        Collection<LabWork> slice = new Vector<>();
+        if (firstIndex < labWorks.size()) {
+            try {
+                for (int index = firstIndex; index < firstIndex + size; index++) {
+                    slice.add(labWorks.get(index));
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // just stop
+            }
+        }
+        return slice;
     }
 
     @Override

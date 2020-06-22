@@ -39,5 +39,5 @@ public interface CollectionWrapper {
 
     void updateByID(long id, LabWork labWork);
 
-    Collection<LabWork> getCollectionSlice(int firstIndex, int lastIndex);
+    Collection<LabWork> getCollectionSlice(int firstIndex, int size);
 }

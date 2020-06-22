@@ -1,8 +1,8 @@
 package se1_prog_lab.server.interfaces;
 
 import se1_prog_lab.collection.LabWork;
-import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
 public interface ServerCommandReceiver {
     void loadCollectionFromDatabase();
@@ -33,5 +33,5 @@ public interface ServerCommandReceiver {
 
     Response login(AuthData authData);
 
-    Response getCollectionPage(int firstIndex, int lastIndex);
+    Response getCollectionPage(int firstIndex, int size);
 }

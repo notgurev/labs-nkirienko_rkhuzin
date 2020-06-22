@@ -7,24 +7,24 @@ import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.client.commands.NoJournalEntryCommand;
+import se1_prog_lab.client.commands.concrete.technical.GetCollectionPage;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.gui.ClientView;
 import se1_prog_lab.collection.LabWork;
-import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.AuthStrings;
+import se1_prog_lab.shared.api.Response;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-
 import java.util.Collection;
 import java.util.LinkedList;
 
-import static se1_prog_lab.shared.api.ResponseType.AUTH_STATUS;
-import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
 import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
 import static se1_prog_lab.shared.api.AuthStrings.USERNAME_TAKEN;
+import static se1_prog_lab.shared.api.ResponseType.AUTH_STATUS;
+import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
 
 /**
  * Класс клиентского приложения.
@@ -38,7 +38,7 @@ public class ClientApp implements ClientCore {
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
     private Collection<LabWork> bufferedCollectionPage;
     private int selectedPage;
-    private int pageSize = 10;
+    private int pageSize = 20;
 
     @Inject
     public ClientApp(ServerIO serverIO, ClientView view) {
@@ -50,6 +50,17 @@ public class ClientApp implements ClientCore {
         Injector injector = Guice.createInjector(new ClientModule());
         ClientCore controller = injector.getInstance(ClientCore.class);
         controller.start();
+    }
+
+    @Override
+    public Collection<LabWork> updateCollectionPage() {
+        executeServerCommand(new GetCollectionPage(selectedPage, pageSize));
+        return bufferedCollectionPage;
+    }
+
+    @Override
+    public Object[][] getCollectionData() {
+        return bufferedCollectionPage.stream().map(LabWork::toArray).toArray(Object[][]::new);
     }
 
     @Override
@@ -118,7 +129,8 @@ public class ClientApp implements ClientCore {
             view.simpleAlert(authResponse.getStringMessage());
         } else {
             view.disposeLoginWindow();
-            SwingUtilities.invokeLater(() -> view.initMainWindow(serverIO.getUsername()));
+            updateCollectionPage();
+            view.initMainWindow(serverIO.getUsername());
         }
     }
 
@@ -128,6 +140,7 @@ public class ClientApp implements ClientCore {
         } else {
             view.simpleAlert(response.getStringMessage());
         }
+        if (view.isMainFrameInitialized()) view.update();
     }
 
     @Override
@@ -149,6 +162,18 @@ public class ClientApp implements ClientCore {
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
     }
+//
+//    @Override
+//    public void startRegularUpdates() {
+//        new Thread(() -> {
+//            try {
+//                wait(60 * 1000);
+//            } catch (InterruptedException e) {
+//                startRegularUpdates();
+//            }
+//            updateCollectionPage();
+//        }).start();
+//    }
 }
 
 
