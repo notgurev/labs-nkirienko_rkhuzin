@@ -6,16 +6,16 @@ import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.shared.api.AuthData;
 
 public class GetCollectionPage extends NoJournalEntryCommand {
-    int firstIndex, lastIndex;
+    int firstIndex, size;
 
     public GetCollectionPage(int page, int pageSize) {
         super();
-        firstIndex = page - 1;
-        lastIndex = firstIndex + pageSize - 1;
+        firstIndex = page;
+        size = pageSize;
     }
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.getCollectionPage(firstIndex, lastIndex);
+        return serverReceiver.getCollectionPage(firstIndex, size);
     }
 }

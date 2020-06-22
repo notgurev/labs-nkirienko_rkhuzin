@@ -37,7 +37,7 @@ public class ClientApp implements ClientCore {
     private final static int JOURNAL_SIZE_LIMIT = 13;
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
     private Collection<LabWork> bufferedCollectionPage;
-    private int pageNumber;
+    private int selectedPage;
     private int pageSize = 10;
 
     @Inject
@@ -128,6 +128,26 @@ public class ClientApp implements ClientCore {
         } else {
             view.simpleAlert(response.getStringMessage());
         }
+    }
+
+    @Override
+    public int getSelectedPage() {
+        return selectedPage;
+    }
+
+    @Override
+    public void setSelectedPage(int selectedPage) {
+        this.selectedPage = selectedPage;
+    }
+
+    @Override
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    @Override
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
     }
 }
 

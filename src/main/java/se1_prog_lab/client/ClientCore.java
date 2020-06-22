@@ -19,4 +19,12 @@ public interface ClientCore {
     void openConstructingFrame();
 
     void openJournalFrame();
+
+    int getSelectedPage();
+
+    void setSelectedPage(int selectedPage);
+
+    int getPageSize();
+
+    void setPageSize(int pageSize);
 }

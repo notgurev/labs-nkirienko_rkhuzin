@@ -19,8 +19,10 @@ public class MainFrame extends JFrame {
     private Mode mode = Mode.SPREADSHEET;
     private DrawStrategy drawStrategy;
     private JMenu strategy;
-    private int selectedPage = 1;
     private JLabel selectedPageLabel;
+
+    private final VisualizationPanel visualizationPanel = new VisualizationPanel();
+    private final SpreadsheetPanel spreadsheetPanel = new SpreadsheetPanel();
 
     public MainFrame(ClientCore controller, String username) {
         super("Управление и обзор");
@@ -30,6 +32,7 @@ public class MainFrame extends JFrame {
         setResizable(true);
         createMenuBar(username);
         createToolBar();
+        getContentPane().add(spreadsheetPanel);
         pack();
         setVisible(true);
     }
@@ -38,32 +41,31 @@ public class MainFrame extends JFrame {
         toolBar = new JToolBar(HORIZONTAL);
         toolBar.setFloatable(false);
 
-        {
-            // Переключение страниц
-            addToolBarButton("◀", e -> changeSelectedPage(-1));
-
-            selectedPageLabel = new JLabel(" " + selectedPage + " ");
-            toolBar.add(selectedPageLabel);
-
-            addToolBarButton("▶", e -> changeSelectedPage(+1));
-        }
+        // Переключение страниц
+        addToolBarButton("◀", e -> changeSelectedPage(-1));
+        selectedPageLabel = new JLabel(" " + controller.getSelectedPage() + " ");
+        toolBar.add(selectedPageLabel);
+        addToolBarButton("▶", e -> changeSelectedPage(+1));
 
         // Add
-        addToolBarButton("Добавить", e -> {/*TODO функционал add*/
-            controller.openConstructingFrame();
-        });
+        addToolBarButton("Добавить", e -> controller.openConstructingFrame());
+
         // Count less than description
         addToolBarButton("Посчитать < описания", e -> {
             String description = JOptionPane.showInputDialog("Введите описание:");
             controller.executeServerCommand(new CountLessThanDescription(description));
         });
+
         // Clear
         addToolBarButton("Очистить", e -> controller.executeServerCommand(new Clear()));
+
         // Info
         addToolBarButton("Информация", e -> controller.executeServerCommand(new Info()));
-        // Print unique tuned in works // todo проверить с непустой коллекцией
+
+        // Print unique tuned in works
         addToolBarButton("Уникальные tuned in works", e -> controller.executeServerCommand(new PrintUniqueTunedInWorks()));
-        // Sort // todo проверить с непустой коллекцией
+
+        // Sort // todo пофиксить поломку на null
         addToolBarButton("Сортировать на сервере", e -> controller.executeServerCommand(new Sort()));
 
         // Журнал
@@ -73,10 +75,10 @@ public class MainFrame extends JFrame {
     }
 
     private void changeSelectedPage(int change) {
-        selectedPage += change;
+        if (controller.getSelectedPage() != 0 || change > 0) controller.setSelectedPage(controller.getSelectedPage() + change);
         // получить от сервера нужную страницу
         // перерисовать таблицу/визуализацию этой страницы
-        selectedPageLabel.setText(" " + selectedPage + " ");
+        selectedPageLabel.setText(" " + controller.getSelectedPage() + " ");
     }
 
     private void addToolBarButton(String text, ActionListener actionListener) {
@@ -154,14 +156,20 @@ public class MainFrame extends JFrame {
         mode = Mode.SPREADSHEET;
         drawStrategy = new DrawStrategyOne();
         strategy.setEnabled(false);
-        // todo отображение в виде таблица
+        getContentPane().remove(visualizationPanel);
+        getContentPane().add(spreadsheetPanel);
+        revalidate();
+        repaint();
     }
 
     public void setVisualizationMode(ActionEvent e) {
         mode = Mode.VISUALIZATION;
         drawStrategy = new DrawStrategyTwo();
         strategy.setEnabled(true);
-        // todo отображение в виде визуализации
+        getContentPane().remove(spreadsheetPanel);
+        getContentPane().add(visualizationPanel);
+        revalidate();
+        repaint();
     }
 
     enum Mode {
