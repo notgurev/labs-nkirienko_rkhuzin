@@ -53,6 +53,11 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
+    public void simpleAlert(String alertText) {
+        view.simpleAlert(alertText);
+    }
+
+    @Override
     public void start() {
         SwingUtilities.invokeLater(view::initLoginWindow);
         serverIO.tryOpen();

@@ -1,13 +1,20 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
+import se1_prog_lab.client.gui.properties.*;
 
 import javax.swing.*;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.awt.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class ConstructingFrame extends JFrame {
     private final ClientCore controller;
     private final JPanel panel;
+    private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private final Map<String, Property> properties = new LinkedHashMap<>();
 
     public ConstructingFrame(ClientCore controller) throws HeadlessException {
         this.controller = controller;
@@ -19,26 +26,70 @@ public class ConstructingFrame extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 30, 30, 30));
         panel.setLayout(new GridLayout(0, 2));
 
-        // в разработке
-        addPropertyField("one-line field");
-        addPropertyArea("description");
+        addProperties(
+                new StringPropertyField("name", "Название (не пустое)"),
+                new LongPropertyField("coordinateX", "Координата X (<=625)"),
+                new FloatPropertyField("coordinateY", "Координата Y (не пустая)"),
+                new IntegerPropertyField("minimalPoint", "Минимальный балл (положительный)"),
+                new StringPropertyField("description", "Описание (не пустое)"),
+                new IntegerPropertyField("tunedInWorks", "Настроенные работы"),
+                new DifficultyPropertyBox("difficulty", "Сложность"),
+                new StringPropertyField("authorName", "Имя автора (не пустое)"),
+                new FloatPropertyField("authorHeight", "Рост автора (положительный)"),
+                new StringPropertyField("authorPassportID", "Паспорт автора (не пустой, длина >= 9)"),
+                new ColorPropertyBox("authorHairColor", "Цвет волос автора"),
+                new IntegerPropertyField("authorLocationX", "Местоположение автора по X (не пустое)"),
+                new FloatPropertyField("authorLocationY", "Местоположение автора по Y (не пустое)"),
+                new IntegerPropertyField("authorLocationZ", "Местоположение автора по Z (не пустое)")
+        );
+
+        // Кнопка проверки полей
+        JButton checkButton = new JButton("Проверить");
+        checkButton.addActionListener(e -> {
+            if (checkFields()) controller.simpleAlert("Данные введены верно!");
+        });
+        panel.add(checkButton);
+
+        // Кнопка создания
+        JButton createButton = new JButton("Создать");
+        createButton.addActionListener(e -> {
+            if (checkFields()) {
+//                new LabWorkParams()
+            }
+        });
+        panel.add(createButton);
 
         add(panel, BorderLayout.CENTER);
         pack();
         setVisible(true);
     }
 
-    private void addPropertyField(String text) {
-        JLabel label = new JLabel(text);
-        JTextField field = new JTextField();
-        panel.add(label);
-        panel.add(field);
+    private boolean checkFields() {
+        for (Property property : properties.values()) {
+            if (!property.validateValue(validator)) {
+                controller.simpleAlert("Неправильно введено поле \"" + property.getLabelText() + "'");
+                return false;
+            }
+        }
+        return true;
     }
 
-    private void addPropertyArea(String text) {
-        JLabel label = new JLabel(text);
-        JTextArea field = new JTextArea();
-        panel.add(label);
-        panel.add(field);
+    private void addPropertyField(PropertyField propertyField) {
+        properties.put(propertyField.getPropertyName(), propertyField);
+        panel.add(new JLabel(propertyField.getLabelText()));
+        panel.add(propertyField.getField());
+    }
+
+    private void addPropertyBox(EnumPropertyBox propertyBox) {
+        properties.put(propertyBox.getPropertyName(), propertyBox);
+        panel.add(new JLabel(propertyBox.getLabelText()));
+        panel.add(propertyBox.getComboBox());
+    }
+
+    private void addProperties(Property... properties) {
+        for (Property property : properties) {
+            if (property instanceof PropertyField) addPropertyField((PropertyField) property);
+            else addPropertyBox((EnumPropertyBox) property);
+        }
     }
 }

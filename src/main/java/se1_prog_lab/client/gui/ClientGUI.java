@@ -42,7 +42,7 @@ public class ClientGUI implements ClientView {
 
     @Override
     public void simpleAlert(String alertText) {
-        JOptionPane.showMessageDialog(loginFrame, alertText);
+        JOptionPane.showMessageDialog(null, alertText);
     }
 
     @Override

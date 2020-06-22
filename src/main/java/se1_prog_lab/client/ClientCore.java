@@ -6,6 +6,8 @@ import javax.annotation.Nonnull;
 
 // todo поменять чтобы лишнего не было
 public interface ClientCore {
+    void simpleAlert(String alertText);
+
     void start();
 
     void executeServerCommand(@Nonnull BasicCommand command);

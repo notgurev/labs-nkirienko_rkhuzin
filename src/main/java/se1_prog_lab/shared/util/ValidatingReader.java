@@ -15,7 +15,6 @@ public class ValidatingReader {
      * @param <T>          тип Enum
      * @return true - если имеет, false если нет.
      */
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static <T extends Enum<T>> boolean hasSuchConstant(Class<T> enumType, String enumConstant) {
         for (T c : enumType.getEnumConstants()) {
             if (c.name().equals(enumConstant)) {
@@ -80,7 +79,7 @@ public class ValidatingReader {
      * @return число-результат парсинга.
      * @throws NumberFormatException если указан некорректный класс или не удалось сделать парсинг.
      */
-    private static <T extends Number> T parseNumber(Class<T> numberClass, String input) throws NumberFormatException {
+    public static <T extends Number> T parseNumber(Class<T> numberClass, String input) throws NumberFormatException {
         if (numberClass == Long.class) {
             return numberClass.cast(Long.parseLong(input));
         } else if (numberClass == Integer.class) {

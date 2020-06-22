@@ -2,6 +2,8 @@ package se1_prog_lab.collection;
 
 import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.time.LocalDateTime;
@@ -9,17 +11,26 @@ import java.time.LocalDateTime;
 public class LabWorkParams {
     @Positive
     private Long id;
+    @NotEmpty
+    @NotNull
     private String name;
+    @Max(value = 625)
     private long coordinateX;
+    @NotNull
     private Float coordinateY;
     @NotNull
     private LocalDateTime creationDate;
+    @Positive
     private Integer minimalPoint;
+    @NotNull
+    @NotEmpty
     private String description;
     private Integer tunedInWorks;
     @NotNull
     private Difficulty difficulty;
+    // Person
     @NotNull
+    @NotEmpty
     private String authorName;
     @Positive
     private Float authorHeight;
