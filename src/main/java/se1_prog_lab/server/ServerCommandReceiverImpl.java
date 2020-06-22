@@ -19,7 +19,7 @@ import static java.lang.String.format;
 import static java.lang.String.join;
 import static se1_prog_lab.shared.api.ResponseType.*;
 import static se1_prog_lab.shared.api.AuthStrings.*;
-import static se1_prog_lab.shared.util.BetterStrings.multiline;
+import static se1_prog_lab.shared.util.StringUtils.multiline;
 
 /**
  * Ресивер для серверных команд (см. паттерн "Команда").

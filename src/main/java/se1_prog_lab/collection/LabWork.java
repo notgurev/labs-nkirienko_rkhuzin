@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 
 /**
- * Класс лабораторной работы (элемента коллекции).
+ * Класс лабораторной работы (элемента коллекции)
  */
 public class LabWork implements Comparable<LabWork>, Serializable {
     private final Person author;

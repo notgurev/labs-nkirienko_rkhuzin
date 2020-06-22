@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 /**
  * Класс со всякими удобствами для вывода в консоль.
  */
-public class BetterStrings {
+public class StringUtils {
     /**
      * Метод, создающий строку из массива строк с переносами строк
      *
@@ -19,15 +19,5 @@ public class BetterStrings {
         if (s == null) return "";
         List<Object> input = Arrays.asList(s);
         return input.stream().filter(Objects::nonNull).map(Object::toString).collect(Collectors.joining("\n"));
-    }
-
-    /**
-     * Метод, красящий строку, если она null
-     *
-     * @param s строка
-     * @return покрашенную строку
-     */
-    public static Object emptyIfNull(Object s) {
-        return s == null ? "пусто" : s;
     }
 }
