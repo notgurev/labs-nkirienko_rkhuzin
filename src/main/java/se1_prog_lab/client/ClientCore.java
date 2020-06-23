@@ -1,14 +1,12 @@
 package se1_prog_lab.client;
 
 import se1_prog_lab.client.commands.BasicCommand;
-import se1_prog_lab.collection.LabWork;
 
 import javax.annotation.Nonnull;
-import java.util.Collection;
 
 // todo поменять чтобы лишнего не было
 public interface ClientCore {
-    Collection<LabWork> updateCollectionPage();
+    void updateCollectionPage();
 
     Object[][] getCollectionData();
 

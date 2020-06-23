@@ -38,7 +38,7 @@ public class ClientApp implements ClientCore {
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
     private Collection<LabWork> bufferedCollectionPage;
     private int selectedPage;
-    private int pageSize = 20;
+    private int pageSize = 30;
 
     @Inject
     public ClientApp(ServerIO serverIO, ClientView view) {
@@ -53,9 +53,8 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
-    public Collection<LabWork> updateCollectionPage() {
+    public void updateCollectionPage() {
         executeServerCommand(new GetCollectionPage(selectedPage, pageSize));
-        return bufferedCollectionPage;
     }
 
     @Override

@@ -3,7 +3,6 @@ package se1_prog_lab.client.gui;
 import se1_prog_lab.client.ClientCore;
 import se1_prog_lab.client.commands.concrete.*;
 import se1_prog_lab.client.gui.strategies.DrawStrategyOne;
-import se1_prog_lab.client.gui.strategies.DrawStrategyTwo;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +16,7 @@ public class MainFrame extends JFrame {
     private final ClientCore clientCore;
     private JToolBar toolBar;
     private Mode mode = Mode.SPREADSHEET;
-    private DrawStrategy drawStrategy;
+    private DrawStrategy drawStrategy = new DrawStrategyOne();
     private JMenu strategy;
     private JLabel selectedPageLabel;
 
@@ -156,7 +155,7 @@ public class MainFrame extends JFrame {
 
     public void setSpreadsheetMode(ActionEvent e) {
         mode = Mode.SPREADSHEET;
-        drawStrategy = new DrawStrategyOne();
+//        drawStrategy = new DrawStrategyOne();
         strategy.setEnabled(false);
         getContentPane().remove(visualizationPanel);
         getContentPane().add(spreadsheetPanel);
@@ -166,7 +165,7 @@ public class MainFrame extends JFrame {
 
     public void setVisualizationMode(ActionEvent e) {
         mode = Mode.VISUALIZATION;
-        drawStrategy = new DrawStrategyTwo();
+//        drawStrategy = new DrawStrategyTwo();
         strategy.setEnabled(true);
         getContentPane().remove(spreadsheetPanel);
         getContentPane().add(visualizationPanel);
@@ -175,8 +174,11 @@ public class MainFrame extends JFrame {
     }
 
     public void update() {
+        // не работает
         spreadsheetPanel.update();
         visualizationPanel.update();
+//        getContentPane().revalidate();
+//        getContentPane().repaint();
     }
 
     enum Mode {

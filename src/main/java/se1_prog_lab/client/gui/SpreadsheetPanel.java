@@ -21,9 +21,6 @@ public class SpreadsheetPanel extends JPanel {
                 return false;
             }
         };
-        // todo не видно хедеры
-        // todo надо сделать прокрутку
-        // todo обновление коллекции регулярное
         tableModel.setColumnIdentifiers(headers);
         tableModel.setDataVector(clientCore.getCollectionData(), headers);
         table = new JTable(tableModel);
@@ -31,8 +28,12 @@ public class SpreadsheetPanel extends JPanel {
     }
 
     public void update() {
+        // todo это не работает
         tableModel.setDataVector(clientCore.getCollectionData(), headers);
+        tableModel.fireTableDataChanged();
         table.revalidate();
         table.repaint();
+        revalidate();
+        repaint();
     }
 }
