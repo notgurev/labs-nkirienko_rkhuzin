@@ -37,4 +37,6 @@ public abstract class Property {
     public abstract boolean validateValue(Validator validator);
 
     public abstract void fillInputFromParams();
+
+    public abstract void clear();
 }

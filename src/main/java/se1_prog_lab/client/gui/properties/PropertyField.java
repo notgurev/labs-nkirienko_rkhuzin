@@ -21,4 +21,9 @@ public abstract class PropertyField extends Property {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void clear() {
+        field.setText("");
+    }
 }

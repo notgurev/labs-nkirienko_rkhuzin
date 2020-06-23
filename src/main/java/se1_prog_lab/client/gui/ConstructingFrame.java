@@ -64,22 +64,21 @@ public class ConstructingFrame extends JFrame {
         });
         panel.add(checkButton);
 
-        if (labWork == null) {
-            // Кнопка создания
-            JButton createButton = new JButton("Создать");
-            createButton.addActionListener(e -> {
-                if (checkProperties()) {
-                    controller.executeServerCommand(new Add(createLabWork()));
-                    dispose();
-                }
-            });
-            panel.add(createButton);
-        } else {
+        // Кнопка создания экземпляра
+        JButton createButton = new JButton("Создать");
+        createButton.addActionListener(e -> {
+            if (checkProperties()) {
+                controller.executeServerCommand(new Add(createLabWork()));
+            }
+        });
+        panel.add(createButton);
+
+        if (editingMode) {
             // Кнопка изменения
             JButton updateButton = new JButton("Изменить");
             updateButton.addActionListener(e -> {
                 if (checkProperties()) {
-                    controller.executeServerCommand(new Update(labWork.getId(), createLabWork()));
+                    controller.executeServerCommand(new Update(labWorkParams.getId(), createLabWork()));
                     dispose();
                 }
             });
@@ -88,11 +87,16 @@ public class ConstructingFrame extends JFrame {
             // Кнопка удаления
             JButton removeButton = new JButton("Удалить");
             removeButton.addActionListener(e -> {
-                controller.executeServerCommand(new RemoveByID(labWork.getId()));
+                controller.executeServerCommand(new RemoveByID(labWorkParams.getId()));
                 dispose();
             });
             panel.add(removeButton);
         }
+
+        // Кнопка очистки полей
+        JButton clearButton = new JButton("Очистить поля");
+        clearButton.addActionListener(e -> properties.values().forEach(Property::clear));
+        panel.add(clearButton);
 
         add(panel, BorderLayout.CENTER);
         pack();

@@ -12,4 +12,9 @@ public abstract class EnumPropertyBox extends Property {
     public JComboBox<String> getComboBox() {
         return comboBox;
     }
+
+    @Override
+    public void clear() {
+        // nothing
+    }
 }

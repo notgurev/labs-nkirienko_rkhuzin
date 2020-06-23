@@ -33,7 +33,6 @@ public class SpreadsheetPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
                 if (row >= 0) {
-//                    long id = Long.parseLong(tableModel.getValueAt(row, 0).toString());
                     clientCore.openConstructingFrame(row);
                 }
             }
