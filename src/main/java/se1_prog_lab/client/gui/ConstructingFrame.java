@@ -2,6 +2,8 @@ package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
 import se1_prog_lab.client.commands.concrete.Add;
+import se1_prog_lab.client.commands.concrete.RemoveByID;
+import se1_prog_lab.client.commands.concrete.Update;
 import se1_prog_lab.client.gui.properties.*;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.collection.LabWorkParams;
@@ -19,10 +21,17 @@ public class ConstructingFrame extends JFrame {
     private final JPanel panel;
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     private final Map<String, Property> properties = new LinkedHashMap<>();
-    private final LabWorkParams labWorkParams = new LabWorkParams();
+    private final LabWorkParams labWorkParams;
+    private boolean editingMode = false;
 
-    public ConstructingFrame(ClientCore controller) throws HeadlessException {
+    public ConstructingFrame(ClientCore controller, LabWork labWork) throws HeadlessException {
         this.controller = controller;
+        if (labWork == null) {
+            labWorkParams = new LabWorkParams();
+        } else {
+            labWorkParams = labWork.toParams();
+            editingMode = true;
+        }
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setResizable(true);
         setMinimumSize(new Dimension(400, 100));
@@ -55,14 +64,35 @@ public class ConstructingFrame extends JFrame {
         });
         panel.add(checkButton);
 
-        // Кнопка создания
-        JButton createButton = new JButton("Создать");
-        createButton.addActionListener(e -> {
-            if (checkProperties()) {
-                controller.executeServerCommand(new Add(createLabWork()));
-            }
-        });
-        panel.add(createButton);
+        if (labWork == null) {
+            // Кнопка создания
+            JButton createButton = new JButton("Создать");
+            createButton.addActionListener(e -> {
+                if (checkProperties()) {
+                    controller.executeServerCommand(new Add(createLabWork()));
+                    dispose();
+                }
+            });
+            panel.add(createButton);
+        } else {
+            // Кнопка изменения
+            JButton updateButton = new JButton("Изменить");
+            updateButton.addActionListener(e -> {
+                if (checkProperties()) {
+                    controller.executeServerCommand(new Update(labWork.getId(), createLabWork()));
+                    dispose();
+                }
+            });
+            panel.add(updateButton);
+
+            // Кнопка удаления
+            JButton removeButton = new JButton("Удалить");
+            removeButton.addActionListener(e -> {
+                controller.executeServerCommand(new RemoveByID(labWork.getId()));
+                dispose();
+            });
+            panel.add(removeButton);
+        }
 
         add(panel, BorderLayout.CENTER);
         pack();
@@ -70,7 +100,6 @@ public class ConstructingFrame extends JFrame {
     }
 
     private LabWork createLabWork() {
-        dispose();
         return ElementCreator.createLabWork(labWorkParams);
     }
 
@@ -101,6 +130,7 @@ public class ConstructingFrame extends JFrame {
             property.setLabWorkParams(labWorkParams);
             if (property instanceof PropertyField) addPropertyField((PropertyField) property);
             else addPropertyBox((EnumPropertyBox) property);
+            if (editingMode) property.fillInputFromParams();
         }
     }
 }

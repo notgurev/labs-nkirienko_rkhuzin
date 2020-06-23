@@ -27,4 +27,13 @@ public class ColorPropertyBox extends EnumPropertyBox {
             return false;
         }
     }
+
+    @Override
+    public void fillInputFromParams() {
+        try {
+            comboBox.setSelectedIndex(((Color) labWorkField.get(labWorkParams)).ordinal());
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 }

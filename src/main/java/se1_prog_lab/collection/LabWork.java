@@ -162,4 +162,23 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     public int compareTo(LabWork o) {
         return (int) (id - o.getId());
     }
+
+    public LabWorkParams toParams() {
+        return new LabWorkParams(
+                name,
+                coordinates.getX(),
+                coordinates.getY(),
+                minimalPoint,
+                description,
+                tunedInWorks,
+                difficulty,
+                author.getName(),
+                author.getHeight(),
+                author.getPassportID(),
+                author.getHairColor(),
+                author.getLocation().getX(),
+                author.getLocation().getY(),
+                author.getLocation().getZ()
+        );
+    }
 }

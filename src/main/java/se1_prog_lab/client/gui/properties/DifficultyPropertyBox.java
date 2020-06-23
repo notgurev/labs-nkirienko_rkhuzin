@@ -30,4 +30,14 @@ public class DifficultyPropertyBox extends EnumPropertyBox {
             return false;
         }
     }
+
+    @Override
+    public void fillInputFromParams() {
+        try {
+            if (labWorkField.get(labWorkParams) == null) comboBox.setSelectedIndex(4);
+            comboBox.setSelectedIndex(((Difficulty) labWorkField.get(labWorkParams)).ordinal());
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 }

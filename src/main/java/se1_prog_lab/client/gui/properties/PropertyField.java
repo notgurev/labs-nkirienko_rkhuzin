@@ -12,4 +12,13 @@ public abstract class PropertyField extends Property {
     public JTextField getField() {
         return field;
     }
+
+    @Override
+    public void fillInputFromParams() {
+        try {
+            field.setText(labWorkField.get(labWorkParams).toString());
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 }

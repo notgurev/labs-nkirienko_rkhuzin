@@ -1,5 +1,7 @@
 package se1_prog_lab.client.gui;
 
+import se1_prog_lab.collection.LabWork;
+
 import java.util.LinkedList;
 
 public interface ClientView {
@@ -20,4 +22,6 @@ public interface ClientView {
     void update();
 
     boolean isMainFrameInitialized();
+
+    void initConstructingFrame(LabWork labWork);
 }

@@ -18,8 +18,8 @@ import se1_prog_lab.shared.api.Response;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-import java.util.Collection;
 import java.util.LinkedList;
+import java.util.Vector;
 
 import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
 import static se1_prog_lab.shared.api.AuthStrings.USERNAME_TAKEN;
@@ -36,7 +36,7 @@ public class ClientApp implements ClientCore {
     private final ClientView view;
     private final static int JOURNAL_SIZE_LIMIT = 13;
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
-    private Collection<LabWork> bufferedCollectionPage;
+    private Vector<LabWork> bufferedCollectionPage;
     private int selectedPage;
     private int pageSize = 30;
 
@@ -119,6 +119,11 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
+    public void openConstructingFrame(int index) {
+        view.initConstructingFrame(bufferedCollectionPage.get(index));
+    }
+
+    @Override
     public void openJournalFrame() {
         view.initJournalFrame(journal);
     }
@@ -135,7 +140,7 @@ public class ClientApp implements ClientCore {
 
     public void handleResponse(Response response) {
         if (response.getResponseType() == LABWORK_LIST) {
-            bufferedCollectionPage = response.getCollection();
+            bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
         } else {
             view.simpleAlert(response.getStringMessage());
         }

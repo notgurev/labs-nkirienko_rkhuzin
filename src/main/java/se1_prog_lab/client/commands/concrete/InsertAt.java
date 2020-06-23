@@ -1,11 +1,11 @@
 package se1_prog_lab.client.commands.concrete;
 
 import se1_prog_lab.client.commands.ConstructingCommand;
-import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
-// todo повнимательнее
+// todo вставка элемента
 public class InsertAt extends ConstructingCommand {
     int index;
 

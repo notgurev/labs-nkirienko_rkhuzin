@@ -22,6 +22,8 @@ public interface ClientCore {
 
     void openConstructingFrame();
 
+    void openConstructingFrame(int index);
+
     void openJournalFrame();
 
     int getSelectedPage();

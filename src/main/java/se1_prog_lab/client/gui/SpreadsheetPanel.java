@@ -4,6 +4,8 @@ import se1_prog_lab.client.ClientCore;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class SpreadsheetPanel extends JPanel {
     private JTable table;
@@ -24,7 +26,20 @@ public class SpreadsheetPanel extends JPanel {
         tableModel.setColumnIdentifiers(headers);
         tableModel.setDataVector(clientCore.getCollectionData(), headers);
         table = new JTable(tableModel);
-        add(table);
+        JScrollPane scrollPane = new JScrollPane(table); // todo что-то с размером не так
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = table.rowAtPoint(e.getPoint());
+                if (row >= 0) {
+//                    long id = Long.parseLong(tableModel.getValueAt(row, 0).toString());
+                    clientCore.openConstructingFrame(row);
+                }
+            }
+        });
+
+        add(scrollPane);
     }
 
     public void update() {

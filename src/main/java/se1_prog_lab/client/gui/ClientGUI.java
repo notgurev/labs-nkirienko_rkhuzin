@@ -3,6 +3,7 @@ package se1_prog_lab.client.gui;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.ClientCore;
+import se1_prog_lab.collection.LabWork;
 
 import javax.swing.*;
 import java.util.LinkedList;
@@ -47,7 +48,7 @@ public class ClientGUI implements ClientView {
 
     @Override
     public void initConstructingFrame() {
-        constructingFrame = new ConstructingFrame(controller);
+        constructingFrame = new ConstructingFrame(controller, null);
     }
 
     @Override
@@ -63,5 +64,10 @@ public class ClientGUI implements ClientView {
     @Override
     public boolean isMainFrameInitialized() {
         return !(mainFrame == null);
+    }
+
+    @Override
+    public void initConstructingFrame(LabWork labWork) {
+        constructingFrame = new ConstructingFrame(controller, labWork);
     }
 }
