@@ -5,7 +5,8 @@ import se1_prog_lab.client.commands.concrete.CountLessThanDescription;
 import se1_prog_lab.client.commands.concrete.Info;
 import se1_prog_lab.client.commands.concrete.PrintUniqueTunedInWorks;
 import se1_prog_lab.client.commands.concrete.Sort;
-import se1_prog_lab.client.gui.strategies.DrawStrategyOne;
+import se1_prog_lab.client.gui.strategies.CircleStrategy;
+import se1_prog_lab.client.gui.strategies.RectangleStrategy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,7 +20,6 @@ public class MainFrame extends JFrame {
     private final ClientCore clientCore;
     private JToolBar toolBar;
     private Mode mode = Mode.SPREADSHEET;
-    private DrawStrategy drawStrategy = new DrawStrategyOne();
     private JMenu strategy;
     private JLabel selectedPageLabel;
 
@@ -142,12 +142,23 @@ public class MainFrame extends JFrame {
             strategy = new JMenu("Форма рисуемых объектов");
             jMenuBar.add(strategy);
             ButtonGroup strategies = new ButtonGroup();
-            JRadioButtonMenuItem strategy1 = new JRadioButtonMenuItem("ФОРМА 1"); // todo нормальные названия
-            strategy.add(strategy1);
-            strategies.add(strategy1);
-            JRadioButtonMenuItem strategy2 = new JRadioButtonMenuItem("ФОРМА 2");
-            strategy.add(strategy2);
-            strategies.add(strategy2);
+
+            JRadioButtonMenuItem circleStrategy = new JRadioButtonMenuItem("Круги");
+            strategy.add(circleStrategy);
+            strategies.add(circleStrategy);
+            circleStrategy.addActionListener(e -> {
+                visualizationPanel.setDrawStrategy(new CircleStrategy());
+                visualizationPanel.update(); // todo не работает
+            });
+
+            JRadioButtonMenuItem rectangleStrategy = new JRadioButtonMenuItem("Квадраты");
+            strategy.add(rectangleStrategy);
+            strategies.add(rectangleStrategy);
+            rectangleStrategy.addActionListener(e -> {
+                visualizationPanel.setDrawStrategy(new RectangleStrategy());
+                visualizationPanel.update(); // todo не работает
+            });
+            rectangleStrategy.setSelected(true);
 
             strategy.setEnabled(mode != Mode.SPREADSHEET);
         }
@@ -157,7 +168,6 @@ public class MainFrame extends JFrame {
 
     public void setSpreadsheetMode(ActionEvent e) {
         mode = Mode.SPREADSHEET;
-//        drawStrategy = new DrawStrategyOne();
         strategy.setEnabled(false);
         getContentPane().remove(visualizationPanel);
         getContentPane().add(spreadsheetPanel);
@@ -167,7 +177,6 @@ public class MainFrame extends JFrame {
 
     public void setVisualizationMode(ActionEvent e) {
         mode = Mode.VISUALIZATION;
-//        drawStrategy = new DrawStrategyTwo();
         strategy.setEnabled(true);
         getContentPane().remove(spreadsheetPanel);
         getContentPane().add(visualizationPanel);
@@ -183,8 +192,6 @@ public class MainFrame extends JFrame {
     public void clear() {
         selectedPageLabel.setText(Integer.toString(clientCore.getSelectedPage()));
     }
-
-
 
     enum Mode {
         VISUALIZATION,
