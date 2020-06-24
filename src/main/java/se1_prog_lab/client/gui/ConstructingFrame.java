@@ -68,7 +68,7 @@ public class ConstructingFrame extends JFrame {
         JButton createButton = new JButton("Создать");
         createButton.addActionListener(e -> {
             if (checkProperties()) {
-                controller.executeServerCommand(new Add(createLabWork()));
+                controller.addLabWork(createLabWork());
             }
         });
         panel.add(createButton);
@@ -79,7 +79,7 @@ public class ConstructingFrame extends JFrame {
             updateButton.addActionListener(e -> {
                 if (checkProperties()) {
                     assert labWork != null;
-                    controller.executeServerCommand(new Update(labWork.getId(), createLabWork()));
+                    controller.updateLabWork(labWork.getId(), createLabWork());
                     dispose();
                 }
             });
@@ -89,7 +89,7 @@ public class ConstructingFrame extends JFrame {
             JButton removeButton = new JButton("Удалить");
             removeButton.addActionListener(e -> {
                 assert labWork != null;
-                controller.executeServerCommand(new RemoveByID(labWork.getId()));
+                controller.removeLabWork(labWork.getId());
                 dispose();
             });
             panel.add(removeButton);

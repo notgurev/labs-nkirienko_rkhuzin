@@ -7,6 +7,9 @@ import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.client.commands.NoJournalEntryCommand;
+import se1_prog_lab.client.commands.concrete.Add;
+import se1_prog_lab.client.commands.concrete.RemoveByID;
+import se1_prog_lab.client.commands.concrete.Update;
 import se1_prog_lab.client.commands.concrete.technical.GetCollectionPage;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
@@ -18,7 +21,9 @@ import se1_prog_lab.shared.api.Response;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
@@ -39,6 +44,7 @@ public class ClientApp implements ClientCore {
     private Vector<LabWork> bufferedCollectionPage;
     private int selectedPage;
     private int pageSize = 30;
+    private List<ModelListener> listeners = new ArrayList<>();
 
     @Inject
     public ClientApp(ServerIO serverIO, ClientView view) {
@@ -50,6 +56,14 @@ public class ClientApp implements ClientCore {
         Injector injector = Guice.createInjector(new ClientModule());
         ClientCore controller = injector.getInstance(ClientCore.class);
         controller.start();
+    }
+
+    public void addListener(ModelListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(ModelListener listener) {
+        listeners.remove(listener);
     }
 
     @Override
@@ -81,7 +95,7 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
-    public void executeServerCommand(@Nonnull BasicCommand command) {
+    public Response executeServerCommand(@Nonnull BasicCommand command) {
         Response serverResponse = serverIO.sendAndReceive(command);
         handleResponse(serverResponse);
         if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
@@ -90,6 +104,8 @@ public class ClientApp implements ClientCore {
         } else {
             if (!(command instanceof NoJournalEntryCommand)) addJournalEntry(command.getJournalEntry());
         }
+
+        return serverResponse;
     }
 
     private void getBackToLoginWindow() {
@@ -145,6 +161,54 @@ public class ClientApp implements ClientCore {
             view.simpleAlert(response.getStringMessage());
         }
         if (view.isMainFrameInitialized()) view.update();
+    }
+
+    public void addLabWork(LabWork labWork) {
+        Response response = executeServerCommand(new Add(labWork));
+        if (!response.isRejected()) {
+            labWork.setId((Long) response.getPayload());
+            bufferedCollectionPage.add(labWork);
+            for (ModelListener listener: listeners) {
+                listener.addElement(labWork.toArray());
+            }
+        }
+    }
+
+    public void updateLabWork(Long id, LabWork labWork) {
+        labWork.setId(id);
+        if (!executeServerCommand(new Update(id, labWork)).isRejected()) {
+            bufferedCollectionPage.replaceAll(l -> {
+                if (l.getId() == id) {
+                    initUpdateEvent(id, labWork);
+                    return labWork;
+                }
+                return l;
+            });
+        }
+    }
+
+    public void removeLabWork(Long id) {
+        if (!executeServerCommand(new RemoveByID(id)).isRejected()) {
+            bufferedCollectionPage.removeIf(l -> {
+                if (l.getId() == id) {
+                    initRemoveEvent(id);
+                    return true;
+                }
+                return false;
+            });
+        }
+    }
+
+    protected void initUpdateEvent(Long id, LabWork labWork) {
+        for (ModelListener listener: listeners) {
+            listener.updateElement(id, labWork.toArray());
+        }
+    }
+
+    protected void initRemoveEvent(Long id) {
+        for (ModelListener listener: listeners) {
+            listener.removeElement(id);
+        }
     }
 
     @Override

@@ -55,7 +55,9 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             logger.info("Добавляем элемент в коллекцию");
             Long id = databaseManager.addElement(labWork, authData.getUsername());
             collectionWrapper.add(labWork, id);
-            return new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
+            Response response = new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
+            response.setPayload(labWork.getId());
+            return response;
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
             return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);

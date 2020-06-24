@@ -1,14 +1,16 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
+import se1_prog_lab.client.ModelListener;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Vector;
 
-public class SpreadsheetPanel extends JPanel {
+public class SpreadsheetPanel extends JPanel implements ModelListener {
     private JTable table;
     private final DefaultTableModel tableModel;
     private final String[] headers = {"ID", "Название", "Координата X", "Координата Y",
@@ -18,6 +20,8 @@ public class SpreadsheetPanel extends JPanel {
 
     public SpreadsheetPanel(ClientCore clientCore) {
         this.clientCore = clientCore;
+        clientCore.addListener(this);
+
         tableModel = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -44,12 +48,41 @@ public class SpreadsheetPanel extends JPanel {
     }
 
     public void update() {
-        // todo это не работает
         tableModel.setDataVector(clientCore.getCollectionData(), headers);
+        updateTable();
+    }
+
+    public void updateTable() {
         tableModel.fireTableDataChanged();
-        table.revalidate();
-        table.repaint();
-        revalidate();
-        repaint();
+    }
+
+    public void addElement(Object[] fields) {
+        tableModel.addRow(fields);
+        updateTable();
+    }
+
+    public void updateElement(Long id, Object[] fields) {
+        int row = findRowById(id);
+        for (int i = 0; i < fields.length; i++) {
+            tableModel.setValueAt(fields[i], row, i);
+        }
+        updateTable();
+    }
+
+    public void removeElement(Long id) {
+        int row = findRowById(id);
+        tableModel.removeRow(row);
+        updateTable();
+    }
+
+    protected Integer findRowById(Long id) {
+        for (Object v: tableModel.getDataVector()) {
+            String currentId = ((Vector) v).elementAt(0).toString();
+
+            if (currentId.equals(id.toString())) {
+                return tableModel.getDataVector().indexOf(v);
+            }
+        }
+        return null;
     }
 }

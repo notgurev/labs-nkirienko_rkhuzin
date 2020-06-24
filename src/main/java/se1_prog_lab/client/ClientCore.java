@@ -1,6 +1,8 @@
 package se1_prog_lab.client;
 
 import se1_prog_lab.client.commands.BasicCommand;
+import se1_prog_lab.collection.LabWork;
+import se1_prog_lab.shared.api.Response;
 
 import javax.annotation.Nonnull;
 
@@ -10,11 +12,21 @@ public interface ClientCore {
 
     Object[][] getCollectionData();
 
+    void addListener(ModelListener listener);
+
+    void removeListener(ModelListener listener);
+
     void simpleAlert(String alertText);
 
     void start();
 
-    void executeServerCommand(@Nonnull BasicCommand command);
+    Response executeServerCommand(@Nonnull BasicCommand command);
+
+    void addLabWork(LabWork labWork);
+
+    void updateLabWork(Long id, LabWork labWork);
+
+    void removeLabWork(Long id);
 
     void login(String username, String password);
 

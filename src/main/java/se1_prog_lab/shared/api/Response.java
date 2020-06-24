@@ -8,6 +8,7 @@ import java.util.Collection;
 public class Response implements Serializable {
     private final ResponseType RESPONSE_TYPE;
     private final Object message;
+    private Object payload;
     private final boolean isRejected;
 
     public Response(ResponseType responseType, Object message) {
@@ -24,6 +25,14 @@ public class Response implements Serializable {
 
     public ResponseType getResponseType() {
         return RESPONSE_TYPE;
+    }
+
+    public Object getPayload() {
+        return payload;
+    }
+
+    public void setPayload(Object payload) {
+        this.payload = payload;
     }
 
     public Object getMessage() {
