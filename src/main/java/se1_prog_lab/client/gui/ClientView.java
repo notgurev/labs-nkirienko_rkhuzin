@@ -21,6 +21,8 @@ public interface ClientView {
 
     void update();
 
+    void clear();
+
     boolean isMainFrameInitialized();
 
     void initConstructingFrame(LabWork labWork);

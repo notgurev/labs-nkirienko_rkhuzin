@@ -58,7 +58,7 @@ public class MainFrame extends JFrame {
         });
 
         // Clear
-        addToolBarButton("Очистить", e -> clientCore.executeServerCommand(new Clear()));
+        addToolBarButton("Очистить", e -> clientCore.clear());
 
         // Info
         addToolBarButton("Информация", e -> clientCore.executeServerCommand(new Info()));
@@ -173,12 +173,15 @@ public class MainFrame extends JFrame {
     }
 
     public void update() {
-        // не работает
         spreadsheetPanel.update();
         visualizationPanel.update();
-//        getContentPane().revalidate();
-//        getContentPane().repaint();
     }
+
+    public void clear() {
+        selectedPageLabel.setText(Integer.toString(clientCore.getSelectedPage()));
+    }
+
+
 
     enum Mode {
         VISUALIZATION,

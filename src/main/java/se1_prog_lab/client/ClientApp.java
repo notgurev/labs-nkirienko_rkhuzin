@@ -8,6 +8,7 @@ import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.client.commands.NoJournalEntryCommand;
 import se1_prog_lab.client.commands.concrete.Add;
+import se1_prog_lab.client.commands.concrete.Clear;
 import se1_prog_lab.client.commands.concrete.RemoveByID;
 import se1_prog_lab.client.commands.concrete.Update;
 import se1_prog_lab.client.commands.concrete.technical.GetCollectionPage;
@@ -67,9 +68,12 @@ public class ClientApp implements ClientCore {
     @Override
     public boolean updateCollectionPage(int change) {
         if (getSelectedPage() != 0 || change >= 0) {
-            Response response = executeServerCommand(new GetCollectionPage(selectedPage + change, pageSize + 1)); // запрашиваем на одну больше, если приходит -> следующая страница не пуста
+            Response response = executeServerCommand(new GetCollectionPage(selectedPage + change, pageSize)); // запрашиваем на одну больше, если приходит -> следующая страница не пуста
             if (!response.isRejected() && response.getCollection().size() != 0) {
                 setSelectedPage(getSelectedPage() + change);
+                if (view.isMainFrameInitialized()) {
+                    view.update();
+                }
                 return true;
             }
         }
@@ -162,7 +166,7 @@ public class ClientApp implements ClientCore {
     public void handleResponse(Response response) {
         if (response.getResponseType() == LABWORK_LIST) {
             Collection collection = response.getCollection();
-            hasNextPage = collection.size() > pageSize;
+            hasNextPage = collection.size() >= pageSize;
 
             if (collection.size() != 0) {
                 bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
@@ -172,17 +176,28 @@ public class ClientApp implements ClientCore {
         } else {
             view.simpleAlert(response.getStringMessage());
         }
-        if (view.isMainFrameInitialized()) view.update();
     }
 
     public void addLabWork(LabWork labWork) {
         Response response = executeServerCommand(new Add(labWork));
         if (!response.isRejected()) {
             labWork.setId((Long) response.getPayload());
-            if (bufferedCollectionPage.size() < pageSize)
+            if (bufferedCollectionPage.size() < pageSize) {
                 bufferedCollectionPage.add(labWork);
-            for (ModelListener listener: listeners) {
-                listener.addElement(labWork.toArray());
+                for (ModelListener listener: listeners) {
+                    listener.addElement(labWork.toArray());
+                }
+            }
+        }
+    }
+
+    public void clear() {
+        Response response = executeServerCommand(new Clear());
+        if (!response.isRejected()) {
+            setSelectedPage(0);
+            updateCollectionPage(0);
+            if (view.isMainFrameInitialized()) {
+                view.clear();
             }
         }
     }

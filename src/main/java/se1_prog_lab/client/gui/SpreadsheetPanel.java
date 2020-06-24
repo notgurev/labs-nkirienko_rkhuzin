@@ -82,6 +82,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener {
         }
     }
 
+
     protected Integer findRowById(Long id) {
         for (Object v : tableModel.getDataVector()) {
             String currentId = ((Vector) v).elementAt(0).toString();

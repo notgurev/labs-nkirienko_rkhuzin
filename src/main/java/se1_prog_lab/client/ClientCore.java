@@ -28,6 +28,8 @@ public interface ClientCore {
 
     void removeLabWork(Long id);
 
+    void clear();
+
     void login(String username, String password);
 
     void register(String username, String password);
