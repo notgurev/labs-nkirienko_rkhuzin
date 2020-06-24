@@ -57,26 +57,33 @@ public class SpreadsheetPanel extends JPanel implements ModelListener {
     }
 
     public void addElement(Object[] fields) {
-        tableModel.addRow(fields);
-        updateTable();
+        if (!clientCore.hasNextPage()) {
+            tableModel.addRow(fields);
+            updateTable();
+        }
     }
 
     public void updateElement(Long id, Object[] fields) {
-        int row = findRowById(id);
-        for (int i = 0; i < fields.length; i++) {
-            tableModel.setValueAt(fields[i], row, i);
+        Integer row = findRowById(id);
+
+        if (row != null) {
+            for (int i = 0; i < fields.length; i++) {
+                tableModel.setValueAt(fields[i], row, i);
+            }
+            updateTable();
         }
-        updateTable();
     }
 
     public void removeElement(Long id) {
-        int row = findRowById(id);
-        tableModel.removeRow(row);
-        updateTable();
+        Integer row = findRowById(id);
+        if (row != null) {
+            tableModel.removeRow(row);
+            updateTable();
+        }
     }
 
     protected Integer findRowById(Long id) {
-        for (Object v: tableModel.getDataVector()) {
+        for (Object v : tableModel.getDataVector()) {
             String currentId = ((Vector) v).elementAt(0).toString();
 
             if (currentId.equals(id.toString())) {

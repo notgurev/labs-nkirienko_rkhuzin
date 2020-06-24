@@ -21,10 +21,7 @@ import se1_prog_lab.shared.api.Response;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
 import static se1_prog_lab.shared.api.AuthStrings.USERNAME_TAKEN;
@@ -43,8 +40,9 @@ public class ClientApp implements ClientCore {
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
     private Vector<LabWork> bufferedCollectionPage;
     private int selectedPage;
-    private int pageSize = 30;
+    private int pageSize = 15;
     private List<ModelListener> listeners = new ArrayList<>();
+    private boolean hasNextPage = true;
 
     @Inject
     public ClientApp(ServerIO serverIO, ClientView view) {
@@ -67,8 +65,15 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
-    public void updateCollectionPage() {
-        executeServerCommand(new GetCollectionPage(selectedPage, pageSize));
+    public boolean updateCollectionPage(int change) {
+        if (getSelectedPage() != 0 || change >= 0) {
+            Response response = executeServerCommand(new GetCollectionPage(selectedPage + change, pageSize + 1)); // запрашиваем на одну больше, если приходит -> следующая страница не пуста
+            if (!response.isRejected() && response.getCollection().size() != 0) {
+                setSelectedPage(getSelectedPage() + change);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -149,14 +154,21 @@ public class ClientApp implements ClientCore {
             view.simpleAlert(authResponse.getStringMessage());
         } else {
             view.disposeLoginWindow();
-            updateCollectionPage();
+            updateCollectionPage(0);
             view.initMainWindow(serverIO.getUsername());
         }
     }
 
     public void handleResponse(Response response) {
         if (response.getResponseType() == LABWORK_LIST) {
-            bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
+            Collection collection = response.getCollection();
+            hasNextPage = collection.size() > pageSize;
+
+            if (collection.size() != 0) {
+                bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
+                if (bufferedCollectionPage.size() > pageSize)
+                    bufferedCollectionPage.setSize(pageSize);
+            }
         } else {
             view.simpleAlert(response.getStringMessage());
         }
@@ -167,7 +179,8 @@ public class ClientApp implements ClientCore {
         Response response = executeServerCommand(new Add(labWork));
         if (!response.isRejected()) {
             labWork.setId((Long) response.getPayload());
-            bufferedCollectionPage.add(labWork);
+            if (bufferedCollectionPage.size() < pageSize)
+                bufferedCollectionPage.add(labWork);
             for (ModelListener listener: listeners) {
                 listener.addElement(labWork.toArray());
             }
@@ -229,6 +242,10 @@ public class ClientApp implements ClientCore {
     @Override
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public boolean hasNextPage() {
+        return hasNextPage;
     }
 //
 //    @Override

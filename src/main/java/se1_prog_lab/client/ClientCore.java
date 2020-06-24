@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 
 // todo поменять чтобы лишнего не было
 public interface ClientCore {
-    void updateCollectionPage();
+    boolean updateCollectionPage(int change);
 
     Object[][] getCollectionData();
 
@@ -45,6 +45,8 @@ public interface ClientCore {
     int getPageSize();
 
     void setPageSize(int pageSize);
+
+    boolean hasNextPage();
 
 //    void startRegularUpdates();
 }

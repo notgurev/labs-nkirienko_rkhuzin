@@ -76,10 +76,9 @@ public class MainFrame extends JFrame {
     }
 
     private void changeSelectedPage(int change) {
-        if (clientCore.getSelectedPage() != 0 || change > 0)
-            clientCore.setSelectedPage(clientCore.getSelectedPage() + change);
-        clientCore.updateCollectionPage();
-        selectedPageLabel.setText(" " + clientCore.getSelectedPage() + " ");
+        if (clientCore.updateCollectionPage(change)) {
+            selectedPageLabel.setText(" " + clientCore.getSelectedPage() + " ");
+        }
     }
 
     private void addToolBarButton(String text, ActionListener actionListener) {
