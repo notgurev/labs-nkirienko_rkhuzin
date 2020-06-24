@@ -5,10 +5,14 @@ import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.Response;
 
 import javax.annotation.Nonnull;
+import java.awt.*;
+import java.util.Vector;
 
 // todo поменять чтобы лишнего не было
 public interface ClientCore {
     boolean updateCollectionPage(int change);
+
+    Vector<LabWork> getBufferedCollectionPage();
 
     Object[][] getCollectionData();
 
@@ -49,6 +53,8 @@ public interface ClientCore {
     void setPageSize(int pageSize);
 
     boolean hasNextPage();
+
+    Color getColorByOwner(String owner);
 
 //    void startRegularUpdates();
 }

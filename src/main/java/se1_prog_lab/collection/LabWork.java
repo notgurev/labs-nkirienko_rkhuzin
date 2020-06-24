@@ -181,4 +181,8 @@ public class LabWork implements Comparable<LabWork>, Serializable {
                 author.getLocation().getZ()
         );
     }
+
+    public String getOwner() {
+        return "MOCK"; // todo
+    }
 }

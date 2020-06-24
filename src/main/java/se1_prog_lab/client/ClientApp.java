@@ -22,6 +22,8 @@ import se1_prog_lab.shared.api.Response;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
+import java.awt.*;
+import java.util.List;
 import java.util.*;
 
 import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
@@ -44,6 +46,7 @@ public class ClientApp implements ClientCore {
     private int pageSize = 15;
     private List<ModelListener> listeners = new ArrayList<>();
     private boolean hasNextPage = true;
+    private final HashMap<String, Color> ownersColors = new HashMap<>();
 
     @Inject
     public ClientApp(ServerIO serverIO, ClientView view) {
@@ -78,6 +81,11 @@ public class ClientApp implements ClientCore {
             }
         }
         return false;
+    }
+
+    @Override
+    public Vector<LabWork> getBufferedCollectionPage() {
+        return bufferedCollectionPage;
     }
 
     @Override
@@ -261,6 +269,22 @@ public class ClientApp implements ClientCore {
 
     public boolean hasNextPage() {
         return hasNextPage;
+    }
+
+    @Override
+    public Color getColorByOwner(String owner) {
+        if (ownersColors.containsKey(owner)) {
+            return ownersColors.get(owner);
+        } else {
+            Color randomColor = generateRandomColor();
+            ownersColors.put(owner, randomColor);
+            return randomColor;
+        }
+    }
+
+    private static Color generateRandomColor() {
+        Random r = new Random();
+        return new Color(r.nextFloat(), r.nextFloat(), r.nextFloat());
     }
 //
 //    @Override

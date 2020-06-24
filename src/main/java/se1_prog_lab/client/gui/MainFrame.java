@@ -1,7 +1,10 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
-import se1_prog_lab.client.commands.concrete.*;
+import se1_prog_lab.client.commands.concrete.CountLessThanDescription;
+import se1_prog_lab.client.commands.concrete.Info;
+import se1_prog_lab.client.commands.concrete.PrintUniqueTunedInWorks;
+import se1_prog_lab.client.commands.concrete.Sort;
 import se1_prog_lab.client.gui.strategies.DrawStrategyOne;
 
 import javax.swing.*;
@@ -32,7 +35,7 @@ public class MainFrame extends JFrame {
         createMenuBar(username);
         createToolBar();
         spreadsheetPanel = new SpreadsheetPanel(this.clientCore);
-        visualizationPanel = new VisualizationPanel();
+        visualizationPanel = new VisualizationPanel(this.clientCore);
         getContentPane().add(spreadsheetPanel);
         pack();
         setVisible(true);
