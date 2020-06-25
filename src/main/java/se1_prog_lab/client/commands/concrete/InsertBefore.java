@@ -1,25 +1,26 @@
 package se1_prog_lab.client.commands.concrete;
 
 import se1_prog_lab.client.commands.ConstructingCommand;
+import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.Response;
 
-// todo вставка элемента
-public class InsertAt extends ConstructingCommand {
-    int index;
+public class InsertBefore extends ConstructingCommand {
+    Long id;
 
-    public InsertAt(int index) {
-        this.index = index;
+    public InsertBefore(LabWork labWork, Long id) {
+        carriedObject = labWork;
+        this.id = id;
     }
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.insertAt(carriedObject, index, authData);
+        return serverReceiver.insertBefore(carriedObject, id, authData);
     }
 
     @Override
     public String getJournalEntry() {
-        return "Добавить элемент в позицию " + index;
+        return "Вставить новый элемент перед элементом с id = " + id;
     }
 }

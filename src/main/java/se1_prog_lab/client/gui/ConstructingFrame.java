@@ -1,9 +1,7 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
-import se1_prog_lab.client.commands.concrete.Add;
-import se1_prog_lab.client.commands.concrete.RemoveByID;
-import se1_prog_lab.client.commands.concrete.Update;
+import se1_prog_lab.client.commands.concrete.InsertBefore;
 import se1_prog_lab.client.gui.properties.*;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.collection.LabWorkParams;
@@ -93,6 +91,15 @@ public class ConstructingFrame extends JFrame {
                 dispose();
             });
             panel.add(removeButton);
+
+            // Кнопка вставки на место
+            JButton insertButton = new JButton("Вставить");
+            insertButton.addActionListener(e -> {
+                assert labWork != null;
+                controller.executeServerCommand(new InsertBefore(createLabWork(), labWork.getId()));
+                dispose();
+            });
+            panel.add(insertButton);
         }
 
         // Кнопка очистки полей

@@ -62,20 +62,6 @@ public class VectorWrapper implements CollectionWrapper {
     }
 
     /**
-     * (для команды insert_at)
-     * Добавляет элемент в указанную позицию.
-     *
-     * @param labWork новый элемент
-     * @param index   позиция
-     * @param id      id
-     */
-    public void insertAtIndex(LabWork labWork, int index, long id) {
-        labWork.setId(id); // todo запретить вставку хрен пойми куда
-        labWorks.setSize(index);
-        labWorks.add(index, labWork);
-    }
-
-    /**
      * Аналог showAll, но с фильтром: только элементы, значение поля minimalPoint которых больше заданного.
      *
      * @param minimalPoint значение поля для фильтра.
@@ -144,6 +130,13 @@ public class VectorWrapper implements CollectionWrapper {
             }
         }
         return slice;
+    }
+
+    @Override
+    public void insertBefore(LabWork labWork, Long id, Long newID) {
+        labWork.setId(newID);
+        int index = labWorks.indexOf(getByID(id));
+        labWorks.insertElementAt(labWork, index);
     }
 
     @Override

@@ -25,8 +25,6 @@ public interface ServerCommandReceiver {
 
     Response removeByID(long id, AuthData authData);
 
-    Response insertAt(LabWork labWork, int index, AuthData authData);
-
     Response update(LabWork labWork, long id, AuthData authData);
 
     Response register(AuthData authData);
@@ -34,4 +32,6 @@ public interface ServerCommandReceiver {
     Response login(AuthData authData);
 
     Response getCollectionPage(int firstIndex, int size);
+
+    Response insertBefore(LabWork carriedObject, Long id, AuthData authData);
 }

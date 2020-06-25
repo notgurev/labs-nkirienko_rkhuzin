@@ -162,19 +162,6 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized Response insertAt(LabWork labWork, int index, AuthData authData) {
-        try {
-            logger.info("Вставляем элемент в ячейку с индексом " + index);
-            Long id = databaseManager.addElement(labWork, authData.getUsername());
-            collectionWrapper.insertAtIndex(labWork, index, id);
-            return new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
-        } catch (DatabaseException e) {
-            logger.severe(e.getMessage());
-            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
-        }
-    }
-
-    @Override
     public synchronized Response update(LabWork labWork, long id, AuthData authData) {
         try {
             logger.info("Обновляем элемент с id " + id);
@@ -193,7 +180,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public Response register(AuthData authData) {
+    public synchronized Response register(AuthData authData) {
         try {
             if (!authManager.doesUserExist(authData.getUsername())) {
                 authManager.register(authData);
@@ -210,7 +197,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public Response login(AuthData authData) {
+    public synchronized Response login(AuthData authData) {
         try {
             if (authManager.checkAuth(authData)) {
                 logger.info(format("Авторизовался пользователь с именем: %s", authData.getUsername()));
@@ -226,8 +213,21 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public Response getCollectionPage(int firstIndex, int size) {
+    public synchronized Response getCollectionPage(int firstIndex, int size) {
         logger.info(format("Добавляем в ответ содержимое коллекции с индекса %d, кол-во элементов: %d", firstIndex, size));
         return new Response(LABWORK_LIST, collectionWrapper.getCollectionSlice(firstIndex, size));
+    }
+
+    @Override
+    public synchronized Response insertBefore(LabWork labWork, Long id, AuthData authData) {
+        try {
+            logger.info("Вставляем элемент на место элемента с id = " +id + ", остальные сдвигаем");
+            Long newID = databaseManager.addElement(labWork, authData.getUsername());
+            collectionWrapper.insertBefore(labWork, id, newID);
+            return new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
+        } catch (DatabaseException e) {
+            logger.severe(e.getMessage());
+            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+        }
     }
 }
