@@ -8,9 +8,6 @@ import java.awt.*;
 public class RectangleStrategy implements DrawStrategy {
     @Override
     public void draw(Graphics g, LabWork labWork) {
-        g.fillRect((int) labWork.getCoordinates().getX(),
-                labWork.getCoordinates().getY().intValue(),
-                labWork.getMinimalPoint(),
-                labWork.getMinimalPoint());
+        g.fillRect(0,0, labWork.getMinimalPoint(), labWork.getMinimalPoint());
     }
 }

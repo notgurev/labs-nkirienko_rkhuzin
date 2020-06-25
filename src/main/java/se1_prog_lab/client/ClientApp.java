@@ -25,6 +25,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
 import static se1_prog_lab.shared.api.AuthStrings.USERNAME_TAKEN;
@@ -42,7 +43,7 @@ public class ClientApp implements ClientCore {
     private final ClientView view;
     private final static int JOURNAL_SIZE_LIMIT = 13;
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
-    private Vector<LabWork> bufferedCollectionPage;
+    private Vector<LabWork> bufferedCollectionPage = new Vector<>();
     private int selectedPage;
     private int pageSize = 15;
     private List<ModelListener> listeners = new ArrayList<>();
@@ -215,26 +216,29 @@ public class ClientApp implements ClientCore {
 
     public void updateLabWork(Long id, LabWork labWork) {
         labWork.setId(id);
+        AtomicBoolean isReplaced = new AtomicBoolean(false);
         if (!executeServerCommand(new Update(id, labWork)).isRejected()) {
             bufferedCollectionPage.replaceAll(l -> {
                 if (l.getId().equals(id)) {
-                    initUpdateEvent(id, labWork);
+                    isReplaced.set(true);
                     return labWork;
                 }
                 return l;
             });
         }
+        if (isReplaced.get()) initUpdateEvent(id, labWork);
     }
 
     public void removeLabWork(Long id) {
         if (!executeServerCommand(new RemoveByID(id)).isRejected()) {
+            int size = bufferedCollectionPage.size();
             bufferedCollectionPage.removeIf(l -> {
                 if (l.getId().equals(id)) {
-                    initRemoveEvent(id);
                     return true;
                 }
                 return false;
             });
+            if (size != bufferedCollectionPage.size()) initRemoveEvent(id);
         }
     }
 
