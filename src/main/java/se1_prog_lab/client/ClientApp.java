@@ -37,6 +37,7 @@ import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
  */
 @Singleton
 public class ClientApp implements ClientCore {
+    private static final int UPDATE_TIMER = 10 * 1000; // 10 секунд
     private final ServerIO serverIO;
     private final ClientView view;
     private final static int JOURNAL_SIZE_LIMIT = 13;
@@ -71,9 +72,10 @@ public class ClientApp implements ClientCore {
     @Override
     public boolean updateCollectionPage(int change) {
         if (getSelectedPage() != 0 || change >= 0) {
-            Response response = executeServerCommand(new GetCollectionPage(selectedPage + change, pageSize)); // запрашиваем на одну больше, если приходит -> следующая страница не пуста
+            Response response = executeServerCommand(new GetCollectionPage(selectedPage + change, pageSize));
             if (!response.isRejected() && response.getCollection().size() != 0) {
                 setSelectedPage(getSelectedPage() + change);
+                bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
                 if (view.isMainFrameInitialized()) {
                     view.update();
                 }
@@ -168,6 +170,7 @@ public class ClientApp implements ClientCore {
             view.disposeLoginWindow();
             updateCollectionPage(0);
             view.initMainWindow(serverIO.getUsername());
+            startRegularUpdates();
         }
     }
 
@@ -192,7 +195,7 @@ public class ClientApp implements ClientCore {
             labWork.setId((Long) response.getPayload());
             if (bufferedCollectionPage.size() < pageSize) {
                 bufferedCollectionPage.add(labWork);
-                for (ModelListener listener: listeners) {
+                for (ModelListener listener : listeners) {
                     listener.addElement(labWork.toArray());
                 }
             }
@@ -236,13 +239,13 @@ public class ClientApp implements ClientCore {
     }
 
     protected void initUpdateEvent(Long id, LabWork labWork) {
-        for (ModelListener listener: listeners) {
+        for (ModelListener listener : listeners) {
             listener.updateElement(id, labWork.toArray());
         }
     }
 
     protected void initRemoveEvent(Long id) {
-        for (ModelListener listener: listeners) {
+        for (ModelListener listener : listeners) {
             listener.removeElement(id);
         }
     }
@@ -286,18 +289,22 @@ public class ClientApp implements ClientCore {
         Random r = new Random();
         return new Color(r.nextFloat(), r.nextFloat(), r.nextFloat());
     }
-//
-//    @Override
-//    public void startRegularUpdates() {
-//        new Thread(() -> {
-//            try {
-//                wait(60 * 1000);
-//            } catch (InterruptedException e) {
-//                startRegularUpdates();
-//            }
-//            updateCollectionPage();
-//        }).start();
-//    }
+
+    @SuppressWarnings("BusyWait")
+    @Override
+    public void startRegularUpdates() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(UPDATE_TIMER);
+                    System.out.println("Обновляем коллекцию в фоновом режиме");
+                    updateCollectionPage(0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 }
 
 

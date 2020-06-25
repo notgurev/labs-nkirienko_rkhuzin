@@ -56,5 +56,5 @@ public interface ClientCore {
 
     Color getColorByOwner(String owner);
 
-//    void startRegularUpdates();
+    void startRegularUpdates();
 }
