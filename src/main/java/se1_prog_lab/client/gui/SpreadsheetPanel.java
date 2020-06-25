@@ -1,5 +1,6 @@
 package se1_prog_lab.client.gui;
 
+import org.checkerframework.checker.units.qual.C;
 import se1_prog_lab.client.ClientCore;
 import se1_prog_lab.client.ModelListener;
 import se1_prog_lab.collection.Color;
@@ -11,9 +12,11 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
-
-import static java.util.Comparator.comparing;
+import java.util.stream.Collectors;
 
 public class SpreadsheetPanel extends JPanel implements ModelListener {
     private final JTable table;
@@ -22,10 +25,6 @@ public class SpreadsheetPanel extends JPanel implements ModelListener {
             "Дата создания", "Минимальная оценка", "Описание", "Настроенные работы",
             "Сложность", "Имя автора", "Рост", "Паспорт", "Цвет волос", "X", "Y", "Z"};
     private final ClientCore clientCore;
-    private final Class[] columnTypes = {Long.class, String.class, Long.class, Float.class,
-            LocalDateTime.class, Integer.class, String.class, Integer.class,
-            Difficulty.class, String.class, Float.class, String.class, Color.class, Integer.class,
-            Float.class, Integer.class}; // я не знаю как удобнее это сделать для сортировки
 
     public SpreadsheetPanel(ClientCore clientCore) {
         this.clientCore = clientCore;
@@ -53,28 +52,41 @@ public class SpreadsheetPanel extends JPanel implements ModelListener {
             }
         });
 
-        /*
-        TODO у меня не получается сделать нормальную сортировку стримами, при том что я решил делать тупо по toString().
-        Если разрешать в телеге так, то надо понять как нормально сделать collect, ибо у меня не получается.
-        */
         table.getTableHeader().addMouseListener(new MouseAdapter() {
+            @SuppressWarnings("rawtypes")
             @Override
             public void mouseClicked(MouseEvent e) {
                 int column = table.columnAtPoint(e.getPoint());
-                Vector<Vector> currentVector = tableModel.getDataVector();
-                currentVector.sort(comparing((Vector o) -> o.get(column).toString()));
-//                Stream<Vector> stream = tableModel.getDataVector()
-//                        .stream().sorted(comparing((Vector o) -> o.get(column).toString()));
-//                stream.collect(Vector::new);
 
-//                tableModel.getDataVector().stream()
-//                        .sorted(new Comparator<Vector>() {
-//                            @Override
-//                            public int compare(Vector o1, Vector o2) {
-//                                return o1.get(column).toString().compareTo(o2.get(column).toString());
-//                            }
-//                        })
-//                        .collect(Collectors.toCollection(Vector::new));
+                Comparator<Vector> vectorComparator = (o1, o2) -> {
+                    String first = o1.get(column).toString();
+                    String second = o2.get(column).toString();
+                    switch (column) {
+                        case 0: case 2: // я не знаю как лучше
+                            return Long.compare(Long.parseLong(first), Long.parseLong(second));
+                        case 1: case 6: case 9: case 11:
+                            return (first).compareTo(second);
+                        case 3: case 10: case 14:
+                            return Float.compare(Float.parseFloat(first), Float.parseFloat(second));
+                        case 4:
+                            return LocalDateTime.parse(first).compareTo(LocalDateTime.parse(second));
+                        case 5: case 7: case 13: case 15:
+                            return Integer.compare(Integer.parseInt(first), Integer.parseInt(second));
+                        case 8:
+                            return Difficulty.valueOf(first).compareTo(Difficulty.valueOf(second));
+                        case 12:
+                            return Color.valueOf(first).compareTo(Color.valueOf(second));
+                    }
+                    return 0;
+                };
+
+                tableModel.setDataVector( (Vector<? extends Vector>)
+                        tableModel.getDataVector()
+                        .stream()
+                        .sorted(vectorComparator)
+                        .collect(Collectors.toCollection(Vector::new)), new Vector<>(Arrays.asList(headers))
+                );
+                updateTable();
             }
         });
 
@@ -117,6 +129,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener {
     }
 
 
+    @SuppressWarnings("rawtypes")
     protected Integer findRowById(Long id) {
         for (Object v : tableModel.getDataVector()) {
             String currentId = ((Vector) v).elementAt(0).toString();

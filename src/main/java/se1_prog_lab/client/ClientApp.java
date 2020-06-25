@@ -173,7 +173,7 @@ public class ClientApp implements ClientCore {
 
     public void handleResponse(Response response) {
         if (response.getResponseType() == LABWORK_LIST) {
-            Collection collection = response.getCollection();
+            Collection<LabWork> collection = response.getCollection();
             hasNextPage = collection.size() >= pageSize;
 
             if (collection.size() != 0) {
@@ -214,7 +214,7 @@ public class ClientApp implements ClientCore {
         labWork.setId(id);
         if (!executeServerCommand(new Update(id, labWork)).isRejected()) {
             bufferedCollectionPage.replaceAll(l -> {
-                if (l.getId() == id) {
+                if (l.getId().equals(id)) {
                     initUpdateEvent(id, labWork);
                     return labWork;
                 }
@@ -226,7 +226,7 @@ public class ClientApp implements ClientCore {
     public void removeLabWork(Long id) {
         if (!executeServerCommand(new RemoveByID(id)).isRejected()) {
             bufferedCollectionPage.removeIf(l -> {
-                if (l.getId() == id) {
+                if (l.getId().equals(id)) {
                     initRemoveEvent(id);
                     return true;
                 }
