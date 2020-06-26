@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
  * Класс лабораторной работы (элемента коллекции)
  */
 public class LabWork implements Comparable<LabWork>, Serializable {
+    /**
+     * Юзернейм владельца
+     */
+    private String owner = "DEFAULT"; // todo загрузка из БД
     private final Person author;
     @Positive // без NotNull т.к. сервер сам назначает ID
     private Long id; // > 0, unique, auto-gen, not null
@@ -183,6 +187,10 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     }
 
     public String getOwner() {
-        return "MOCK"; // todo
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }
