@@ -44,6 +44,7 @@ public class LabWorkParams {
     private float authorLocationY;
     @NotNull
     private Integer authorLocationZ;
+    private String owner = "DefaultOwner";
 
     public LabWorkParams() {
     }
@@ -184,6 +185,10 @@ public class LabWorkParams {
 
     public Long getId() {
         return id;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public void setId(Long id) {

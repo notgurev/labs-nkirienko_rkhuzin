@@ -54,9 +54,10 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
         try {
             logger.info("Добавляем элемент в коллекцию");
             Long id = databaseManager.addElement(labWork, authData.getUsername());
+            labWork.setOwner(authData.getUsername());
             collectionWrapper.add(labWork, id);
             Response response = new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
-            response.setPayload(labWork.getId());
+            response.setPayload(labWork);
             return response;
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
@@ -166,9 +167,12 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
         try {
             logger.info("Обновляем элемент с id " + id);
             if (databaseManager.updateById(labWork, id, authData.getUsername())) {
+                labWork.setOwner(authData.getUsername());
                 collectionWrapper.updateByID(id, labWork);
                 logger.info(format("Элемент успешно заменён (id = %d)", id));
-                return new Response(PLAIN_TEXT, format("Элемент успешно заменён (id = %d)", id));
+                Response response = new Response(PLAIN_TEXT, format("Элемент успешно заменён (id = %d)", id));
+                response.setPayload(labWork);
+                return response;
             } else {
                 logger.info("Элемент с таким id отсутствует в коллекции либо у вас нет прав на его изменение!");
                 return new Response(PLAIN_TEXT, "Элемент с таким id отсутствует в коллекции либо у вас нет праав на его изменение!");
