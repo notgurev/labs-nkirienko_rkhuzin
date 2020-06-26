@@ -1,9 +1,9 @@
 package se1_prog_lab.client.commands.concrete;
 
 import se1_prog_lab.client.commands.BasicCommand;
-import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
 public class CountLessThanDescription extends BasicCommand {
     String description;
@@ -19,6 +19,6 @@ public class CountLessThanDescription extends BasicCommand {
 
     @Override
     public String getJournalEntry() {
-        return "Подсчет элементов с полем description < заданного";
+        return "journal.entries.cltd";
     }
 }

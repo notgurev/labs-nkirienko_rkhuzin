@@ -3,6 +3,7 @@ package se1_prog_lab.client.gui;
 import se1_prog_lab.collection.LabWork;
 
 import java.util.LinkedList;
+import java.util.Locale;
 
 public interface ClientView {
     void initLoginWindow();
@@ -17,7 +18,7 @@ public interface ClientView {
 
     void initConstructingFrame();
 
-    void initJournalFrame(LinkedList<String> journal);
+    void initJournalFrame(LinkedList<String> journal, Locale locale);
 
     void update();
 

@@ -1,9 +1,9 @@
 package se1_prog_lab.client.commands.concrete;
 
 import se1_prog_lab.client.commands.BasicCommand;
-import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
 // todo не очень понимаю как делать, видимо встраивать в таблицу/визуализацию
 public class FilterGreaterThanMinimalPoint extends BasicCommand {
@@ -20,6 +20,6 @@ public class FilterGreaterThanMinimalPoint extends BasicCommand {
 
     @Override
     public String getJournalEntry() {
-        return "Получить элементы, значение minimalPoint которых больше заданного";
+        return "journal.entries.fgtmp";
     }
 }

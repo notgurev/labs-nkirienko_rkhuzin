@@ -21,6 +21,6 @@ public class Update extends ConstructingCommand {
 
     @Override
     public String getJournalEntry() {
-        return "Обновить значение элемента с id=" + id;
+        return "journal.entries.update";
     }
 }

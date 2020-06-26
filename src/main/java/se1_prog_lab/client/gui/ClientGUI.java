@@ -7,6 +7,7 @@ import se1_prog_lab.collection.LabWork;
 
 import javax.swing.*;
 import java.util.LinkedList;
+import java.util.Locale;
 
 @Singleton
 public class ClientGUI implements ClientView {
@@ -56,8 +57,8 @@ public class ClientGUI implements ClientView {
     }
 
     @Override
-    public void initJournalFrame(LinkedList<String> journal) {
-        journalFrame = new JournalFrame(journal);
+    public void initJournalFrame(LinkedList<String> journal, Locale locale) {
+        journalFrame = new JournalFrame(journal, locale);
     }
 
     @Override

@@ -21,6 +21,6 @@ public class InsertBefore extends ConstructingCommand {
 
     @Override
     public String getJournalEntry() {
-        return "Вставить новый элемент перед элементом с id = " + id;
+        return "journal.entries.insert_before";
     }
 }

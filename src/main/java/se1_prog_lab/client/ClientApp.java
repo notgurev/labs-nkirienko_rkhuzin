@@ -190,8 +190,8 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
-    public void openJournalFrame() {
-        view.initJournalFrame(journal);
+    public void openJournalFrame(Locale locale) {
+        view.initJournalFrame(journal, locale);
     }
 
     private void handleAuthResponse(Response authResponse) {

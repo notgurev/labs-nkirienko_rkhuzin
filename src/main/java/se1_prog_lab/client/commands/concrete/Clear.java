@@ -1,9 +1,9 @@
 package se1_prog_lab.client.commands.concrete;
 
 import se1_prog_lab.client.commands.BasicCommand;
-import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
 public class Clear extends BasicCommand {
     @Override
@@ -13,6 +13,6 @@ public class Clear extends BasicCommand {
 
     @Override
     public String getJournalEntry() {
-        return "Удалить все свои элементов коллекции";
+        return "journal.entries.clear";
     }
 }

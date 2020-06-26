@@ -82,7 +82,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         addToolBarButton("MainFrame.toolbar.sort", e -> clientCore.executeServerCommand(new Sort()));
 
         // Журнал
-        addToolBarButton("MainFrame.toolbar.journal", e -> clientCore.openJournalFrame()); //todo open with locale
+        addToolBarButton("MainFrame.toolbar.journal", e -> clientCore.openJournalFrame(clientCore.getLocale()));
 
         add(toolBar, BorderLayout.PAGE_START);
     }
