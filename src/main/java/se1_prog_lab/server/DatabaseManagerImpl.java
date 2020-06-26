@@ -86,9 +86,17 @@ public class DatabaseManagerImpl implements DatabaseManager {
 
             PreparedStatement authorStatement = connection.prepareStatement(addPersonSql, Statement.RETURN_GENERATED_KEYS);
             authorStatement.setString(1, author.getName());
-            authorStatement.setFloat(2, author.getHeight());
+            if (author.getHeight() != null) {
+                authorStatement.setFloat(2, author.getHeight());
+            } else {
+                authorStatement.setNull(2, Types.REAL);
+            }
             authorStatement.setString(3, author.getPassportID());
-            authorStatement.setString(4, author.getHairColor().name());
+            if (author.getHairColor() != null) {
+                authorStatement.setString(4, author.getHairColor().name());
+            } else {
+                authorStatement.setNull(4, Types.VARCHAR);
+            }
             authorStatement.setInt(5, authorLocation.getX());
             authorStatement.setFloat(6, authorLocation.getY());
             authorStatement.setInt(7, authorLocation.getZ());
@@ -108,9 +116,17 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 elementStatement.setLong(2, coordinates.getX());
                 elementStatement.setFloat(3, coordinates.getY());
                 elementStatement.setTimestamp(4, Timestamp.valueOf(labWork.getCreationDate()));
-                elementStatement.setInt(5, labWork.getMinimalPoint()); // todo не поддерживает null, надо фиксить
+                if (labWork.getMinimalPoint() != null) {
+                    elementStatement.setInt(5, labWork.getMinimalPoint());
+                } else {
+                    elementStatement.setNull(5, Types.INTEGER);
+                }
                 elementStatement.setString(6, labWork.getDescription());
-                elementStatement.setInt(7, labWork.getTunedInWorks());
+                if (labWork.getTunedInWorks() != null) {
+                    elementStatement.setInt(7, labWork.getTunedInWorks());
+                } else {
+                    elementStatement.setNull(7, Types.INTEGER);
+                }
                 elementStatement.setString(8, labWork.getDifficulty().name());
                 elementStatement.setLong(9, rs.getLong(1));
                 elementStatement.setString(10, username);
@@ -273,8 +289,10 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 labWorkParams.setCoordinateY(rs.getFloat("coordinatey"));
                 labWorkParams.setCreationDate(rs.getTimestamp("creationdate").toLocalDateTime());
                 labWorkParams.setMinimalPoint(rs.getInt("minimalpoint"));
+                if (rs.wasNull()) labWorkParams.setMinimalPoint(null);
                 labWorkParams.setDescription(rs.getString("description"));
                 labWorkParams.setTunedInWorks(rs.getInt("tunedinworks"));
+                if (rs.wasNull()) labWorkParams.setTunedInWorks(null);
                 labWorkParams.setDifficulty(Difficulty.valueOf(rs.getString("difficulty")));
                 labWorkParams.setAuthorName(rs.getString("person_name"));
                 labWorkParams.setAuthorHeight(rs.getFloat("height"));

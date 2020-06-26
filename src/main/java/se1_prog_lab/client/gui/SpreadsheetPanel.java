@@ -13,20 +13,39 @@ import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
 public class SpreadsheetPanel extends JPanel implements ModelListener, LangChangeSubscriber {
     private final JTable table;
     private final DefaultTableModel tableModel;
-    private final String[] headers = {"ID", "Название", "Координата X", "Координата Y",
-            "Дата создания", "Минимальная оценка", "Описание", "Настроенные работы",
-            "Сложность", "Имя автора", "Рост", "Паспорт", "Цвет волос", "X", "Y", "Z"};
+    private String[] headers = {
+            "ID",
+            "Название",
+            "Координата X",
+            "Координата Y",
+            "Дата создания",
+            "Минимальная оценка",
+            "Описание",
+            "Настроенные работы",
+            "Сложность",
+            "Имя автора",
+            "Рост",
+            "Паспорт",
+            "Цвет волос",
+            "X",
+            "Y",
+            "Z"
+    };
     private final ClientCore clientCore;
+    private final ResourceBundle r;
 
     public SpreadsheetPanel(ClientCore clientCore) {
         this.clientCore = clientCore;
         clientCore.addListener(this);
+        clientCore.addLanguageSubscriber(this);
+        r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
 
         tableModel = new DefaultTableModel() {
             @Override
@@ -150,6 +169,24 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
 
     @Override
     public void changeLang() {
-        // todo
+        ResourceBundle r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+        headers = new String[] {
+                r.getString("SpreadsheetPanel.headers.id"),
+                r.getString("SpreadsheetPanel.headers.name"),
+                r.getString("SpreadsheetPanel.headers.coordinateX"),
+                r.getString("SpreadsheetPanel.headers.coordinateY"),
+                r.getString("SpreadsheetPanel.headers.creation_date"),
+                r.getString("SpreadsheetPanel.headers.minimalPoint"),
+                r.getString("SpreadsheetPanel.headers.description"),
+                r.getString("SpreadsheetPanel.headers.tunedInWorks"),
+                r.getString("SpreadsheetPanel.headers.difficulty"),
+                r.getString("SpreadsheetPanel.headers.authorName"),
+                r.getString("SpreadsheetPanel.headers.authorHeight"),
+                r.getString("SpreadsheetPanel.headers.authorPassportID"),
+                r.getString("SpreadsheetPanel.headers.authorHairColor"),
+                r.getString("SpreadsheetPanel.headers.authorLocationX"),
+                r.getString("SpreadsheetPanel.headers.authorLocationY"),
+                r.getString("SpreadsheetPanel.headers.authorLocationZ")
+        };
     }
 }

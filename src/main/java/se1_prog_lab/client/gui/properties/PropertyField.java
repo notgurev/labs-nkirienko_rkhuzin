@@ -16,7 +16,7 @@ public abstract class PropertyField extends Property {
     @Override
     public void fillInputFromParams() {
         try {
-            field.setText(labWorkField.get(labWorkParams).toString());
+            field.setText(labWorkField.get(labWorkParams) == null ? "" : labWorkField.get(labWorkParams).toString());
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }

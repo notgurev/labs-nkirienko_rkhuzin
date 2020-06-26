@@ -11,6 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class VisualizationPanel extends JPanel implements ModelListener {
+    public static final int SIZE_IF_NULL = 30;
     private final ClientCore clientCore;
     private DrawStrategy drawStrategy = new RectangleStrategy();
 
@@ -26,7 +27,8 @@ public class VisualizationPanel extends JPanel implements ModelListener {
             LabWorkComponent labWorkComponent = new LabWorkComponent(labWork, clientCore.getColorByOwner(labWork.getOwner()), drawStrategy);
             Component component = add(labWorkComponent);
             component.setLocation((int) labWork.getCoordinates().getX(), labWork.getCoordinates().getY().intValue());
-            component.setSize(labWork.getMinimalPoint(), labWork.getMinimalPoint());
+            int size = labWork.getMinimalPoint() == null ? SIZE_IF_NULL : labWork.getMinimalPoint();
+            component.setSize(size, size);
             component.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {

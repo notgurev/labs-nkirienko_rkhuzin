@@ -56,7 +56,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
                 name,
                 coordinates.getX(),
                 coordinates.getY(),
-                creationDate,
+                creationDate.withNano(0),
                 minimalPoint,
                 description,
                 tunedInWorks,
