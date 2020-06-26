@@ -1,6 +1,5 @@
 package se1_prog_lab.client.gui;
 
-import org.checkerframework.checker.units.qual.C;
 import se1_prog_lab.client.ClientCore;
 import se1_prog_lab.client.ModelListener;
 import se1_prog_lab.collection.Color;
@@ -14,11 +13,10 @@ import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-public class SpreadsheetPanel extends JPanel implements ModelListener {
+public class SpreadsheetPanel extends JPanel implements ModelListener, LangChangeSubscriber {
     private final JTable table;
     private final DefaultTableModel tableModel;
     private final String[] headers = {"ID", "Название", "Координата X", "Координата Y",
@@ -62,15 +60,24 @@ public class SpreadsheetPanel extends JPanel implements ModelListener {
                     String first = o1.get(column).toString();
                     String second = o2.get(column).toString();
                     switch (column) {
-                        case 0: case 2: // я не знаю как лучше
+                        case 0:
+                        case 2: // я не знаю как лучше
                             return Long.compare(Long.parseLong(first), Long.parseLong(second));
-                        case 1: case 6: case 9: case 11:
+                        case 1:
+                        case 6:
+                        case 9:
+                        case 11:
                             return (first).compareTo(second);
-                        case 3: case 10: case 14:
+                        case 3:
+                        case 10:
+                        case 14:
                             return Float.compare(Float.parseFloat(first), Float.parseFloat(second));
                         case 4:
                             return LocalDateTime.parse(first).compareTo(LocalDateTime.parse(second));
-                        case 5: case 7: case 13: case 15:
+                        case 5:
+                        case 7:
+                        case 13:
+                        case 15:
                             return Integer.compare(Integer.parseInt(first), Integer.parseInt(second));
                         case 8:
                             return Difficulty.valueOf(first).compareTo(Difficulty.valueOf(second));
@@ -80,11 +87,11 @@ public class SpreadsheetPanel extends JPanel implements ModelListener {
                     return 0;
                 };
 
-                tableModel.setDataVector( (Vector<? extends Vector>)
+                tableModel.setDataVector((Vector<? extends Vector>)
                         tableModel.getDataVector()
-                        .stream()
-                        .sorted(vectorComparator)
-                        .collect(Collectors.toCollection(Vector::new)), new Vector<>(Arrays.asList(headers))
+                                .stream()
+                                .sorted(vectorComparator)
+                                .collect(Collectors.toCollection(Vector::new)), new Vector<>(Arrays.asList(headers))
                 );
                 updateTable();
             }
@@ -139,5 +146,10 @@ public class SpreadsheetPanel extends JPanel implements ModelListener {
             }
         }
         return null;
+    }
+
+    @Override
+    public void changeLang() {
+        // todo
     }
 }

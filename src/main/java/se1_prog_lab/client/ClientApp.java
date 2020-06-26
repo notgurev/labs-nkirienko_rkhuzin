@@ -15,6 +15,7 @@ import se1_prog_lab.client.commands.concrete.technical.GetCollectionPage;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.gui.ClientView;
+import se1_prog_lab.client.gui.LangChangeSubscriber;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.AuthStrings;
@@ -49,6 +50,31 @@ public class ClientApp implements ClientCore {
     private List<ModelListener> listeners = new ArrayList<>();
     private boolean hasNextPage = true;
     private final HashMap<String, Color> ownersColors = new HashMap<>();
+
+    private static final Locale DEFAULT_LOCALE = Locale.forLanguageTag("ru-RU");
+    private Locale locale = DEFAULT_LOCALE;
+    private List<LangChangeSubscriber> langChangeSubscribers = new ArrayList<>();
+
+    @Override
+    public void addLanguageSubscriber(LangChangeSubscriber subscriber) {
+        langChangeSubscribers.add(subscriber);
+    }
+
+    @Override
+    public void removeLanguageSubscriber(LangChangeSubscriber subscriber) {
+        langChangeSubscribers.remove(subscriber);
+    }
+
+    @Override
+    public Locale getLocale() {
+        return locale;
+    }
+
+    @Override
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+        langChangeSubscribers.forEach(LangChangeSubscriber::changeLang);
+    }
 
     @Inject
     public ClientApp(ServerIO serverIO, ClientView view) {

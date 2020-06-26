@@ -16,7 +16,7 @@ import java.awt.event.ActionListener;
 import static javax.swing.SwingConstants.CENTER;
 import static javax.swing.SwingConstants.HORIZONTAL;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements LangChangeSubscriber {
     private final ClientCore clientCore;
     private JToolBar toolBar;
     private Mode mode = Mode.SPREADSHEET;
@@ -191,6 +191,11 @@ public class MainFrame extends JFrame {
 
     public void clear() {
         selectedPageLabel.setText(Integer.toString(clientCore.getSelectedPage()));
+    }
+
+    @Override
+    public void changeLang() {
+        // todo
     }
 
     enum Mode {

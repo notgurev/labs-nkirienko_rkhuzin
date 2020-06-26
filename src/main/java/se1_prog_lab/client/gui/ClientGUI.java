@@ -24,21 +24,25 @@ public class ClientGUI implements ClientView {
     @Override
     public void initLoginWindow() {
         loginFrame = new LoginFrame(controller);
+        controller.addLanguageSubscriber(loginFrame);
     }
 
     @Override
     public void disposeLoginWindow() {
         loginFrame.dispose();
+        controller.removeLanguageSubscriber(loginFrame);
     }
 
     @Override
     public void initMainWindow(String username) {
         mainFrame = new MainFrame(controller, username);
+        controller.addLanguageSubscriber(mainFrame);
     }
 
     @Override
     public void disposeMainWindow() {
         mainFrame.dispose();
+        controller.removeLanguageSubscriber(mainFrame);
     }
 
     @Override

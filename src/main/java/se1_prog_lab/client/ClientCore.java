@@ -1,11 +1,13 @@
 package se1_prog_lab.client;
 
 import se1_prog_lab.client.commands.BasicCommand;
+import se1_prog_lab.client.gui.LangChangeSubscriber;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.Response;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
+import java.util.Locale;
 import java.util.Vector;
 
 // todo поменять чтобы лишнего не было
@@ -15,6 +17,14 @@ public interface ClientCore {
     Vector<LabWork> getBufferedCollectionPage();
 
     Object[][] getCollectionData();
+
+    void addLanguageSubscriber(LangChangeSubscriber subscriber);
+
+    void removeLanguageSubscriber(LangChangeSubscriber subscriber);
+
+    Locale getLocale();
+
+    void setLocale(Locale locale);
 
     void addListener(ModelListener listener);
 

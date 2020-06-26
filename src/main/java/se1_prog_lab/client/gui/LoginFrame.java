@@ -5,13 +5,24 @@ import se1_prog_lab.client.ClientCore;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.ResourceBundle;
 
-public class LoginFrame extends JFrame {
-    private final ClientCore controller;
+import static java.util.Locale.*;
 
-    public LoginFrame(ClientCore controller) throws HeadlessException {
-        super("Авторизация");
-        this.controller = controller;
+public class LoginFrame extends JFrame implements LangChangeSubscriber {
+    private final ClientCore clientCore;
+    private ResourceBundle r;
+    private final JLabel title;
+    private final JButton login;
+    private final JButton register;
+
+    public LoginFrame(ClientCore clientCore) throws HeadlessException {
+        super();
+        r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+        setTitle(r.getString("LoginFrame.title"));
+        this.clientCore = clientCore;
         setSize(300, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
@@ -19,7 +30,7 @@ public class LoginFrame extends JFrame {
         JPanel panel = new JPanel();
         panel.setBorder(BorderFactory.createEmptyBorder(10, 30, 30, 30));
         panel.setLayout(new GridLayout(0, 1));
-        JLabel title = new JLabel("Войдите или зарегистрируйтесь:");
+        title = new JLabel(r.getString("LoginFrame.login_or_register"));
         panel.add(title);
 
         JTextField username = new JTextField("");
@@ -28,17 +39,48 @@ public class LoginFrame extends JFrame {
         JPasswordField password = new JPasswordField("");
         panel.add(password);
 
-        JButton login = new JButton("Войти");
+        login = new JButton(r.getString("LoginFrame.login"));
         panel.add(login);
-        login.addActionListener(event -> controller.login(username.getText(), Arrays.toString(password.getPassword())));
+        login.addActionListener(event -> clientCore.login(username.getText(), Arrays.toString(password.getPassword())));
 
-        JButton register = new JButton("Регистрация");
+        register = new JButton(r.getString("LoginFrame.register"));
         panel.add(register);
-        register.addActionListener(event -> controller.register(username.getText(), Arrays.toString(password.getPassword())));
+        register.addActionListener(event -> clientCore.register(username.getText(), Arrays.toString(password.getPassword())));
 
-        panel.add(new JComboBox<>(new String[]{"Русский", "Slovenščina", "Polski", "Español (Ecuador)"}));
+        JComboBox<String> languages =
+                new JComboBox<>(new String[]{"Русский", "Slovenščina", "Polski", "Español (Ecuador)"});
+
+        languages.addActionListener(e -> {
+            String item = Objects.requireNonNull(languages.getSelectedItem()).toString();
+            switch (item) {
+                case "Русский":
+                    clientCore.setLocale(forLanguageTag("ru-RU"));
+                    break;
+                case "Slovenščina":
+                    clientCore.setLocale(forLanguageTag("sl-SL"));
+                    break;
+                case "Polski":
+                    clientCore.setLocale(forLanguageTag("pl-PL"));
+                    break;
+                case "Español (Ecuador)":
+                    clientCore.setLocale(forLanguageTag("es-EC"));
+                    break;
+            }
+        });
+
+        panel.add(languages);
         add(panel, BorderLayout.CENTER);
 
         setVisible(true);
+    }
+
+    @Override
+    public void changeLang() {
+        Locale newLocale = clientCore.getLocale();
+        r = ResourceBundle.getBundle("localization/gui", newLocale);
+        setTitle(r.getString("LoginFrame.title"));
+        title.setText(r.getString("LoginFrame.login_or_register"));
+        login.setText(r.getString("LoginFrame.login"));
+        register.setText(r.getString("LoginFrame.register"));
     }
 }
