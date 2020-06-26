@@ -40,20 +40,36 @@ import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
 @Singleton
 public class ClientApp implements ClientCore {
     private static final int UPDATE_TIMER = 10 * 1000; // 10 секунд
+    private static final int JOURNAL_SIZE_LIMIT = 13;
+    private static final Locale DEFAULT_LOCALE = Locale.forLanguageTag("ru-RU");
     private final ServerIO serverIO;
     private final ClientView view;
-    private final static int JOURNAL_SIZE_LIMIT = 13;
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
+    private final HashMap<String, Color> ownersColors = new HashMap<>();
     private Vector<LabWork> bufferedCollectionPage = new Vector<>();
     private int selectedPage;
     private int pageSize = 15;
-    private List<ModelListener> listeners = new ArrayList<>();
+    private final List<ModelListener> listeners = new ArrayList<>();
     private boolean hasNextPage = true;
-    private final HashMap<String, Color> ownersColors = new HashMap<>();
-
-    private static final Locale DEFAULT_LOCALE = Locale.forLanguageTag("ru-RU");
     private Locale locale = DEFAULT_LOCALE;
-    private List<LangChangeSubscriber> langChangeSubscribers = new ArrayList<>();
+    private final List<LangChangeSubscriber> langChangeSubscribers = new ArrayList<>();
+
+    @Inject
+    public ClientApp(ServerIO serverIO, ClientView view) {
+        this.serverIO = serverIO;
+        this.view = view;
+    }
+
+    public static void main(String[] args) {
+        Injector injector = Guice.createInjector(new ClientModule());
+        ClientCore controller = injector.getInstance(ClientCore.class);
+        controller.start();
+    }
+
+    private static Color generateRandomColor() {
+        Random r = new Random();
+        return new Color(r.nextFloat(), r.nextFloat(), r.nextFloat());
+    }
 
     @Override
     public void addLanguageSubscriber(LangChangeSubscriber subscriber) {
@@ -74,18 +90,6 @@ public class ClientApp implements ClientCore {
     public void setLocale(Locale locale) {
         this.locale = locale;
         langChangeSubscribers.forEach(LangChangeSubscriber::changeLang);
-    }
-
-    @Inject
-    public ClientApp(ServerIO serverIO, ClientView view) {
-        this.serverIO = serverIO;
-        this.view = view;
-    }
-
-    public static void main(String[] args) {
-        Injector injector = Guice.createInjector(new ClientModule());
-        ClientCore controller = injector.getInstance(ClientCore.class);
-        controller.start();
     }
 
     public void addListener(ModelListener listener) {
@@ -258,12 +262,7 @@ public class ClientApp implements ClientCore {
     public void removeLabWork(Long id) {
         if (!executeServerCommand(new RemoveByID(id)).isRejected()) {
             int size = bufferedCollectionPage.size();
-            bufferedCollectionPage.removeIf(l -> {
-                if (l.getId().equals(id)) {
-                    return true;
-                }
-                return false;
-            });
+            bufferedCollectionPage.removeIf(l -> l.getId().equals(id));
             if (size != bufferedCollectionPage.size()) initRemoveEvent(id);
         }
     }
@@ -313,11 +312,6 @@ public class ClientApp implements ClientCore {
             ownersColors.put(owner, randomColor);
             return randomColor;
         }
-    }
-
-    private static Color generateRandomColor() {
-        Random r = new Random();
-        return new Color(r.nextFloat(), r.nextFloat(), r.nextFloat());
     }
 
     @SuppressWarnings("BusyWait")

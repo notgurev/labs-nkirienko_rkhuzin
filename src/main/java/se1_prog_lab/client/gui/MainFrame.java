@@ -12,30 +12,39 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ResourceBundle;
 
+import static java.util.Locale.forLanguageTag;
 import static javax.swing.SwingConstants.CENTER;
 import static javax.swing.SwingConstants.HORIZONTAL;
 
 public class MainFrame extends JFrame implements LangChangeSubscriber {
     private final ClientCore clientCore;
+    private final VisualizationPanel visualizationPanel;
+    private final SpreadsheetPanel spreadsheetPanel;
     private JToolBar toolBar;
     private Mode mode = Mode.SPREADSHEET;
     private JMenu strategy;
     private JLabel selectedPageLabel;
-
-    private final VisualizationPanel visualizationPanel;
-    private final SpreadsheetPanel spreadsheetPanel;
+    private ResourceBundle r;
+    /**
+     * JComponent - компонент, String - ключ для локализации
+     */
+    private final Map<JComponent, String> componentsWithText = new HashMap<>();
 
     public MainFrame(ClientCore clientCore, String username) {
-        super("Управление и обзор");
+        super();
+        r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+        setTitle(r.getString("MainFrame.title"));
         this.clientCore = clientCore;
-        setMinimumSize(new Dimension(0, 500));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
         createMenuBar(username);
         createToolBar();
-        spreadsheetPanel = new SpreadsheetPanel(this.clientCore);
-        visualizationPanel = new VisualizationPanel(this.clientCore);
+        spreadsheetPanel = new SpreadsheetPanel(clientCore);
+        visualizationPanel = new VisualizationPanel(clientCore);
         getContentPane().add(spreadsheetPanel);
         pack();
         setVisible(true);
@@ -46,34 +55,34 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         toolBar.setFloatable(false);
 
         // Переключение страниц
-        addToolBarButton("◀", e -> changeSelectedPage(-1));
+        addUnlocalizedToolBarButton("◀", e -> changeSelectedPage(-1));
         selectedPageLabel = new JLabel(" " + clientCore.getSelectedPage() + " ");
         toolBar.add(selectedPageLabel);
-        addToolBarButton("▶", e -> changeSelectedPage(+1));
+        addUnlocalizedToolBarButton("▶", e -> changeSelectedPage(+1));
 
         // Add
-        addToolBarButton("Добавить", e -> clientCore.openConstructingFrame());
+        addToolBarButton("MainFrame.toolbar.add", e -> clientCore.openConstructingFrame());
 
         // Count less than description
-        addToolBarButton("Посчитать < описания", e -> {
-            String description = JOptionPane.showInputDialog("Введите описание:");
-            clientCore.executeServerCommand(new CountLessThanDescription(description));
+        addToolBarButton("MainFrame.toolbar.cltd", e -> {
+            String description = JOptionPane.showInputDialog(r.getString("MainFrame.alerts.enter_description"));
+            if (description != null) clientCore.executeServerCommand(new CountLessThanDescription(description));
         });
 
         // Clear
-        addToolBarButton("Очистить", e -> clientCore.clear());
+        addToolBarButton("MainFrame.toolbar.clear", e -> clientCore.clear());
 
         // Info
-        addToolBarButton("Информация", e -> clientCore.executeServerCommand(new Info()));
+        addToolBarButton("MainFrame.toolbar.info", e -> clientCore.executeServerCommand(new Info()));
 
         // Print unique tuned in works
-        addToolBarButton("Уникальные tuned in works", e -> clientCore.executeServerCommand(new PrintUniqueTunedInWorks()));
+        addToolBarButton("MainFrame.toolbar.utiw", e -> clientCore.executeServerCommand(new PrintUniqueTunedInWorks()));
 
-        // Sort // todo пофиксить поломку на null
-        addToolBarButton("Сортировать на сервере", e -> clientCore.executeServerCommand(new Sort()));
+        // Sort
+        addToolBarButton("MainFrame.toolbar.sort", e -> clientCore.executeServerCommand(new Sort()));
 
         // Журнал
-        addToolBarButton("Журнал", e -> clientCore.openJournalFrame());
+        addToolBarButton("MainFrame.toolbar.journal", e -> clientCore.openJournalFrame()); //todo open with locale
 
         add(toolBar, BorderLayout.PAGE_START);
     }
@@ -84,9 +93,16 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         }
     }
 
-    private void addToolBarButton(String text, ActionListener actionListener) {
+    private void addUnlocalizedToolBarButton(String text, ActionListener actionListener) {
         JButton button = new JButton(text);
         toolBar.add(button);
+        button.addActionListener(actionListener);
+    }
+
+    private void addToolBarButton(String localizationKey, ActionListener actionListener) {
+        JButton button = new JButton(r.getString(localizationKey));
+        toolBar.add(button);
+        componentsWithText.put(button, localizationKey);
         button.addActionListener(actionListener);
     }
 
@@ -102,15 +118,18 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
 
         {
             // Вид (меню) todo функционал
-            JMenu view = new JMenu("Вид");
+            JMenu view = new JMenu(r.getString("MainFrame.menubar.view"));
+            componentsWithText.put(view, "MainFrame.menubar.view");
             ButtonGroup viewGroup = new ButtonGroup();
 
-            JRadioButtonMenuItem spreadsheet = new JRadioButtonMenuItem("Таблица");
+            JRadioButtonMenuItem spreadsheet = new JRadioButtonMenuItem(r.getString("MainFrame.menubar.view.table"));
+            componentsWithText.put(spreadsheet, "MainFrame.menubar.view.table");
             viewGroup.add(spreadsheet);
             view.add(spreadsheet);
             spreadsheet.addActionListener(this::setSpreadsheetMode);
 
-            JRadioButtonMenuItem visualization = new JRadioButtonMenuItem("Визуализация");
+            JRadioButtonMenuItem visualization = new JRadioButtonMenuItem(r.getString("MainFrame.menubar.view.visualization"));
+            componentsWithText.put(visualization, "MainFrame.menubar.view.visualization");
             viewGroup.add(visualization);
             view.add(visualization);
             visualization.addActionListener(this::setVisualizationMode);
@@ -120,43 +139,70 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         }
 
         {
-            // Язык (меню) todo функционал и дефолты
-            JMenu language = new JMenu("Язык");
+            // Язык (меню)
+            JMenu language = new JMenu(r.getString("MainFrame.menubar.language"));
+            componentsWithText.put(language, "MainFrame.menubar.language");
             jMenuBar.add(language);
             ButtonGroup languageGroup = new ButtonGroup();
+
             JRadioButtonMenuItem russian = new JRadioButtonMenuItem("Русский");
+            russian.addActionListener(e -> clientCore.setLocale(forLanguageTag("ru-RU")));
             language.add(russian);
             languageGroup.add(russian);
+
             JRadioButtonMenuItem slovenian = new JRadioButtonMenuItem("Slovenščina");
+            slovenian.addActionListener(e -> clientCore.setLocale(forLanguageTag("sl-SL")));
             language.add(slovenian);
             languageGroup.add(slovenian);
+
             JRadioButtonMenuItem polish = new JRadioButtonMenuItem("Polski");
+            polish.addActionListener(e -> clientCore.setLocale(forLanguageTag("pl-PL")));
             language.add(polish);
             languageGroup.add(polish);
+
             JRadioButtonMenuItem ecuador = new JRadioButtonMenuItem("Español (Ecuador)");
+            ecuador.addActionListener(e -> clientCore.setLocale(forLanguageTag("es-EC")));
             language.add(ecuador);
             languageGroup.add(ecuador);
+
+            switch (clientCore.getLocale().toString()) {
+                case "ru_RU":
+                    russian.setSelected(true);
+                    break;
+                case "sl_SL":
+                    slovenian.setSelected(true);
+                    break;
+                case "pl_PL":
+                    polish.setSelected(true);
+                    break;
+                case "es_EC":
+                    ecuador.setSelected(true);
+                    break;
+            }
         }
 
         {
-            strategy = new JMenu("Форма рисуемых объектов");
+            strategy = new JMenu(r.getString("MainFrame.menubar.form"));
+            componentsWithText.put(strategy, "MainFrame.menubar.form");
             jMenuBar.add(strategy);
             ButtonGroup strategies = new ButtonGroup();
 
-            JRadioButtonMenuItem circleStrategy = new JRadioButtonMenuItem("Круги");
+            JRadioButtonMenuItem circleStrategy = new JRadioButtonMenuItem(r.getString("MainFrame.strategies.cirles"));
+            componentsWithText.put(circleStrategy, "MainFrame.strategies.cirles");
             strategy.add(circleStrategy);
             strategies.add(circleStrategy);
             circleStrategy.addActionListener(e -> {
                 visualizationPanel.setDrawStrategy(new CircleStrategy());
-                visualizationPanel.update(); // todo не работает
+                visualizationPanel.update();
             });
 
-            JRadioButtonMenuItem rectangleStrategy = new JRadioButtonMenuItem("Квадраты");
+            JRadioButtonMenuItem rectangleStrategy = new JRadioButtonMenuItem(r.getString("MainFrame.strategies.squares"));
+            componentsWithText.put(rectangleStrategy, "MainFrame.strategies.squares");
             strategy.add(rectangleStrategy);
             strategies.add(rectangleStrategy);
             rectangleStrategy.addActionListener(e -> {
                 visualizationPanel.setDrawStrategy(new RectangleStrategy());
-                visualizationPanel.update(); // todo не работает
+                visualizationPanel.update();
             });
             rectangleStrategy.setSelected(true);
 
@@ -195,7 +241,19 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
 
     @Override
     public void changeLang() {
-        // todo
+        r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+        // Я не знаю, как лучше. У JComponent нет setText().
+        for (Map.Entry<JComponent, String> entry : componentsWithText.entrySet()) {
+            JComponent jComponent = entry.getKey();
+            String s = entry.getValue();
+            if (jComponent instanceof JButton) {
+                ((JButton) jComponent).setText(r.getString(s));
+            } else if (jComponent instanceof JRadioButtonMenuItem) {
+                ((JRadioButtonMenuItem) jComponent).setText(r.getString(s));
+            } else if (jComponent instanceof JMenu) {
+                ((JMenu) jComponent).setText(r.getString(s));
+            }
+        }
     }
 
     enum Mode {

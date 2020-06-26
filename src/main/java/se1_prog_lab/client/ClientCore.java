@@ -52,7 +52,7 @@ public interface ClientCore {
 
     void openConstructingFrame(int index);
 
-    void openJournalFrame();
+    void openJournalFrame(); // todo открывать с какой-то локалью
 
     int getSelectedPage();
 

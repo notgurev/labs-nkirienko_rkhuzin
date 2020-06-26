@@ -5,11 +5,10 @@ import se1_prog_lab.client.ClientCore;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
-import static java.util.Locale.*;
+import static java.util.Locale.forLanguageTag;
 
 public class LoginFrame extends JFrame implements LangChangeSubscriber {
     private final ClientCore clientCore;
@@ -52,19 +51,14 @@ public class LoginFrame extends JFrame implements LangChangeSubscriber {
 
         languages.addActionListener(e -> {
             String item = Objects.requireNonNull(languages.getSelectedItem()).toString();
-            switch (item) {
-                case "Русский":
-                    clientCore.setLocale(forLanguageTag("ru-RU"));
-                    break;
-                case "Slovenščina":
-                    clientCore.setLocale(forLanguageTag("sl-SL"));
-                    break;
-                case "Polski":
-                    clientCore.setLocale(forLanguageTag("pl-PL"));
-                    break;
-                case "Español (Ecuador)":
-                    clientCore.setLocale(forLanguageTag("es-EC"));
-                    break;
+            if ("Русский".equals(item)) {
+                clientCore.setLocale(forLanguageTag("ru-RU"));
+            } else if ("Slovenščina".equals(item)) {
+                clientCore.setLocale(forLanguageTag("sl-SL"));
+            } else if ("Polski".equals(item)) {
+                clientCore.setLocale(forLanguageTag("pl-PL"));
+            } else if ("Español (Ecuador)".equals(item)) {
+                clientCore.setLocale(forLanguageTag("es-EC"));
             }
         });
 
@@ -76,8 +70,7 @@ public class LoginFrame extends JFrame implements LangChangeSubscriber {
 
     @Override
     public void changeLang() {
-        Locale newLocale = clientCore.getLocale();
-        r = ResourceBundle.getBundle("localization/gui", newLocale);
+        r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
         setTitle(r.getString("LoginFrame.title"));
         title.setText(r.getString("LoginFrame.login_or_register"));
         login.setText(r.getString("LoginFrame.login"));
