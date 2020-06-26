@@ -14,7 +14,6 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     /**
      * Юзернейм владельца
      */
-    private String owner = "DEFAULT"; // todo загрузка из БД
     private final Person author;
     @Positive // без NotNull т.к. сервер сам назначает ID
     private Long id; // > 0, unique, auto-gen, not null
@@ -33,6 +32,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private Integer tunedInWorks;
     @NotNull
     private Difficulty difficulty;
+    private String owner = "DefaultOwner";
 
     public LabWork() {
         author = new Person();

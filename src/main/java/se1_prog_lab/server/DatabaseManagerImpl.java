@@ -261,7 +261,8 @@ public class DatabaseManagerImpl implements DatabaseManager {
         handleQuery((connection -> {
             Vector<LabWork> newCollection = new Vector<>();
             String query = "SELECT * FROM labwork" +
-                    " INNER JOIN person ON labwork.person_id = person.person_id";
+                    " INNER JOIN person ON labwork.person_id = person.person_id" +
+                    " INNER JOIN \"user\" ON \"user\".id = labwork.user_id";
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
             LabWorkParams labWorkParams;
@@ -283,6 +284,7 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 labWorkParams.setAuthorLocationX(rs.getInt("locationx"));
                 labWorkParams.setAuthorLocationY(rs.getFloat("locationy"));
                 labWorkParams.setAuthorLocationZ(rs.getInt("locationz"));
+                labWorkParams.setOwner(rs.getString("login"));
                 newCollection.add(ElementCreator.createLabWork(labWorkParams));
             }
             collectionWrapper.setVector(newCollection);

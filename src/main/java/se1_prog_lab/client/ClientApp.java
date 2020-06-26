@@ -223,11 +223,11 @@ public class ClientApp implements ClientCore {
     public void addLabWork(LabWork labWork) {
         Response response = executeServerCommand(new Add(labWork));
         if (!response.isRejected()) {
-            labWork.setId((Long) response.getPayload());
+            LabWork modifiedLabWork = (LabWork) response.getPayload();
             if (bufferedCollectionPage.size() < pageSize) {
-                bufferedCollectionPage.add(labWork);
+                bufferedCollectionPage.add(modifiedLabWork);
                 for (ModelListener listener : listeners) {
-                    listener.addElement(labWork.toArray());
+                    listener.addElement(modifiedLabWork.toArray());
                 }
             }
         }
@@ -247,16 +247,18 @@ public class ClientApp implements ClientCore {
     public void updateLabWork(Long id, LabWork labWork) {
         labWork.setId(id);
         AtomicBoolean isReplaced = new AtomicBoolean(false);
-        if (!executeServerCommand(new Update(id, labWork)).isRejected()) {
+        Response response = executeServerCommand(new Update(id, labWork));
+        LabWork modifiedLabWork = (LabWork) response.getPayload();
+        if (!response.isRejected()) {
             bufferedCollectionPage.replaceAll(l -> {
                 if (l.getId().equals(id)) {
                     isReplaced.set(true);
-                    return labWork;
+                    return modifiedLabWork;
                 }
                 return l;
             });
         }
-        if (isReplaced.get()) initUpdateEvent(id, labWork);
+        if (isReplaced.get()) initUpdateEvent(id, modifiedLabWork);
     }
 
     public void removeLabWork(Long id) {
