@@ -8,13 +8,14 @@ import java.awt.*;
 public class LabWorkComponent extends JComponent {
     private final LabWork labWork;
     private final Color color;
-    private DrawStrategy drawStrategy;
+    private final DrawStrategy drawStrategy;
 
     public LabWorkComponent(LabWork labWork, Color color, DrawStrategy drawStrategy) {
         super();
         this.labWork = labWork;
         this.color = color;
         this.drawStrategy = drawStrategy;
+        setOpaque(false);
     }
 
     @Override
@@ -22,9 +23,5 @@ public class LabWorkComponent extends JComponent {
         super.paintComponent(g);
         g.setColor(color);
         drawStrategy.draw(g, labWork);
-//        g.fillRect((int) labWork.getCoordinates().getX(),
-//                labWork.getCoordinates().getY().intValue(),
-//                labWork.getMinimalPoint(),
-//                labWork.getMinimalPoint());
     }
 }
