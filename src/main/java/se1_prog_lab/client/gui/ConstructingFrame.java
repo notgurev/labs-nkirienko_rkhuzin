@@ -13,6 +13,9 @@ import javax.validation.Validator;
 import java.awt.*;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
+
+import static java.lang.String.format;
 
 public class ConstructingFrame extends JFrame {
     private final ClientCore controller;
@@ -20,10 +23,12 @@ public class ConstructingFrame extends JFrame {
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
     private final Map<String, Property> properties = new LinkedHashMap<>();
     private final LabWorkParams labWorkParams;
+    private final ResourceBundle r;
     private boolean editingMode = false;
 
     public ConstructingFrame(ClientCore controller, LabWork labWork) throws HeadlessException {
         this.controller = controller;
+        r = ResourceBundle.getBundle("localization/gui", controller.getLocale());
         if (labWork == null) {
             labWorkParams = new LabWorkParams();
         } else {
@@ -39,31 +44,31 @@ public class ConstructingFrame extends JFrame {
         panel.setLayout(new GridLayout(0, 2));
 
         addProperties(
-                new StringPropertyField("name", "Название (не пустое)"),
-                new LongPropertyField("coordinateX", "Координата X (<=625)"),
-                new FloatPropertyField("coordinateY", "Координата Y (не пустая)"),
-                new IntegerPropertyField("minimalPoint", "Минимальная оценка (положительная)"),
-                new StringPropertyField("description", "Описание (не пустое)"),
-                new IntegerPropertyField("tunedInWorks", "Настроенные работы"),
-                new DifficultyPropertyBox("difficulty", "Сложность"),
-                new StringPropertyField("authorName", "Имя автора (не пустое)"),
-                new FloatPropertyField("authorHeight", "Рост автора (положительный)"),
-                new StringPropertyField("authorPassportID", "Паспорт автора (не пустой, длина >= 9)"),
-                new ColorPropertyBox("authorHairColor", "Цвет волос автора"),
-                new IntegerPropertyField("authorLocationX", "Местоположение автора по X (не пустое)"),
-                new FloatPropertyField("authorLocationY", "Местоположение автора по Y (не пустое)"),
-                new IntegerPropertyField("authorLocationZ", "Местоположение автора по Z (не пустое)")
+                new StringPropertyField("name", r.getString("ConstructingFrame.property.name")),
+                new LongPropertyField("coordinateX", r.getString("ConstructingFrame.property.coordinateX")),
+                new FloatPropertyField("coordinateY", r.getString("ConstructingFrame.property.coordinateY")),
+                new IntegerPropertyField("minimalPoint", r.getString("ConstructingFrame.property.minimalPoint")),
+                new StringPropertyField("description", r.getString("ConstructingFrame.property.description")),
+                new IntegerPropertyField("tunedInWorks", r.getString("ConstructingFrame.property.tunedInWorks")),
+                new DifficultyPropertyBox("difficulty", r.getString("ConstructingFrame.property.difficulty")),
+                new StringPropertyField("authorName", r.getString("ConstructingFrame.property.authorName")),
+                new FloatPropertyField("authorHeight", r.getString("ConstructingFrame.property.authorHeight")),
+                new StringPropertyField("authorPassportID", r.getString("ConstructingFrame.property.authorPassportID")),
+                new ColorPropertyBox("authorHairColor", r.getString("ConstructingFrame.property.authorHairColor")),
+                new IntegerPropertyField("authorLocationX", r.getString("ConstructingFrame.property.authorLocationX")),
+                new FloatPropertyField("authorLocationY", r.getString("ConstructingFrame.property.authorLocationY")),
+                new IntegerPropertyField("authorLocationZ", r.getString("ConstructingFrame.property.authorLocationZ"))
         );
 
         // Кнопка проверки полей
-        JButton checkButton = new JButton("Проверить");
+        JButton checkButton = new JButton(r.getString("ConstructingFrame.buttons.check"));
         checkButton.addActionListener(e -> {
-            if (checkProperties()) controller.simpleAlert("Данные введены верно!");
+            if (checkProperties()) controller.simpleAlert(r.getString("ConstructingFrame.alerts.correct_input"));
         });
         panel.add(checkButton);
 
         // Кнопка создания экземпляра
-        JButton createButton = new JButton("Создать");
+        JButton createButton = new JButton(r.getString("ConstructingFrame.buttons.create"));
         createButton.addActionListener(e -> {
             if (checkProperties()) {
                 controller.addLabWork(createLabWork());
@@ -73,7 +78,7 @@ public class ConstructingFrame extends JFrame {
 
         if (editingMode) {
             // Кнопка изменения
-            JButton updateButton = new JButton("Изменить");
+            JButton updateButton = new JButton(r.getString("ConstructingFrame.buttons.change_aka_update"));
             updateButton.addActionListener(e -> {
                 if (checkProperties()) {
                     assert labWork != null;
@@ -84,7 +89,7 @@ public class ConstructingFrame extends JFrame {
             panel.add(updateButton);
 
             // Кнопка удаления
-            JButton removeButton = new JButton("Удалить");
+            JButton removeButton = new JButton(r.getString("ConstructingFrame.buttons.remove"));
             removeButton.addActionListener(e -> {
                 assert labWork != null;
                 controller.removeLabWork(labWork.getId());
@@ -93,7 +98,7 @@ public class ConstructingFrame extends JFrame {
             panel.add(removeButton);
 
             // Кнопка вставки на место
-            JButton insertButton = new JButton("Вставить");
+            JButton insertButton = new JButton(r.getString("ConstructingFrame.buttons.insert"));
             insertButton.addActionListener(e -> {
                 assert labWork != null;
                 controller.executeServerCommand(new InsertBefore(createLabWork(), labWork.getId()));
@@ -103,7 +108,7 @@ public class ConstructingFrame extends JFrame {
         }
 
         // Кнопка очистки полей
-        JButton clearButton = new JButton("Очистить поля");
+        JButton clearButton = new JButton(r.getString("ConstructingFrame.buttons.clear_fields"));
         clearButton.addActionListener(e -> properties.values().forEach(Property::clear));
         panel.add(clearButton);
 
@@ -119,7 +124,8 @@ public class ConstructingFrame extends JFrame {
     private boolean checkProperties() {
         for (Property property : properties.values()) {
             if (!property.validateValue(validator)) {
-                controller.simpleAlert("Неправильно введено поле \"" + property.getLabelText() + "'");
+                controller.simpleAlert(format(r.getString("ConstructingFrame.alerts.incorrect_field"),
+                        property.getLabelText()));
                 return false;
             }
         }

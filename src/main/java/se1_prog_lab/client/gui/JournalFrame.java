@@ -24,10 +24,6 @@ public class JournalFrame extends JFrame {
         if (journal.isEmpty()) {
             panel.add(new JLabel(r.getString("journal.empty"), SwingConstants.CENTER));
         } else {
-//            for (String s : journal) {
-//                s = r.getString(s);
-//            }
-
             ArrayList<String> localizedJournal =
                     (ArrayList<String>) journal.stream().map(r::getString).collect(Collectors.toList());
             JList<String> journalList = new JList<>(localizedJournal.toArray(new String[0]));
