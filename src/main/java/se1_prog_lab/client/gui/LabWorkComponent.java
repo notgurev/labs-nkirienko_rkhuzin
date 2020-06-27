@@ -16,6 +16,7 @@ public class LabWorkComponent extends JComponent {
         this.color = color;
         this.drawStrategy = drawStrategy;
         setOpaque(false);
+        setToolTipText(labWork.getOwner());
     }
 
     @Override

@@ -220,7 +220,7 @@ public class ClientApp implements ClientCore {
         if (ownersColors.containsKey(owner)) {
             return ownersColors.get(owner);
         } else {
-            Color randomColor = ColorUtils.generateRandomColor();
+            Color randomColor = ColorUtils.generateRandomColor(0.5f);
             ownersColors.put(owner, randomColor);
             return randomColor;
         }

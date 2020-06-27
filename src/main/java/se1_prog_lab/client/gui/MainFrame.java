@@ -26,15 +26,18 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
      * JComponent - компонент, String - ключ для локализации
      */
     private final Map<JComponent, String> componentsWithText = new HashMap<>();
+    private final Map<JComponent, String> componentsWithTooltips = new HashMap<>();
     private JToolBar toolBar;
     private JMenu strategy;
     private JLabel selectedPageLabel;
     private ResourceBundle r;
+    private ResourceBundle tooltips;
     private JButton pageDecrement;
 
     public MainFrame(ClientCore clientCore, String username) {
         super();
         r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+        tooltips = ResourceBundle.getBundle("localization/tooltips", clientCore.getLocale());
         setTitle(r.getString("MainFrame.title"));
         this.clientCore = clientCore;
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -68,28 +71,28 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         addUnlocalizedToolBarButton("▶", e -> changeSelectedPage(+1));
 
         // Add
-        addToolBarButton("MainFrame.toolbar.add", e -> clientCore.openConstructingFrame());
+        addToolBarButton("MainFrame.toolbar.add", e -> clientCore.openConstructingFrame(), "add");
 
         // Count less than description
         addToolBarButton("MainFrame.toolbar.cltd", e -> {
             String description = JOptionPane.showInputDialog(r.getString("MainFrame.alerts.enter_description"));
             if (description != null) clientCore.submitServerCommand(new CountLessThanDescription(description));
-        });
+        }, "cltd");
 
         // Clear
-        addToolBarButton("MainFrame.toolbar.clear", e -> clientCore.submitServerCommand(new Clear()));
+        addToolBarButton("MainFrame.toolbar.clear", e -> clientCore.submitServerCommand(new Clear()), "clear");
 
         // Info
-        addToolBarButton("MainFrame.toolbar.info", e -> clientCore.submitServerCommand(new Info()));
+        addToolBarButton("MainFrame.toolbar.info", e -> clientCore.submitServerCommand(new Info()), "info");
 
         // Print unique tuned in works
-        addToolBarButton("MainFrame.toolbar.utiw", e -> clientCore.submitServerCommand(new PrintUniqueTunedInWorks()));
+        addToolBarButton("MainFrame.toolbar.utiw", e -> clientCore.submitServerCommand(new PrintUniqueTunedInWorks()), "utiw");
 
         // Sort
-        addToolBarButton("MainFrame.toolbar.sort", e -> clientCore.submitServerCommand(new Sort()));
+        addToolBarButton("MainFrame.toolbar.sort", e -> clientCore.submitServerCommand(new Sort()), "sort");
 
         // Журнал
-        addToolBarButton("MainFrame.toolbar.journal", e -> clientCore.openJournalFrame(clientCore.getLocale()));
+        addToolBarButton("MainFrame.toolbar.journal", e -> clientCore.openJournalFrame(clientCore.getLocale()), "journal");
 
         add(toolBar, BorderLayout.PAGE_START);
     }
@@ -108,10 +111,12 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         button.addActionListener(actionListener);
     }
 
-    private void addToolBarButton(String localizationKey, ActionListener actionListener) {
+    private void addToolBarButton(String localizationKey, ActionListener actionListener, String tooltipLocalizationKey) {
         JButton button = new JButton(r.getString(localizationKey));
         toolBar.add(button);
         componentsWithText.put(button, localizationKey);
+        button.setToolTipText(tooltips.getString(tooltipLocalizationKey));
+        componentsWithTooltips.put(button, tooltipLocalizationKey);
         button.addActionListener(actionListener);
     }
 
@@ -240,6 +245,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
     @Override
     public void changeLang(Locale locale) {
         r = ResourceBundle.getBundle("localization/gui", locale);
+        tooltips = ResourceBundle.getBundle("localization/tooltips", locale);
         setTitle(r.getString("MainFrame.title"));
         // Я не знаю, как лучше. У JComponent нет setText().
         for (Map.Entry<JComponent, String> entry : componentsWithText.entrySet()) {
@@ -252,6 +258,10 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
             } else if (jComponent instanceof JMenu) {
                 ((JMenu) jComponent).setText(r.getString(s));
             }
+        }
+
+        for (Map.Entry<JComponent, String> jComponentStringEntry : componentsWithTooltips.entrySet()) {
+            jComponentStringEntry.getKey().setToolTipText(tooltips.getString(jComponentStringEntry.getValue()));
         }
     }
 }
