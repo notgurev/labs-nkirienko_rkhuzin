@@ -16,7 +16,6 @@ public class Response implements Serializable {
     private final Object message;
     private final AuthStatus authStatus;
     private final boolean isRejected;
-    private Object payload;
 
     public Response(ResponseType responseType, Object message) {
         this.RESPONSE_TYPE = responseType;
@@ -41,14 +40,6 @@ public class Response implements Serializable {
 
     public ResponseType getResponseType() {
         return RESPONSE_TYPE;
-    }
-
-    public Object getPayload() { // todo убрать
-        return payload;
-    }
-
-    public void setPayload(Object payload) {
-        this.payload = payload;
     }
 
     public String getMessage() {

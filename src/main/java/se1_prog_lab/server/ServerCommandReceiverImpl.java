@@ -11,7 +11,6 @@ import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.Response;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
@@ -59,9 +58,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             Long id = databaseManager.addElement(labWork, authData.getUsername());
             labWork.setOwner(authData.getUsername());
             collectionWrapper.add(labWork, id);
-            Response response = plainText(r.getString("ServerCommandReceiverImpl.add.successfully_added"));
-            response.setPayload(labWork); // todo зачем...
-            return response;
+            return plainText(r.getString("ServerCommandReceiverImpl.add.successfully_added"));
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
             return serverError(r);
@@ -114,14 +111,6 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    @Deprecated
-    public synchronized Response show() {
-        logger.info("Добавляем в ответ содержимое коллекции");
-        //todo почему list?
-        return new Response(LABWORK_LIST, collectionWrapper.getListOfAllElements());
-    }
-
-    @Override
     public synchronized Response printUniqueTunedInWorks(ResourceBundle r) {
         logger.info("Добавляем в ответ уникальные значения поля tunedInWorks");
         if (collectionWrapper.isEmpty()) {
@@ -130,20 +119,6 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
             String message = r.getString("ServerCommandReceiverImpl.putiw") +
                     join(", ", collectionWrapper.getUniqueTunedInWorks().toString());
             return plainText(message);
-        }
-    }
-
-    @Override
-    @Deprecated
-    public synchronized Response filterGreaterThanMinimalPoint(int minimalPoint) {
-        logger.info("Добавляем в ответ элементы, значение поля minimalPoint которых больше " + minimalPoint);
-        if (collectionWrapper.isEmpty()) {
-            return new Response(PLAIN_TEXT, "Коллекция пуста!");
-        } else {
-            Collection<LabWork> message = collectionWrapper.filterGreaterThanMinimalPoint(minimalPoint);
-            if (message.size() == 0) {
-                return new Response(PLAIN_TEXT, "Элементов, значение поля minimalPoint которых больше заданного, нет.");
-            } else return new Response(LABWORK_LIST, message);
         }
     }
 
@@ -175,9 +150,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
                 labWork.setOwner(authData.getUsername());
                 collectionWrapper.updateByID(id, labWork);
                 logger.info(format("Элемент успешно заменён (id = %d)", id));
-                Response response = plainText(r.getString("ServerCommandReceiverImpl.update.successful") + id);
-                response.setPayload(labWork);
-                return response;
+                return plainText(r.getString("ServerCommandReceiverImpl.update.successful") + id);
             } else {
                 logger.info("Элемент с таким id отсутствует в коллекции либо у вас нет прав на его изменение!");
                 return plainText(r.getString("ServerCommandReceiverImpl.update.no_rights_or_such_element"));

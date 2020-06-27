@@ -30,6 +30,7 @@ public class ElementCreator {
         lw.setId(p.getId());
         LocalDateTime creationDate = p.getCreationDate();
         lw.setCreationDate(creationDate == null ? LocalDateTime.now() : creationDate);
+        if (p.getOwner() != null) lw.setOwner(p.getOwner());
         return lw;
     }
 }

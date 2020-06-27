@@ -19,11 +19,7 @@ public interface ServerCommandReceiver {
 
     Response printUniqueTunedInWorks(ResourceBundle resourceBundle);
 
-    Response show(); //todo delete
-
     Response sort(ResourceBundle resourceBundle);
-
-    Response filterGreaterThanMinimalPoint(int minimalPoint);
 
     Response removeByID(long id, AuthData authData, ResourceBundle resourceBundle);
 

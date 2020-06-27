@@ -84,6 +84,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
                 ", description='" + description + '\'' +
                 ", tunedInWorks=" + tunedInWorks +
                 ", difficulty=" + difficulty +
+                ", owner='" + owner + '\'' +
                 '}';
     }
 
@@ -145,12 +146,6 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 
     public void setMinimalPoint(Integer minimalPoint) {
         this.minimalPoint = minimalPoint;
-    }
-
-    public void setCoordinates(long x, Float y) {
-        coordinates = new Coordinates();
-        this.coordinates.setX(x);
-        this.coordinates.setY(y);
     }
 
     public Person getAuthor() {

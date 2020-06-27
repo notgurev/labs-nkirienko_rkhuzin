@@ -191,6 +191,10 @@ public class LabWorkParams {
         this.owner = owner;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }

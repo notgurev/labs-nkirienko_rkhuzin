@@ -47,7 +47,7 @@ public class ClientApp implements ClientCore {
     private final List<LangChangeSubscriber> langChangeSubscribers = new ArrayList<>();
     private Vector<LabWork> bufferedCollectionPage = new Vector<>();
     private int selectedPage;
-    private int pageSize = 5;
+    private int pageSize = 10;
     private Locale locale = DEFAULT_LOCALE;
 
     @Inject
