@@ -209,6 +209,7 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
         try {
             logger.info("Вставляем элемент на место элемента с id = " + id + ", остальные сдвигаем");
             Long newID = databaseManager.addElement(labWork, authData.getUsername());
+            labWork.setOwner(authData.getUsername());
             collectionWrapper.insertBefore(labWork, id, newID);
             return plainText(r.getString("ServerCommandReceiverImpl.add.successfully_added"));
         } catch (DatabaseException e) {
