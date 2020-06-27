@@ -26,7 +26,6 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
      */
     private final Map<JComponent, String> componentsWithText = new HashMap<>();
     private JToolBar toolBar;
-    private Mode mode = Mode.SPREADSHEET;
     private JMenu strategy;
     private JLabel selectedPageLabel;
     private ResourceBundle r;
@@ -73,20 +72,20 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         // Count less than description
         addToolBarButton("MainFrame.toolbar.cltd", e -> {
             String description = JOptionPane.showInputDialog(r.getString("MainFrame.alerts.enter_description"));
-            if (description != null) clientCore.executeServerCommand(new CountLessThanDescription(description));
+            if (description != null) clientCore.submitServerCommand(new CountLessThanDescription(description));
         });
 
         // Clear
-        addToolBarButton("MainFrame.toolbar.clear", e -> clientCore.executeServerCommand(new Clear()));
+        addToolBarButton("MainFrame.toolbar.clear", e -> clientCore.submitServerCommand(new Clear()));
 
         // Info
-        addToolBarButton("MainFrame.toolbar.info", e -> clientCore.executeServerCommand(new Info()));
+        addToolBarButton("MainFrame.toolbar.info", e -> clientCore.submitServerCommand(new Info()));
 
         // Print unique tuned in works
-        addToolBarButton("MainFrame.toolbar.utiw", e -> clientCore.executeServerCommand(new PrintUniqueTunedInWorks()));
+        addToolBarButton("MainFrame.toolbar.utiw", e -> clientCore.submitServerCommand(new PrintUniqueTunedInWorks()));
 
         // Sort
-        addToolBarButton("MainFrame.toolbar.sort", e -> clientCore.executeServerCommand(new Sort()));
+        addToolBarButton("MainFrame.toolbar.sort", e -> clientCore.submitServerCommand(new Sort()));
 
         // Журнал
         addToolBarButton("MainFrame.toolbar.journal", e -> clientCore.openJournalFrame(clientCore.getLocale()));
@@ -98,7 +97,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         int selectedPage = clientCore.getSelectedPage();
         clientCore.setSelectedPage(selectedPage + change);
         selectedPageLabel.setText(" " + clientCore.getSelectedPage() + " ");
-        clientCore.updateCollectionPage(0);
+        clientCore.updateCollectionPage();
         pageDecrement.setEnabled(selectedPage + change != 0);
     }
 
@@ -126,7 +125,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         jMenuBar.add(new JLabel(username, userIcon, CENTER));
 
         {
-            // Вид (меню) todo функционал
+            // Вид (меню)
             JMenu view = new JMenu(r.getString("MainFrame.menubar.view"));
             componentsWithText.put(view, "MainFrame.menubar.view");
             ButtonGroup viewGroup = new ButtonGroup();
@@ -215,14 +214,13 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
             });
             rectangleStrategy.setSelected(true);
 
-            strategy.setEnabled(mode != Mode.SPREADSHEET);
+            strategy.setEnabled(false);
         }
 
         setJMenuBar(jMenuBar);
     }
 
     public void setSpreadsheetMode(ActionEvent e) {
-        mode = Mode.SPREADSHEET;
         strategy.setEnabled(false);
         getContentPane().remove(visualizationPanel);
         getContentPane().add(spreadsheetPanel);
@@ -231,16 +229,11 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
     }
 
     public void setVisualizationMode(ActionEvent e) {
-        mode = Mode.VISUALIZATION;
         strategy.setEnabled(true);
         getContentPane().remove(spreadsheetPanel);
         getContentPane().add(visualizationPanel);
         revalidate();
         repaint();
-    }
-
-    public void clear() {
-        selectedPageLabel.setText(Integer.toString(clientCore.getSelectedPage()));
     }
 
     @Override
@@ -258,10 +251,5 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
                 ((JMenu) jComponent).setText(r.getString(s));
             }
         }
-    }
-
-    enum Mode { //todo get rid of this useless thing
-        VISUALIZATION,
-        SPREADSHEET
     }
 }

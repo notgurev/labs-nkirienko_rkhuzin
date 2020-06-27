@@ -13,7 +13,7 @@ import java.util.Vector;
 
 // todo поменять чтобы лишнего не было
 public interface ClientCore {
-    boolean updateCollectionPage(int change);
+    void updateCollectionPage();
 
     Vector<LabWork> getBufferedCollectionPage();
 
@@ -31,7 +31,7 @@ public interface ClientCore {
 
     void start();
 
-    Response executeServerCommand(@Nonnull BasicCommand command);
+    Response submitServerCommand(@Nonnull BasicCommand command);
 
     void login(String username, String password);
 

@@ -74,7 +74,7 @@ public class ConstructingFrame extends JFrame {
         JButton createButton = new JButton(r.getString("ConstructingFrame.buttons.create"));
         createButton.addActionListener(e -> {
             if (checkProperties()) {
-                controller.executeServerCommand(new Add(createLabWork()));
+                controller.submitServerCommand(new Add(createLabWork()));
             }
         });
         panel.add(createButton);
@@ -85,7 +85,7 @@ public class ConstructingFrame extends JFrame {
             updateButton.addActionListener(e -> {
                 if (checkProperties()) {
                     assert labWork != null;
-                    controller.executeServerCommand(new Update(labWork.getId(), createLabWork()));
+                    controller.submitServerCommand(new Update(labWork.getId(), createLabWork()));
                     dispose();
                 }
             });
@@ -95,7 +95,7 @@ public class ConstructingFrame extends JFrame {
             JButton removeButton = new JButton(r.getString("ConstructingFrame.buttons.remove"));
             removeButton.addActionListener(e -> {
                 assert labWork != null;
-                controller.executeServerCommand(new RemoveByID(labWork.getId()));
+                controller.submitServerCommand(new RemoveByID(labWork.getId()));
                 dispose();
             });
             panel.add(removeButton);
@@ -104,7 +104,7 @@ public class ConstructingFrame extends JFrame {
             JButton insertButton = new JButton(r.getString("ConstructingFrame.buttons.insert"));
             insertButton.addActionListener(e -> {
                 assert labWork != null;
-                controller.executeServerCommand(new InsertBefore(createLabWork(), labWork.getId()));
+                controller.submitServerCommand(new InsertBefore(createLabWork(), labWork.getId()));
                 dispose();
             });
             panel.add(insertButton);

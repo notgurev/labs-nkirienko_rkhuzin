@@ -62,16 +62,6 @@ public class ClientGUI implements ClientView {
     }
 
     @Override
-    public void clear() {
-        mainFrame.clear();
-    }
-
-    @Override
-    public boolean isMainFrameInitialized() {
-        return !(mainFrame == null);
-    }
-
-    @Override
     public void initConstructingFrame(LabWork labWork) {
         constructingFrame = new ConstructingFrame(controller, labWork);
     }

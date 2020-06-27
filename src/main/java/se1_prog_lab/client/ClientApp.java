@@ -17,6 +17,7 @@ import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.AuthStrings;
 import se1_prog_lab.shared.api.Response;
+import se1_prog_lab.shared.util.ColorUtils;
 
 import javax.annotation.Nonnull;
 import javax.swing.*;
@@ -46,7 +47,7 @@ public class ClientApp implements ClientCore {
     private final List<LangChangeSubscriber> langChangeSubscribers = new ArrayList<>();
     private Vector<LabWork> bufferedCollectionPage = new Vector<>();
     private int selectedPage;
-    private int pageSize = 15;
+    private int pageSize = 5;
     private Locale locale = DEFAULT_LOCALE;
 
     @Inject
@@ -59,11 +60,6 @@ public class ClientApp implements ClientCore {
         Injector injector = Guice.createInjector(new ClientModule());
         ClientCore controller = injector.getInstance(ClientCore.class);
         controller.start();
-    }
-
-    private static Color generateRandomColor() {
-        Random r = new Random();
-        return new Color(r.nextFloat(), r.nextFloat(), r.nextFloat());
     }
 
     @Override
@@ -88,20 +84,8 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
-    public boolean updateCollectionPage(int change) {
-        if (getSelectedPage() != 0 || change >= 0) {
-            Response response = executeServerCommand(new GetCollectionPage(selectedPage + change, pageSize));
-            if (!response.isRejected() && response.getCollection().size() != 0) {
-                setSelectedPage(getSelectedPage() + change);
-                bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
-//                if (view.isMainFrameInitialized()) { todo useless?
-//                    view.update();
-//                }
-                collectionChangeSubscribers.forEach(CollectionChangeSubscriber::updateWithNewData);
-                return true;
-            }
-        }
-        return false;
+    public void updateCollectionPage() {
+        submitServerCommand(new GetCollectionPage(selectedPage, pageSize));
     }
 
     @Override
@@ -133,7 +117,7 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
-    public Response executeServerCommand(@Nonnull BasicCommand command) {
+    public Response submitServerCommand(@Nonnull BasicCommand command) {
         Response serverResponse = serverIO.sendAndReceive(command);
         handleResponse(serverResponse);
         if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
@@ -143,7 +127,7 @@ public class ClientApp implements ClientCore {
             if (!(command instanceof NoJournalEntryCommand)) addJournalEntry(command.getJournalEntry());
         }
         if (command.isCollectionChanging()) {
-            updateCollectionPage(0);
+            updateCollectionPage();
         }
         return serverResponse;
     }
@@ -189,7 +173,7 @@ public class ClientApp implements ClientCore {
             view.simpleAlert(authResponse.getStringMessage());
         } else {
             view.disposeLoginWindow();
-            updateCollectionPage(0);
+            updateCollectionPage();
             view.initMainWindow(serverIO.getUsername());
             startRegularUpdates();
         }
@@ -208,73 +192,6 @@ public class ClientApp implements ClientCore {
             view.simpleAlert(response.getStringMessage());
         }
     }
-//
-//    @Deprecated
-//    public void addLabWork(LabWork labWork) {
-//        Response response = executeServerCommand(new Add(labWork));
-//        if (!response.isRejected()) {
-//            LabWork modifiedLabWork = (LabWork) response.getPayload();
-//            if (bufferedCollectionPage.size() < pageSize) {
-//                bufferedCollectionPage.add(modifiedLabWork);
-//                for (ModelListener listener : listeners) {
-//                    listener.addElement(modifiedLabWork.toArray());
-//                }
-//            }
-//        }
-//    }
-//
-//    @Deprecated
-//    public void clear() {
-//        Response response = executeServerCommand(new Clear());
-//        if (!response.isRejected()) {
-//            setSelectedPage(0);
-//            updateCollectionPage(0);
-//            if (view.isMainFrameInitialized()) {
-//                view.clear();
-//            }
-//        }
-//    }
-
-//    @Deprecated
-//    public void updateLabWork(Long id, LabWork labWork) {
-//        labWork.setId(id);
-//        AtomicBoolean isReplaced = new AtomicBoolean(false);
-//        Response response = executeServerCommand(new Update(id, labWork));
-//        LabWork modifiedLabWork = (LabWork) response.getPayload();
-//        if (!response.isRejected()) {
-//            bufferedCollectionPage.replaceAll(l -> {
-//                if (l.getId().equals(id)) {
-//                    isReplaced.set(true);
-//                    return modifiedLabWork;
-//                }
-//                return l;
-//            });
-//        }
-//        if (isReplaced.get()) initUpdateEvent(id, modifiedLabWork);
-//    }
-//
-//    @Deprecated
-//    public void removeLabWork(Long id) {
-//        if (!executeServerCommand(new RemoveByID(id)).isRejected()) {
-//            int size = bufferedCollectionPage.size();
-//            bufferedCollectionPage.removeIf(l -> l.getId().equals(id));
-//            if (size != bufferedCollectionPage.size()) initRemoveEvent(id);
-//        }
-//    }
-
-//    @Deprecated
-//    protected void initUpdateEvent(Long id, LabWork labWork) {
-//        for (ModelListener listener : listeners) {
-//            listener.updateElement(id, labWork.toArray());
-//        }
-//    }
-//
-//    @Deprecated
-//    protected void initRemoveEvent(Long id) {
-//        for (ModelListener listener : listeners) {
-//            listener.removeElement(id);
-//        }
-//    }
 
     @Override
     public int getSelectedPage() {
@@ -301,7 +218,7 @@ public class ClientApp implements ClientCore {
         if (ownersColors.containsKey(owner)) {
             return ownersColors.get(owner);
         } else {
-            Color randomColor = generateRandomColor();
+            Color randomColor = ColorUtils.generateRandomColor();
             ownersColors.put(owner, randomColor);
             return randomColor;
         }
@@ -315,7 +232,7 @@ public class ClientApp implements ClientCore {
                 try {
                     Thread.sleep(UPDATE_TIMER);
                     System.out.println("Обновляем коллекцию в фоновом режиме");
-                    updateCollectionPage(0);
+                    updateCollectionPage();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

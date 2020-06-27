@@ -98,54 +98,6 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
         add(scrollPane);
     }
 
-//    public void update() {
-//        tableModel.setDataVector(clientCore.getCollectionData(), headers);
-//        tableModel.fireTableDataChanged();
-//    }
-
-//    @Deprecated
-//    public void addElement(Object[] fields) {
-//        if (!clientCore.hasNextPage()) {
-//            tableModel.addRow(fields);
-//            tableModel.fireTableDataChanged();
-//        }
-//    }
-//
-//    @Deprecated
-//    public void updateElement(Long id, Object[] fields) {
-//        Integer row = findRowById(id);
-//
-//        if (row != null) {
-//            for (int i = 0; i < fields.length; i++) {
-//                tableModel.setValueAt(fields[i], row, i);
-//            }
-//            tableModel.fireTableDataChanged();
-//        }
-//    }
-//
-//    @Deprecated
-//    public void removeElement(Long id) {
-//        Integer row = findRowById(id);
-//        if (row != null) {
-//            tableModel.removeRow(row);
-//            tableModel.fireTableDataChanged();
-//        }
-//    }
-//
-//
-//    @SuppressWarnings("rawtypes")
-//    @Deprecated
-//    protected Integer findRowById(Long id) {
-//        for (Object v : tableModel.getDataVector()) {
-//            String currentId = ((Vector) v).elementAt(0).toString();
-//
-//            if (currentId.equals(id.toString())) {
-//                return tableModel.getDataVector().indexOf(v);
-//            }
-//        }
-//        return null;
-//    }
-
     @Override
     public void changeLang() {
         headers = getLocalizedHeaders();
