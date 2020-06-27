@@ -94,7 +94,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
                                 .sorted(vectorComparator)
                                 .collect(Collectors.toCollection(Vector::new)), new Vector<>(Arrays.asList(headers))
                 );
-                updateTable();
+                tableModel.fireTableDataChanged();
             }
         });
 
@@ -103,11 +103,6 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
 
     public void update() {
         tableModel.setDataVector(clientCore.getCollectionData(), headers);
-        updateTable();
-    }
-
-    @Deprecated
-    public void updateTable() {
         tableModel.fireTableDataChanged();
     }
 
@@ -115,7 +110,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
     public void addElement(Object[] fields) {
         if (!clientCore.hasNextPage()) {
             tableModel.addRow(fields);
-            updateTable();
+            tableModel.fireTableDataChanged();
         }
     }
 
@@ -127,7 +122,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
             for (int i = 0; i < fields.length; i++) {
                 tableModel.setValueAt(fields[i], row, i);
             }
-            updateTable();
+            tableModel.fireTableDataChanged();
         }
     }
 
@@ -136,7 +131,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
         Integer row = findRowById(id);
         if (row != null) {
             tableModel.removeRow(row);
-            updateTable();
+            tableModel.fireTableDataChanged();
         }
     }
 
