@@ -238,18 +238,34 @@ public class DatabaseManagerImpl implements DatabaseManager {
             statement.setLong(2, labWork.getCoordinates().getX());
             statement.setFloat(3, labWork.getCoordinates().getY());
             statement.setTimestamp(4, Timestamp.valueOf(labWork.getCreationDate()));
-            statement.setInt(5, labWork.getMinimalPoint());
+            if (labWork.getMinimalPoint() != null) {
+                statement.setInt(5, labWork.getMinimalPoint());
+            } else {
+                statement.setNull(5, Types.INTEGER);
+            }
             statement.setString(6, labWork.getDescription());
-            statement.setInt(7, labWork.getTunedInWorks());
+            if (labWork.getTunedInWorks() != null) {
+                statement.setInt(7, labWork.getTunedInWorks());
+            } else {
+                statement.setNull(7, Types.INTEGER);
+            }
             statement.setString(8, labWork.getDifficulty().name());
             statement.setLong(9, id);
             statement.setString(10, username);
 
             Person author = labWork.getAuthor();
             statement.setString(11, author.getName());
-            statement.setFloat(12, author.getHeight());
+            if (author.getHeight() != null) {
+                statement.setFloat(12, author.getHeight());
+            } else {
+                statement.setNull(12, Types.REAL);
+            }
             statement.setString(13, author.getPassportID());
-            statement.setString(14, author.getHairColor().name());
+            if (author.getHairColor() != null) {
+                statement.setString(14, author.getHairColor().name());
+            } else {
+                statement.setNull(14, Types.VARCHAR);
+            }
             statement.setInt(15, author.getLocation().getX());
             statement.setFloat(16, author.getLocation().getY());
             statement.setInt(17, author.getLocation().getZ());
