@@ -17,7 +17,7 @@ public class InsertBefore extends ConstructingCommand {
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.insertBefore(carriedObject, id, authData);
+        return serverReceiver.insertBefore(carriedObject, id, authData, resourceBundle);
     }
 
     @Override

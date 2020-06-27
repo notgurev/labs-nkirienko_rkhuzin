@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -237,8 +238,8 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
     }
 
     @Override
-    public void changeLang() {
-        r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+    public void changeLang(Locale locale) {
+        r = ResourceBundle.getBundle("localization/gui", locale);
         setTitle(r.getString("MainFrame.title"));
         // Я не знаю, как лучше. У JComponent нет setText().
         for (Map.Entry<JComponent, String> entry : componentsWithText.entrySet()) {

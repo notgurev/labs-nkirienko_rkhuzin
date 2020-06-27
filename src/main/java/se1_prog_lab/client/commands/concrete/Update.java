@@ -17,7 +17,7 @@ public class Update extends ConstructingCommand {
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.update(carriedObject, id, authData);
+        return serverReceiver.update(carriedObject, id, authData, resourceBundle);
     }
 
     @Override

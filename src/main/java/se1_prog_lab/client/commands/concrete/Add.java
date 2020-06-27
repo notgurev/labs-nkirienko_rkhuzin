@@ -14,7 +14,7 @@ public class Add extends ConstructingCommand {
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.add(carriedObject, authData);
+        return serverReceiver.add(carriedObject, authData, resourceBundle);
     }
 
     @Override

@@ -13,11 +13,14 @@ import se1_prog_lab.shared.api.Response;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
 import static java.lang.String.join;
-import static se1_prog_lab.shared.api.AuthStrings.*;
+import static se1_prog_lab.shared.api.AuthStatus.*;
+import static se1_prog_lab.shared.api.Response.plainText;
+import static se1_prog_lab.shared.api.Response.serverError;
 import static se1_prog_lab.shared.api.ResponseType.*;
 import static se1_prog_lab.shared.util.StringUtils.multiline;
 
@@ -50,67 +53,68 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized Response add(LabWork labWork, AuthData authData) {
+    public synchronized Response add(LabWork labWork, AuthData authData, ResourceBundle r) {
         try {
             logger.info("Добавляем элемент в коллекцию");
             Long id = databaseManager.addElement(labWork, authData.getUsername());
             labWork.setOwner(authData.getUsername());
             collectionWrapper.add(labWork, id);
-            Response response = new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
-            response.setPayload(labWork);
+            Response response = plainText(r.getString("ServerCommandReceiverImpl.add.successfully_added"));
+            response.setPayload(labWork); // todo зачем...
             return response;
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
-            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+            return serverError(r);
         }
     }
 
     @Override
-    public synchronized Response clear(AuthData authData) {
+    public synchronized Response clear(AuthData authData, ResourceBundle r) {
         try {
             logger.info("Очищаем коллекцию");
             List<Long> ids = databaseManager.clear(authData.getUsername());
             if (ids.size() > 0) {
                 collectionWrapper.clear(ids);
-                return new Response(PLAIN_TEXT, "Элементы, на которые вы имели права, удалены из коллекции");
+                return plainText(r.getString("ServerCommandReceiverImpl.clear.successfully_removed"));
             }
-            return new Response(PLAIN_TEXT, "Ваших элементов уже нет в коллекции");
+            return plainText(r.getString("ServerCommandReceiverImpl.clear.has_no_owned_by_user"));
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
-            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+            return serverError(r);
         }
     }
 
     @Override
-    public synchronized Response countLessThanDescription(String description) {
+    public synchronized Response countLessThanDescription(String description, ResourceBundle r) {
         logger.info("Добавляем в ответ количество элементов, значение поля description которых меньше " + description);
-        String message = "Количество элементов, значение поля description которых меньше заданного: " +
+        String message = r.getString("ServerCommandReceiverImpl.cltd") +
                 collectionWrapper.countLessThanDescription(description);
-        return new Response(PLAIN_TEXT, message);
+        return plainText(message);
     }
 
     @Override
-    public synchronized Response info() {
+    public synchronized Response info(ResourceBundle r) {
         logger.info("Добавляем в ответ информацию о коллекции");
         String message = multiline(
-                "Тип коллекции: " + collectionWrapper.getCollectionType(),
-                "Дата инициализации: " + collectionWrapper.getInitDate(),
-                "Количество элементов: " + collectionWrapper.getSize()
+                r.getString("ServerCommandReceiverImpl.info.collection_type") + collectionWrapper.getCollectionType(),
+                r.getString("ServerCommandReceiverImpl.info.init_date") + collectionWrapper.getInitDate(),
+                r.getString("ServerCommandReceiverImpl.info.size") + collectionWrapper.getSize()
         );
-        return new Response(PLAIN_TEXT, message);
+        return plainText(message);
     }
 
     @Override
-    public synchronized Response sort() {
+    public synchronized Response sort(ResourceBundle r) {
         logger.info("Сортируем коллекцию");
         if (collectionWrapper.sort()) {
-            return new Response(PLAIN_TEXT, "Коллекция была успешно отсортирована в естественном порядке!");
+            return plainText(r.getString("ServerCommandReceiverImpl.sort.successful"));
         } else {
-            return new Response(PLAIN_TEXT, "Коллекция пуста!");
+            return plainText(r.getString("ServerCommandReceiverImpl.collection_empty"));
         }
     }
 
     @Override
+    @Deprecated
     public synchronized Response show() {
         logger.info("Добавляем в ответ содержимое коллекции");
         //todo почему list?
@@ -118,18 +122,19 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized Response printUniqueTunedInWorks() {
+    public synchronized Response printUniqueTunedInWorks(ResourceBundle r) {
         logger.info("Добавляем в ответ уникальные значения поля tunedInWorks");
         if (collectionWrapper.isEmpty()) {
-            return new Response(PLAIN_TEXT, "Коллекция пуста!");
+            return Response.plainText(r.getString("ServerCommandReceiverImpl.sort.empty"));
         } else {
-            String message = "Уникальные значения поля tunedInWorks: " +
+            String message = r.getString("ServerCommandReceiverImpl.putiw") +
                     join(", ", collectionWrapper.getUniqueTunedInWorks().toString());
-            return new Response(PLAIN_TEXT, message);
+            return plainText(message);
         }
     }
 
     @Override
+    @Deprecated
     public synchronized Response filterGreaterThanMinimalPoint(int minimalPoint) {
         logger.info("Добавляем в ответ элементы, значение поля minimalPoint которых больше " + minimalPoint);
         if (collectionWrapper.isEmpty()) {
@@ -143,76 +148,80 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized Response removeByID(long id, AuthData authData) {
+    public synchronized Response removeByID(long id, AuthData authData, ResourceBundle r) {
         try {
             logger.info("Удаляем элемент с id " + id);
             if (databaseManager.removeById(id, authData.getUsername())) {
                 collectionWrapper.removeByID(id);
                 logger.info(format("Элемент с id = %d успешно удален", id));
-                return new Response(PLAIN_TEXT, format("Элемент с id = %d успешно удален", id));
+                return plainText(r.getString("ServerCommandReceiverImpl.remove.successful") + id);
             } else {
                 logger.warning("Элемента с данным id не существует в коллекции или у вас нет прав на его удаление");
                 return new Response(PLAIN_TEXT,
-                        "Элемента с данным id не существует в коллекции или у вас нет прав на его удаление",
+                        r.getString("ServerCommandReceiverImpl.remove.no_rights_or_such_element"),
                         true);
             }
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
-            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+            return serverError(r);
         }
     }
 
     @Override
-    public synchronized Response update(LabWork labWork, long id, AuthData authData) {
+    public synchronized Response update(LabWork labWork, long id, AuthData authData, ResourceBundle r) {
         try {
             logger.info("Обновляем элемент с id " + id);
             if (databaseManager.updateById(labWork, id, authData.getUsername())) {
                 labWork.setOwner(authData.getUsername());
                 collectionWrapper.updateByID(id, labWork);
                 logger.info(format("Элемент успешно заменён (id = %d)", id));
-                Response response = new Response(PLAIN_TEXT, format("Элемент успешно заменён (id = %d)", id));
+                Response response = plainText(r.getString("ServerCommandReceiverImpl.update.successful") + id);
                 response.setPayload(labWork);
                 return response;
             } else {
                 logger.info("Элемент с таким id отсутствует в коллекции либо у вас нет прав на его изменение!");
-                return new Response(PLAIN_TEXT, "Элемент с таким id отсутствует в коллекции либо у вас нет праав на его изменение!");
+                return plainText(r.getString("ServerCommandReceiverImpl.update.no_rights_or_such_element"));
             }
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
-            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+            return serverError(r);
         }
     }
 
     @Override
-    public synchronized Response register(AuthData authData) {
+    public synchronized Response register(AuthData authData, ResourceBundle r) {
         try {
             if (!authManager.doesUserExist(authData.getUsername())) {
                 authManager.register(authData);
                 logger.info(format("Зарегистрирован пользователь с именем: %s", authData.getUsername()));
-                return new Response(AUTH_STATUS, REGISTRATION_SUCCESSFUL);
+                return new Response(AUTH_STATUS, REGISTRATION_SUCCESSFUL,
+                        r.getString(REGISTRATION_SUCCESSFUL.getMessageLocalizationKey()), false);
             } else {
                 logger.warning(format("Имя пользователя %s уже занято", authData.getUsername()));
-                return new Response(AUTH_STATUS, USERNAME_TAKEN, true);
+                return new Response(AUTH_STATUS, USERNAME_TAKEN,
+                        r.getString(USERNAME_TAKEN.getMessageLocalizationKey()), true);
             }
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
-            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+            return serverError(r);
         }
     }
 
     @Override
-    public synchronized Response login(AuthData authData) {
+    public synchronized Response login(AuthData authData, ResourceBundle r) {
         try {
             if (authManager.checkAuth(authData)) {
                 logger.info(format("Авторизовался пользователь с именем: %s", authData.getUsername()));
-                return new Response(AUTH_STATUS, LOGIN_SUCCESSFUL);
+                return new Response(AUTH_STATUS, LOGIN_SUCCESSFUL,
+                        r.getString(LOGIN_SUCCESSFUL.getMessageLocalizationKey()), false);
             } else {
                 logger.info(format("Пользователь с именем: %s не смог авторизоваться", authData.getUsername()));
-                return new Response(AUTH_STATUS, INCORRECT_LOGIN_DATA, true);
+                return new Response(AUTH_STATUS, INCORRECT_LOGIN_DATA,
+                        r.getString(INCORRECT_LOGIN_DATA.getMessageLocalizationKey()), true);
             }
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
-            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+            return serverError(r);
         }
     }
 
@@ -223,15 +232,15 @@ public class ServerCommandReceiverImpl implements ServerCommandReceiver {
     }
 
     @Override
-    public synchronized Response insertBefore(LabWork labWork, Long id, AuthData authData) {
+    public synchronized Response insertBefore(LabWork labWork, Long id, AuthData authData, ResourceBundle r) {
         try {
-            logger.info("Вставляем элемент на место элемента с id = " +id + ", остальные сдвигаем");
+            logger.info("Вставляем элемент на место элемента с id = " + id + ", остальные сдвигаем");
             Long newID = databaseManager.addElement(labWork, authData.getUsername());
             collectionWrapper.insertBefore(labWork, id, newID);
-            return new Response(PLAIN_TEXT, "Элемент успешно добавлен в коллекцию");
+            return plainText(r.getString("ServerCommandReceiverImpl.add.successfully_added"));
         } catch (DatabaseException e) {
             logger.severe(e.getMessage());
-            return new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+            return serverError(r);
         }
     }
 }

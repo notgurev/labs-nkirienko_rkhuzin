@@ -4,34 +4,36 @@ import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.Response;
 
+import java.util.ResourceBundle;
+
 public interface ServerCommandReceiver {
     void loadCollectionFromDatabase();
 
-    Response add(LabWork labWork, AuthData authData);
+    Response add(LabWork labWork, AuthData authData, ResourceBundle resourceBundle);
 
-    Response clear(AuthData authData);
+    Response clear(AuthData authData, ResourceBundle resourceBundle);
 
-    Response countLessThanDescription(String description);
+    Response countLessThanDescription(String description, ResourceBundle resourceBundle);
 
-    Response info();
+    Response info(ResourceBundle resourceBundle);
 
-    Response printUniqueTunedInWorks();
+    Response printUniqueTunedInWorks(ResourceBundle resourceBundle);
 
-    Response show();
+    Response show(); //todo delete
 
-    Response sort();
+    Response sort(ResourceBundle resourceBundle);
 
     Response filterGreaterThanMinimalPoint(int minimalPoint);
 
-    Response removeByID(long id, AuthData authData);
+    Response removeByID(long id, AuthData authData, ResourceBundle resourceBundle);
 
-    Response update(LabWork labWork, long id, AuthData authData);
+    Response update(LabWork labWork, long id, AuthData authData, ResourceBundle resourceBundle);
 
-    Response register(AuthData authData);
+    Response register(AuthData authData, ResourceBundle resourceBundle);
 
-    Response login(AuthData authData);
+    Response login(AuthData authData, ResourceBundle resourceBundle);
 
     Response getCollectionPage(int firstIndex, int size);
 
-    Response insertBefore(LabWork carriedObject, Long id, AuthData authData);
+    Response insertBefore(LabWork carriedObject, Long id, AuthData authData, ResourceBundle resourceBundle);
 }

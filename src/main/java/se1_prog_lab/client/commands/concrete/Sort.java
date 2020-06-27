@@ -12,7 +12,7 @@ public class Sort extends BasicCommand {
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.sort();
+        return serverReceiver.sort(resourceBundle);
     }
 
     @Override

@@ -10,10 +10,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.ResourceBundle;
-import java.util.Vector;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, CollectionChangeSubscriber {
@@ -26,7 +23,7 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
     public SpreadsheetPanel(ClientCore clientCore) {
         this.clientCore = clientCore;
         r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
-        headers = getLocalizedHeaders();
+        headers = getLocalizedHeaders(clientCore.getLocale());
 
         tableModel = new DefaultTableModel() {
             @Override
@@ -100,14 +97,14 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
     }
 
     @Override
-    public void changeLang() {
-        headers = getLocalizedHeaders();
+    public void changeLang(Locale locale) {
+        headers = getLocalizedHeaders(locale);
         tableModel.setDataVector(clientCore.getCollectionData(), headers);
         tableModel.fireTableDataChanged();
     }
 
-    private String[] getLocalizedHeaders() {
-        ResourceBundle r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+    private String[] getLocalizedHeaders(Locale locale) {
+        ResourceBundle r = ResourceBundle.getBundle("localization/gui", locale);
         return new String[]{
                 r.getString("SpreadsheetPanel.headers.id"),
                 r.getString("SpreadsheetPanel.headers.name"),

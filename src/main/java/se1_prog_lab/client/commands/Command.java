@@ -5,6 +5,7 @@ import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.Response;
 
 import java.io.Serializable;
+import java.util.ResourceBundle;
 
 public interface Command extends Serializable {
     /**
@@ -19,4 +20,6 @@ public interface Command extends Serializable {
     String getJournalEntry();
 
     boolean isCollectionChanging();
+
+    void setResourceBundle(ResourceBundle resourceBundle);
 }

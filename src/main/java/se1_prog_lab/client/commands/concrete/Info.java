@@ -8,7 +8,7 @@ import se1_prog_lab.shared.api.Response;
 public class Info extends BasicCommand {
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.info();
+        return serverReceiver.info(resourceBundle);
     }
 
     @Override

@@ -16,7 +16,7 @@ public class RemoveByID extends BasicCommand {
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.removeByID(id, authData);
+        return serverReceiver.removeByID(id, authData, resourceBundle);
     }
 
     @Override

@@ -14,7 +14,7 @@ public class CountLessThanDescription extends BasicCommand {
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.countLessThanDescription(description);
+        return serverReceiver.countLessThanDescription(description, resourceBundle);
     }
 
     @Override

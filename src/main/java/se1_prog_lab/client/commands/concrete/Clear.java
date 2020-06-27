@@ -8,7 +8,7 @@ import se1_prog_lab.shared.api.Response;
 public class Clear extends BasicCommand {
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.clear(authData);
+        return serverReceiver.clear(authData, resourceBundle);
     }
 
     @Override

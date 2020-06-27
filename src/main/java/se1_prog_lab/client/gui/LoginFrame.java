@@ -5,6 +5,7 @@ import se1_prog_lab.client.ClientCore;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
@@ -69,8 +70,8 @@ public class LoginFrame extends JFrame implements LangChangeSubscriber {
     }
 
     @Override
-    public void changeLang() {
-        r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+    public void changeLang(Locale locale) {
+        r = ResourceBundle.getBundle("localization/gui", locale);
         setTitle(r.getString("LoginFrame.title"));
         title.setText(r.getString("LoginFrame.login_or_register"));
         login.setText(r.getString("LoginFrame.login"));

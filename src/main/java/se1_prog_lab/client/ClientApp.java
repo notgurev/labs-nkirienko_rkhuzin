@@ -15,7 +15,7 @@ import se1_prog_lab.client.gui.CollectionChangeSubscriber;
 import se1_prog_lab.client.gui.LangChangeSubscriber;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.AuthData;
-import se1_prog_lab.shared.api.AuthStrings;
+import se1_prog_lab.shared.api.AuthStatus;
 import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.shared.util.ColorUtils;
 
@@ -25,8 +25,8 @@ import java.awt.*;
 import java.util.List;
 import java.util.*;
 
-import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
-import static se1_prog_lab.shared.api.AuthStrings.USERNAME_TAKEN;
+import static se1_prog_lab.shared.api.AuthStatus.INCORRECT_LOGIN_DATA;
+import static se1_prog_lab.shared.api.AuthStatus.USERNAME_TAKEN;
 import static se1_prog_lab.shared.api.ResponseType.AUTH_STATUS;
 import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
 
@@ -80,7 +80,7 @@ public class ClientApp implements ClientCore {
     @Override
     public void setLocale(Locale locale) {
         this.locale = locale;
-        langChangeSubscribers.forEach(LangChangeSubscriber::changeLang);
+        langChangeSubscribers.forEach(subscriber -> subscriber.changeLang(locale));
     }
 
     @Override
@@ -106,6 +106,8 @@ public class ClientApp implements ClientCore {
     @Override
     public void start() {
         SwingUtilities.invokeLater(view::initLoginWindow);
+        addLanguageSubscriber(serverIO);
+        serverIO.changeLang(locale);
         serverIO.tryOpen();
     }
 
@@ -118,15 +120,15 @@ public class ClientApp implements ClientCore {
 
     @Override
     public Response submitServerCommand(@Nonnull BasicCommand command) {
-        Response serverResponse = serverIO.sendAndReceive(command);
+        Response serverResponse = serverIO.sendAndReceive(command, locale);
         handleResponse(serverResponse);
         if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
-            AuthStrings authStatus = (AuthStrings) serverResponse.getMessage();
+            AuthStatus authStatus = serverResponse.getAuthStatus();
             if (authStatus == INCORRECT_LOGIN_DATA || authStatus == USERNAME_TAKEN) getBackToLoginWindow();
         } else {
             if (!(command instanceof NoJournalEntryCommand)) addJournalEntry(command.getJournalEntry());
         }
-        if (command.isCollectionChanging()) {
+        if (command.isCollectionChanging() && !serverResponse.isRejected()) {
             updateCollectionPage();
         }
         return serverResponse;
@@ -142,7 +144,7 @@ public class ClientApp implements ClientCore {
         AuthCommand authCommand;
         AuthData authData = new AuthData(username, password);
         authCommand = new Login();
-        handleAuthResponse(serverIO.authorize(authCommand, authData));
+        handleAuthResponse(serverIO.authorize(authCommand, authData, locale));
     }
 
     @Override
@@ -150,7 +152,7 @@ public class ClientApp implements ClientCore {
         AuthCommand authCommand;
         AuthData authData = new AuthData(username, password);
         authCommand = new Register();
-        handleAuthResponse(serverIO.authorize(authCommand, authData));
+        handleAuthResponse(serverIO.authorize(authCommand, authData, locale));
     }
 
     @Override
@@ -170,7 +172,7 @@ public class ClientApp implements ClientCore {
 
     private void handleAuthResponse(Response authResponse) {
         if (authResponse.isRejected()) {
-            view.simpleAlert(authResponse.getStringMessage());
+            view.simpleAlert(authResponse.getMessage());
         } else {
             view.disposeLoginWindow();
             updateCollectionPage();
@@ -189,7 +191,7 @@ public class ClientApp implements ClientCore {
             }
             collectionChangeSubscribers.forEach(CollectionChangeSubscriber::updateWithNewData);
         } else {
-            view.simpleAlert(response.getStringMessage());
+            view.simpleAlert(response.getMessage());
         }
     }
 

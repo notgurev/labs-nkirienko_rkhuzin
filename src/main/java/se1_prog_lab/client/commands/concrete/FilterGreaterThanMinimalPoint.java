@@ -6,6 +6,7 @@ import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.Response;
 
 // todo не очень понимаю как делать, видимо встраивать в таблицу/визуализацию
+@Deprecated
 public class FilterGreaterThanMinimalPoint extends BasicCommand {
     int minimalPoint;
 

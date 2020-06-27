@@ -8,12 +8,12 @@ import se1_prog_lab.client.commands.Command;
 import se1_prog_lab.client.commands.ConstructingCommand;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.exceptions.DatabaseException;
-import se1_prog_lab.shared.api.Response;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.ClientHandler;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
 import se1_prog_lab.shared.api.CommandWrapper;
 import se1_prog_lab.shared.api.EOTWrapper;
+import se1_prog_lab.shared.api.Response;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -21,15 +21,14 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Logger;
 
 import static java.lang.String.format;
-import static se1_prog_lab.shared.api.ResponseType.AUTH_STATUS;
 import static se1_prog_lab.shared.api.ResponseType.PLAIN_TEXT;
-import static se1_prog_lab.shared.api.AuthStrings.AUTH_FAILED;
-import static se1_prog_lab.shared.api.AuthStrings.SERVER_ERROR;
 
 /**
  * Класс для работы с каждым клиентом в отдельном потоке.
@@ -42,6 +41,7 @@ public class ClientHandlerImpl implements ClientHandler {
     private final AuthManager authManager;
     private final ExecutorService executorService;
     private final EOTWrapper eotWrapper;
+    private ResourceBundle r;
 
     @Inject
     public ClientHandlerImpl(@Assisted Socket clientSocket, ServerCommandReceiver serverCommandReceiver,
@@ -70,7 +70,12 @@ public class ClientHandlerImpl implements ClientHandler {
                 objectInput = new ObjectInputStream(clientInputStream);
                 logger.info("Принят объект " + objectInput.getClass().getSimpleName());
                 CommandWrapper commandWrapper = (CommandWrapper) objectInput.readObject();
+
                 BasicCommand command = commandWrapper.getCommand();
+                Locale locale = commandWrapper.getLocale();
+                r = ResourceBundle.getBundle("localization/responses", locale);
+                command.setResourceBundle(r);
+
                 new Thread(() -> {
                     String commandName = command.getClass().getSimpleName();
                     logger.info("Создан поток для команды " + commandName);
@@ -79,14 +84,14 @@ public class ClientHandlerImpl implements ClientHandler {
                         if (!(command instanceof AuthCommand) && !authManager.checkAuth(commandWrapper.getAuthData())) {
                             // Если это не AuthCommand и проверка данных авторизации провалена
                             logger.info("Команда содержит некорректные данные для авторизации!");
-                            response = new Response(AUTH_STATUS, AUTH_FAILED, true);
+                            response = Response.authFailed(r);
                         } else {
                             // Обычные команды
                             if (command instanceof ConstructingCommand && !validateCarriedObject(command)) {
                                 // Команда с объектом
-                                String message = "Объект не прошел валидацию, команда не будет выполнена.";
+                                String message = r.getString("ClientHandlerImpl.validation_unsuccessful");
                                 response = new Response(PLAIN_TEXT, message, true);
-                                logger.warning("Объект не прошел валидацию, команда не будет выполнена.");
+                                logger.warning("Объект не прошел валидацию, команда не будет выполнена");
                             } else {
                                 // Остальные команды
                                 logger.info("Начинается выполнение команды " + commandName);
@@ -95,7 +100,7 @@ public class ClientHandlerImpl implements ClientHandler {
                             }
                         }
                     } catch (DatabaseException e) {
-                        response = new Response(PLAIN_TEXT, SERVER_ERROR.getMessage(), true);
+                        response = Response.serverError(r);
                     }
                     Response newResponse = response;
                     executorService.submit(() -> sendToClient(clientWriter, newResponse));
