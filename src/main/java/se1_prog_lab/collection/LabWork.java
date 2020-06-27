@@ -5,6 +5,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 
 
 /**
@@ -188,5 +191,31 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 
     public void setOwner(String owner) {
         this.owner = owner;
+    }
+
+    public Object[] toLocalizedArray(Locale locale) {
+        // Дата
+        DateTimeFormatter df = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale);
+        String formattedDate = df.format(creationDate);
+
+        return new Object[]{
+                id,
+                name,
+                coordinates.getX(),
+                coordinates.getY(),
+                formattedDate, // done
+                minimalPoint,
+                description,
+                tunedInWorks,
+                difficulty,
+                author.getName(),
+                author.getHeight(),
+                author.getPassportID(),
+                author.getHairColor(),
+                author.getLocation().getX(),
+                author.getLocation().getY(),
+                author.getLocation().getZ(),
+                owner
+        };
     }
 }

@@ -99,6 +99,11 @@ public class ClientApp implements ClientCore {
     }
 
     @Override
+    public Object[][] getLocalizedCollectionData() {
+        return bufferedCollectionPage.stream().map(labWork -> labWork.toLocalizedArray(locale)).toArray(Object[][]::new);
+    }
+
+    @Override
     public void simpleAlert(String alertText) {
         view.simpleAlert(alertText);
     }

@@ -27,6 +27,8 @@ public interface ClientCore {
 
     void setLocale(Locale locale);
 
+    Object[][] getLocalizedCollectionData();
+
     void simpleAlert(String alertText);
 
     void start();

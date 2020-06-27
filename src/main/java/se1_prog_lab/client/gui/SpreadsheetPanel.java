@@ -2,15 +2,16 @@ package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
 import se1_prog_lab.collection.Color;
-import se1_prog_lab.collection.Difficulty;
+import se1_prog_lab.collection.LabWork;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.Vector;
 import java.util.stream.Collectors;
 
 public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, CollectionChangeSubscriber {
@@ -33,7 +34,7 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
         };
         table = new JTable(tableModel);
         tableModel.setColumnIdentifiers(headers);
-        tableModel.setDataVector(clientCore.getCollectionData(), headers);
+        tableModel.setDataVector(getLocalizedData(), headers);
         JScrollPane scrollPane = new JScrollPane(table);
         setLayout(new GridLayout());
 
@@ -46,49 +47,66 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
         });
 
         table.getTableHeader().addMouseListener(new MouseAdapter() {
-            @SuppressWarnings("rawtypes")
             @Override
             public void mouseClicked(MouseEvent e) {
                 int column = table.columnAtPoint(e.getPoint());
 
-                Comparator<Vector> vectorComparator = (o1, o2) -> {
-                    String first = o1.get(column).toString();
-                    String second = o2.get(column).toString();
+                Vector<LabWork> sorted = clientCore.getBufferedCollectionPage().stream().sorted((o1, o2) -> {
                     switch (column) {
                         case 0:
-                        case 2: // я не знаю как лучше
-                            return Long.compare(Long.parseLong(first), Long.parseLong(second));
+                            return o1.getId().compareTo(o2.getId());
                         case 1:
-                        case 6:
-                        case 9:
-                        case 11:
-                        case 16:
-                            return (first).compareTo(second);
+                            return o1.getName().compareTo(o2.getName());
+                        case 2:
+                            return Long.compare(o1.getCoordinates().getX(), o2.getCoordinates().getX());
                         case 3:
-                        case 10:
-                        case 14:
-                            return Float.compare(Float.parseFloat(first), Float.parseFloat(second));
+                            return Float.compare(o1.getCoordinates().getY(), o2.getCoordinates().getY());
                         case 4:
-                            return LocalDateTime.parse(first).compareTo(LocalDateTime.parse(second));
+                            return o1.getCreationDate().compareTo(o2.getCreationDate());
                         case 5:
+                            Integer mp1 = o1.getMinimalPoint();
+                            Integer mp2 = o2.getMinimalPoint();
+                            if (mp1 == null) return -1;
+                            else if (mp2 == null) return 1;
+                            return mp1.compareTo(mp2);
+                        case 6:
+                            return o1.getDescription().compareTo(o2.getDescription());
                         case 7:
-                        case 13:
-                        case 15:
-                            return Integer.compare(Integer.parseInt(first), Integer.parseInt(second));
+                            Integer tiw1 = o1.getTunedInWorks();
+                            Integer tiw2 = o2.getTunedInWorks();
+                            if (tiw1 == null) return -1;
+                            else if (tiw2 == null) return 1;
+                            return tiw1.compareTo(tiw2);
                         case 8:
-                            return Difficulty.valueOf(first).compareTo(Difficulty.valueOf(second));
+                            return o1.getDifficulty().compareTo(o2.getDifficulty());
+                        case 9:
+                            return o1.getAuthor().getName().compareTo(o2.getAuthor().getName());
+                        case 10:
+                            Float h1 = o1.getAuthor().getHeight();
+                            Float h2 = o2.getAuthor().getHeight();
+                            if (h1 == null) return -1;
+                            else if (h2 == null) return 1;
+                            return h1.compareTo(h2);
+                        case 11:
+                            return o1.getAuthor().getPassportID().compareTo(o2.getAuthor().getPassportID());
                         case 12:
-                            return Color.valueOf(first).compareTo(Color.valueOf(second));
+                            Color c1 = o1.getAuthor().getHairColor();
+                            Color c2 = o2.getAuthor().getHairColor();
+                            if (c1 == null) return -1;
+                            else if (c2 == null) return 1;
+                            return c1.compareTo(c2);
+                        case 13:
+                            return o1.getAuthor().getLocation().getX().compareTo(o2.getAuthor().getLocation().getX());
+                        case 14:
+                            return Float.compare(o1.getAuthor().getLocation().getY(), o2.getAuthor().getLocation().getY());
+                        case 15:
+                            return o1.getAuthor().getLocation().getZ().compareTo(o2.getAuthor().getLocation().getZ());
+                        case 16:
+                            return o1.getOwner().compareTo(o2.getOwner());
                     }
                     return 0;
-                };
-
-                tableModel.setDataVector((Vector<? extends Vector>)
-                        tableModel.getDataVector()
-                                .stream()
-                                .sorted(vectorComparator)
-                                .collect(Collectors.toCollection(Vector::new)), new Vector<>(Arrays.asList(headers))
-                );
+                }).collect(Collectors.toCollection(Vector::new));
+                tableModel.setDataVector(getLocalizedData(sorted), headers);
                 tableModel.fireTableDataChanged();
             }
         });
@@ -99,7 +117,7 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
     @Override
     public void changeLang(Locale locale) {
         headers = getLocalizedHeaders(locale);
-        tableModel.setDataVector(clientCore.getCollectionData(), headers);
+        tableModel.setDataVector(getLocalizedData(), headers);
         tableModel.fireTableDataChanged();
     }
 
@@ -128,7 +146,17 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
 
     @Override
     public void updateWithNewData() {
-        tableModel.setDataVector(clientCore.getCollectionData(), headers);
+        tableModel.setDataVector(getLocalizedData(), headers);
         tableModel.fireTableDataChanged();
+    }
+
+    private Object[][] getLocalizedData() {
+        return clientCore.getBufferedCollectionPage()
+                .stream().map(labWork -> labWork.toLocalizedArray(clientCore.getLocale())).toArray(Object[][]::new);
+    }
+
+    private Object[][] getLocalizedData(Vector<LabWork> collectionPage) {
+        return collectionPage
+                .stream().map(labWork -> labWork.toLocalizedArray(clientCore.getLocale())).toArray(Object[][]::new);
     }
 }
