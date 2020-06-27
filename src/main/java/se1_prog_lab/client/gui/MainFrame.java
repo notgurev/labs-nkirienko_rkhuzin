@@ -239,6 +239,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
     @Override
     public void changeLang() {
         r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+        setTitle(r.getString("MainFrame.title"));
         // Я не знаю, как лучше. У JComponent нет setText().
         for (Map.Entry<JComponent, String> entry : componentsWithText.entrySet()) {
             JComponent jComponent = entry.getKey();
