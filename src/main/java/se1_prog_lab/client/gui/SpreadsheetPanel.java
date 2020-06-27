@@ -20,24 +20,7 @@ import java.util.stream.Collectors;
 public class SpreadsheetPanel extends JPanel implements ModelListener, LangChangeSubscriber {
     private final JTable table;
     private final DefaultTableModel tableModel;
-    private String[] headers = {
-            "ID",
-            "Название",
-            "Координата X",
-            "Координата Y",
-            "Дата создания",
-            "Минимальная оценка",
-            "Описание",
-            "Настроенные работы",
-            "Сложность",
-            "Имя автора",
-            "Рост",
-            "Паспорт",
-            "Цвет волос",
-            "X",
-            "Y",
-            "Z"
-    };
+    private String[] headers;
     private final ClientCore clientCore;
     private final ResourceBundle r;
 
@@ -46,6 +29,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
         clientCore.addListener(this);
         clientCore.addLanguageSubscriber(this);
         r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
+        headers = getLocalizedHeaders();
 
         tableModel = new DefaultTableModel() {
             @Override
@@ -56,16 +40,14 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
         table = new JTable(tableModel);
         tableModel.setColumnIdentifiers(headers);
         tableModel.setDataVector(clientCore.getCollectionData(), headers);
-        JScrollPane scrollPane = new JScrollPane(table); // todo что-то с размером не так
+        JScrollPane scrollPane = new JScrollPane(table);
         setLayout(new GridLayout());
 
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
-                if (row >= 0) {
-                    clientCore.openConstructingFrame(row);
-                }
+                if (row >= 0) clientCore.openConstructingFrame(row);
             }
         });
 
@@ -124,10 +106,12 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
         updateTable();
     }
 
+    @Deprecated
     public void updateTable() {
         tableModel.fireTableDataChanged();
     }
 
+    @Deprecated
     public void addElement(Object[] fields) {
         if (!clientCore.hasNextPage()) {
             tableModel.addRow(fields);
@@ -135,6 +119,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
         }
     }
 
+    @Deprecated
     public void updateElement(Long id, Object[] fields) {
         Integer row = findRowById(id);
 
@@ -146,6 +131,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
         }
     }
 
+    @Deprecated
     public void removeElement(Long id) {
         Integer row = findRowById(id);
         if (row != null) {
@@ -156,6 +142,7 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
 
 
     @SuppressWarnings("rawtypes")
+    @Deprecated
     protected Integer findRowById(Long id) {
         for (Object v : tableModel.getDataVector()) {
             String currentId = ((Vector) v).elementAt(0).toString();
@@ -169,8 +156,14 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
 
     @Override
     public void changeLang() {
+        headers = getLocalizedHeaders();
+        tableModel.setDataVector(clientCore.getCollectionData(), headers);
+        tableModel.fireTableDataChanged();
+    }
+
+    private String[] getLocalizedHeaders() {
         ResourceBundle r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
-        headers = new String[] {
+        return new String[]{
                 r.getString("SpreadsheetPanel.headers.id"),
                 r.getString("SpreadsheetPanel.headers.name"),
                 r.getString("SpreadsheetPanel.headers.coordinateX"),
