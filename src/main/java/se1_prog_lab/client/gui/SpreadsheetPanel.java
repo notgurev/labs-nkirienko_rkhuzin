@@ -65,6 +65,7 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
                         case 6:
                         case 9:
                         case 11:
+                        case 16:
                             return (first).compareTo(second);
                         case 3:
                         case 10:
@@ -123,7 +124,8 @@ public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, Co
                 r.getString("SpreadsheetPanel.headers.authorHairColor"),
                 r.getString("SpreadsheetPanel.headers.authorLocationX"),
                 r.getString("SpreadsheetPanel.headers.authorLocationY"),
-                r.getString("SpreadsheetPanel.headers.authorLocationZ")
+                r.getString("SpreadsheetPanel.headers.authorLocationZ"),
+                r.getString("SpreadsheetPanel.headers.owner")
         };
     }
 

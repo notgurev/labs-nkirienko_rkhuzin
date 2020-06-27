@@ -68,6 +68,7 @@ public class LabWork implements Comparable<LabWork>, Serializable {
                 author.getLocation().getX(),
                 author.getLocation().getY(),
                 author.getLocation().getZ(),
+                owner
         };
     }
 
