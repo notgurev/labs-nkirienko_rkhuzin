@@ -4,6 +4,8 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -195,26 +197,28 @@ public class LabWork implements Comparable<LabWork>, Serializable {
 
     public Object[] toLocalizedArray(Locale locale) {
         // Дата
-        DateTimeFormatter df = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale);
-        String formattedDate = df.format(creationDate);
+        DateTimeFormatter dtf = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale);
+        String formattedDate = dtf.format(creationDate);
+        // Числа
+        DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(locale);
 
         return new Object[]{
-                id,
+                df.format(id),
                 name,
-                coordinates.getX(),
-                coordinates.getY(),
-                formattedDate, // done
-                minimalPoint,
+                df.format(coordinates.getX()),
+                df.format(coordinates.getY()),
+                formattedDate,
+                minimalPoint == null ? "" : df.format(minimalPoint),
                 description,
-                tunedInWorks,
+                tunedInWorks == null ? "" : df.format(tunedInWorks),
                 difficulty,
                 author.getName(),
-                author.getHeight(),
+                df.format(author.getHeight()),
                 author.getPassportID(),
                 author.getHairColor(),
-                author.getLocation().getX(),
-                author.getLocation().getY(),
-                author.getLocation().getZ(),
+                df.format(author.getLocation().getX()),
+                df.format(author.getLocation().getY()),
+                df.format(author.getLocation().getZ()),
                 owner
         };
     }
