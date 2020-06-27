@@ -21,15 +21,16 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
     private final ClientCore clientCore;
     private final VisualizationPanel visualizationPanel;
     private final SpreadsheetPanel spreadsheetPanel;
+    /**
+     * JComponent - компонент, String - ключ для локализации
+     */
+    private final Map<JComponent, String> componentsWithText = new HashMap<>();
     private JToolBar toolBar;
     private Mode mode = Mode.SPREADSHEET;
     private JMenu strategy;
     private JLabel selectedPageLabel;
     private ResourceBundle r;
-    /**
-     * JComponent - компонент, String - ключ для локализации
-     */
-    private final Map<JComponent, String> componentsWithText = new HashMap<>();
+    private JButton pageDecrement;
 
     public MainFrame(ClientCore clientCore, String username) {
         super();
@@ -58,7 +59,10 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         toolBar.setFloatable(false);
 
         // Переключение страниц
-        addUnlocalizedToolBarButton("◀", e -> changeSelectedPage(-1));
+        pageDecrement = new JButton("◀");
+        toolBar.add(pageDecrement);
+        pageDecrement.addActionListener(e -> changeSelectedPage(-1));
+        pageDecrement.setEnabled(false);
         selectedPageLabel = new JLabel(" " + clientCore.getSelectedPage() + " ");
         toolBar.add(selectedPageLabel);
         addUnlocalizedToolBarButton("▶", e -> changeSelectedPage(+1));
@@ -91,9 +95,11 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
     }
 
     private void changeSelectedPage(int change) {
-        if (clientCore.updateCollectionPage(change)) {
-            selectedPageLabel.setText(" " + clientCore.getSelectedPage() + " ");
-        }
+        int selectedPage = clientCore.getSelectedPage();
+        clientCore.setSelectedPage(selectedPage + change);
+        selectedPageLabel.setText(" " + clientCore.getSelectedPage() + " ");
+        clientCore.updateCollectionPage(0);
+        pageDecrement.setEnabled(selectedPage + change != 0);
     }
 
     private void addUnlocalizedToolBarButton(String text, ActionListener actionListener) {
