@@ -6,6 +6,10 @@ import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.Response;
 
 public class Clear extends BasicCommand {
+    public Clear() {
+        collectionChanging = true;
+    }
+
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.clear(authData, resourceBundle);
