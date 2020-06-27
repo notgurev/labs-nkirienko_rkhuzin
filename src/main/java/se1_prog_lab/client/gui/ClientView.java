@@ -20,11 +20,9 @@ public interface ClientView {
 
     void initJournalFrame(LinkedList<String> journal, Locale locale);
 
-    void update();
-
     void clear();
 
-    boolean isMainFrameInitialized();
+    boolean isMainFrameInitialized(); // todo
 
     void initConstructingFrame(LabWork labWork);
 }

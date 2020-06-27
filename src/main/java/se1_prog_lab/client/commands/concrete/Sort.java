@@ -6,6 +6,10 @@ import se1_prog_lab.shared.api.AuthData;
 import se1_prog_lab.shared.api.Response;
 
 public class Sort extends BasicCommand {
+    public Sort() {
+        collectionChanging = true;
+    }
+
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
         return serverReceiver.sort();

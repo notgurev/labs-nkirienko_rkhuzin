@@ -9,6 +9,7 @@ import se1_prog_lab.shared.api.Response;
 public class Add extends ConstructingCommand {
     public Add(LabWork labWork) {
         carriedObject = labWork;
+        collectionChanging = true;
     }
 
     @Override

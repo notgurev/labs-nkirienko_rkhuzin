@@ -12,6 +12,7 @@ public class GetCollectionPage extends NoJournalEntryCommand {
         super();
         firstIndex = page * pageSize;
         size = pageSize;
+        collectionChanging = false;
     }
 
     @Override

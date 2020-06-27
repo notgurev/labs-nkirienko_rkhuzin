@@ -1,10 +1,7 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
-import se1_prog_lab.client.commands.concrete.CountLessThanDescription;
-import se1_prog_lab.client.commands.concrete.Info;
-import se1_prog_lab.client.commands.concrete.PrintUniqueTunedInWorks;
-import se1_prog_lab.client.commands.concrete.Sort;
+import se1_prog_lab.client.commands.concrete.*;
 import se1_prog_lab.client.gui.strategies.CircleStrategy;
 import se1_prog_lab.client.gui.strategies.RectangleStrategy;
 
@@ -43,8 +40,14 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         setResizable(true);
         createMenuBar(username);
         createToolBar();
+
         spreadsheetPanel = new SpreadsheetPanel(clientCore);
+        clientCore.addLanguageSubscriber(spreadsheetPanel);
+        clientCore.addCollectionChangeSubscriber(spreadsheetPanel);
+
         visualizationPanel = new VisualizationPanel(clientCore);
+        clientCore.addCollectionChangeSubscriber(visualizationPanel);
+
         getContentPane().add(spreadsheetPanel);
         pack();
         setVisible(true);
@@ -70,7 +73,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         });
 
         // Clear
-        addToolBarButton("MainFrame.toolbar.clear", e -> clientCore.clear());
+        addToolBarButton("MainFrame.toolbar.clear", e -> clientCore.executeServerCommand(new Clear()));
 
         // Info
         addToolBarButton("MainFrame.toolbar.info", e -> clientCore.executeServerCommand(new Info()));
@@ -193,7 +196,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
             strategies.add(circleStrategy);
             circleStrategy.addActionListener(e -> {
                 visualizationPanel.setDrawStrategy(new CircleStrategy());
-                visualizationPanel.update();
+                visualizationPanel.updateWithNewData();
             });
 
             JRadioButtonMenuItem rectangleStrategy = new JRadioButtonMenuItem(r.getString("MainFrame.strategies.squares"));
@@ -202,7 +205,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
             strategies.add(rectangleStrategy);
             rectangleStrategy.addActionListener(e -> {
                 visualizationPanel.setDrawStrategy(new RectangleStrategy());
-                visualizationPanel.update();
+                visualizationPanel.updateWithNewData();
             });
             rectangleStrategy.setSelected(true);
 
@@ -230,11 +233,6 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         repaint();
     }
 
-    public void update() {
-        spreadsheetPanel.update();
-        visualizationPanel.update();
-    }
-
     public void clear() {
         selectedPageLabel.setText(Integer.toString(clientCore.getSelectedPage()));
     }
@@ -256,7 +254,7 @@ public class MainFrame extends JFrame implements LangChangeSubscriber {
         }
     }
 
-    enum Mode {
+    enum Mode { //todo get rid of this useless thing
         VISUALIZATION,
         SPREADSHEET
     }

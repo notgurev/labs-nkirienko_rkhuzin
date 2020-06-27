@@ -11,6 +11,7 @@ public class RemoveByID extends BasicCommand {
 
     public RemoveByID(long id) {
         this.id = id;
+        collectionChanging = true;
     }
 
     @Override

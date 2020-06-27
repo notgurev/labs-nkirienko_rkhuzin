@@ -12,6 +12,7 @@ public class Update extends ConstructingCommand {
     public Update(long id, LabWork labWork) {
         this.id = id;
         carriedObject = labWork;
+        collectionChanging = true;
     }
 
     @Override

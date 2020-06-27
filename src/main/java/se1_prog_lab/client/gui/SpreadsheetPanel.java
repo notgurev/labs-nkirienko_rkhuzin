@@ -1,7 +1,6 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
-import se1_prog_lab.client.ModelListener;
 import se1_prog_lab.collection.Color;
 import se1_prog_lab.collection.Difficulty;
 
@@ -17,17 +16,15 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 import java.util.stream.Collectors;
 
-public class SpreadsheetPanel extends JPanel implements ModelListener, LangChangeSubscriber {
+public class SpreadsheetPanel extends JPanel implements LangChangeSubscriber, CollectionChangeSubscriber {
     private final JTable table;
     private final DefaultTableModel tableModel;
-    private String[] headers;
     private final ClientCore clientCore;
     private final ResourceBundle r;
+    private String[] headers;
 
     public SpreadsheetPanel(ClientCore clientCore) {
         this.clientCore = clientCore;
-        clientCore.addListener(this);
-        clientCore.addLanguageSubscriber(this);
         r = ResourceBundle.getBundle("localization/gui", clientCore.getLocale());
         headers = getLocalizedHeaders();
 
@@ -101,53 +98,53 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
         add(scrollPane);
     }
 
-    public void update() {
-        tableModel.setDataVector(clientCore.getCollectionData(), headers);
-        tableModel.fireTableDataChanged();
-    }
+//    public void update() {
+//        tableModel.setDataVector(clientCore.getCollectionData(), headers);
+//        tableModel.fireTableDataChanged();
+//    }
 
-    @Deprecated
-    public void addElement(Object[] fields) {
-        if (!clientCore.hasNextPage()) {
-            tableModel.addRow(fields);
-            tableModel.fireTableDataChanged();
-        }
-    }
-
-    @Deprecated
-    public void updateElement(Long id, Object[] fields) {
-        Integer row = findRowById(id);
-
-        if (row != null) {
-            for (int i = 0; i < fields.length; i++) {
-                tableModel.setValueAt(fields[i], row, i);
-            }
-            tableModel.fireTableDataChanged();
-        }
-    }
-
-    @Deprecated
-    public void removeElement(Long id) {
-        Integer row = findRowById(id);
-        if (row != null) {
-            tableModel.removeRow(row);
-            tableModel.fireTableDataChanged();
-        }
-    }
-
-
-    @SuppressWarnings("rawtypes")
-    @Deprecated
-    protected Integer findRowById(Long id) {
-        for (Object v : tableModel.getDataVector()) {
-            String currentId = ((Vector) v).elementAt(0).toString();
-
-            if (currentId.equals(id.toString())) {
-                return tableModel.getDataVector().indexOf(v);
-            }
-        }
-        return null;
-    }
+//    @Deprecated
+//    public void addElement(Object[] fields) {
+//        if (!clientCore.hasNextPage()) {
+//            tableModel.addRow(fields);
+//            tableModel.fireTableDataChanged();
+//        }
+//    }
+//
+//    @Deprecated
+//    public void updateElement(Long id, Object[] fields) {
+//        Integer row = findRowById(id);
+//
+//        if (row != null) {
+//            for (int i = 0; i < fields.length; i++) {
+//                tableModel.setValueAt(fields[i], row, i);
+//            }
+//            tableModel.fireTableDataChanged();
+//        }
+//    }
+//
+//    @Deprecated
+//    public void removeElement(Long id) {
+//        Integer row = findRowById(id);
+//        if (row != null) {
+//            tableModel.removeRow(row);
+//            tableModel.fireTableDataChanged();
+//        }
+//    }
+//
+//
+//    @SuppressWarnings("rawtypes")
+//    @Deprecated
+//    protected Integer findRowById(Long id) {
+//        for (Object v : tableModel.getDataVector()) {
+//            String currentId = ((Vector) v).elementAt(0).toString();
+//
+//            if (currentId.equals(id.toString())) {
+//                return tableModel.getDataVector().indexOf(v);
+//            }
+//        }
+//        return null;
+//    }
 
     @Override
     public void changeLang() {
@@ -176,5 +173,11 @@ public class SpreadsheetPanel extends JPanel implements ModelListener, LangChang
                 r.getString("SpreadsheetPanel.headers.authorLocationY"),
                 r.getString("SpreadsheetPanel.headers.authorLocationZ")
         };
+    }
+
+    @Override
+    public void updateWithNewData() {
+        tableModel.setDataVector(clientCore.getCollectionData(), headers);
+        tableModel.fireTableDataChanged();
     }
 }

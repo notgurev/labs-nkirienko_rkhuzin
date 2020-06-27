@@ -1,7 +1,10 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
+import se1_prog_lab.client.commands.concrete.Add;
 import se1_prog_lab.client.commands.concrete.InsertBefore;
+import se1_prog_lab.client.commands.concrete.RemoveByID;
+import se1_prog_lab.client.commands.concrete.Update;
 import se1_prog_lab.client.gui.properties.*;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.collection.LabWorkParams;
@@ -71,7 +74,7 @@ public class ConstructingFrame extends JFrame {
         JButton createButton = new JButton(r.getString("ConstructingFrame.buttons.create"));
         createButton.addActionListener(e -> {
             if (checkProperties()) {
-                controller.addLabWork(createLabWork());
+                controller.executeServerCommand(new Add(createLabWork()));
             }
         });
         panel.add(createButton);
@@ -82,7 +85,7 @@ public class ConstructingFrame extends JFrame {
             updateButton.addActionListener(e -> {
                 if (checkProperties()) {
                     assert labWork != null;
-                    controller.updateLabWork(labWork.getId(), createLabWork());
+                    controller.executeServerCommand(new Update(labWork.getId(), createLabWork()));
                     dispose();
                 }
             });
@@ -92,7 +95,7 @@ public class ConstructingFrame extends JFrame {
             JButton removeButton = new JButton(r.getString("ConstructingFrame.buttons.remove"));
             removeButton.addActionListener(e -> {
                 assert labWork != null;
-                controller.removeLabWork(labWork.getId());
+                controller.executeServerCommand(new RemoveByID(labWork.getId()));
                 dispose();
             });
             panel.add(removeButton);

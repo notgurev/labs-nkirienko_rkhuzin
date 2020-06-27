@@ -7,14 +7,11 @@ import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
 import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.client.commands.NoJournalEntryCommand;
-import se1_prog_lab.client.commands.concrete.Add;
-import se1_prog_lab.client.commands.concrete.Clear;
-import se1_prog_lab.client.commands.concrete.RemoveByID;
-import se1_prog_lab.client.commands.concrete.Update;
 import se1_prog_lab.client.commands.concrete.technical.GetCollectionPage;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
 import se1_prog_lab.client.gui.ClientView;
+import se1_prog_lab.client.gui.CollectionChangeSubscriber;
 import se1_prog_lab.client.gui.LangChangeSubscriber;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.AuthData;
@@ -26,7 +23,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static se1_prog_lab.shared.api.AuthStrings.INCORRECT_LOGIN_DATA;
 import static se1_prog_lab.shared.api.AuthStrings.USERNAME_TAKEN;
@@ -39,20 +35,19 @@ import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
  */
 @Singleton
 public class ClientApp implements ClientCore {
-    private static final int UPDATE_TIMER = 10 * 1000; // 10 секунд
+    private static final int UPDATE_TIMER = 60 * 1000; // 60 секунд
     private static final int JOURNAL_SIZE_LIMIT = 13;
     private static final Locale DEFAULT_LOCALE = Locale.forLanguageTag("ru-RU");
     private final ServerIO serverIO;
     private final ClientView view;
     private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
     private final HashMap<String, Color> ownersColors = new HashMap<>();
+    private final List<CollectionChangeSubscriber> collectionChangeSubscribers = new ArrayList<>();
+    private final List<LangChangeSubscriber> langChangeSubscribers = new ArrayList<>();
     private Vector<LabWork> bufferedCollectionPage = new Vector<>();
     private int selectedPage;
     private int pageSize = 15;
-    private final List<ModelListener> listeners = new ArrayList<>();
-    private boolean hasNextPage = true;
     private Locale locale = DEFAULT_LOCALE;
-    private final List<LangChangeSubscriber> langChangeSubscribers = new ArrayList<>();
 
     @Inject
     public ClientApp(ServerIO serverIO, ClientView view) {
@@ -92,14 +87,6 @@ public class ClientApp implements ClientCore {
         langChangeSubscribers.forEach(LangChangeSubscriber::changeLang);
     }
 
-    public void addListener(ModelListener listener) {
-        listeners.add(listener);
-    }
-
-    public void removeListener(ModelListener listener) {
-        listeners.remove(listener);
-    }
-
     @Override
     public boolean updateCollectionPage(int change) {
         if (getSelectedPage() != 0 || change >= 0) {
@@ -107,9 +94,10 @@ public class ClientApp implements ClientCore {
             if (!response.isRejected() && response.getCollection().size() != 0) {
                 setSelectedPage(getSelectedPage() + change);
                 bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
-                if (view.isMainFrameInitialized()) {
-                    view.update();
-                }
+//                if (view.isMainFrameInitialized()) { todo useless?
+//                    view.update();
+//                }
+                collectionChangeSubscribers.forEach(CollectionChangeSubscriber::updateWithNewData);
                 return true;
             }
         }
@@ -154,7 +142,9 @@ public class ClientApp implements ClientCore {
         } else {
             if (!(command instanceof NoJournalEntryCommand)) addJournalEntry(command.getJournalEntry());
         }
-
+        if (command.isCollectionChanging()) {
+            updateCollectionPage(0);
+        }
         return serverResponse;
     }
 
@@ -205,81 +195,86 @@ public class ClientApp implements ClientCore {
         }
     }
 
-    public void handleResponse(Response response) {
+    private void handleResponse(Response response) {
         if (response.getResponseType() == LABWORK_LIST) {
             Collection<LabWork> collection = response.getCollection();
-            hasNextPage = collection.size() >= pageSize;
-
-            if (collection.size() != 0) {
+            if (collection == null || collection.isEmpty()) {
+                bufferedCollectionPage = new Vector<>();
+            } else {
                 bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
-                if (bufferedCollectionPage.size() > pageSize)
-                    bufferedCollectionPage.setSize(pageSize);
             }
+            collectionChangeSubscribers.forEach(CollectionChangeSubscriber::updateWithNewData);
         } else {
             view.simpleAlert(response.getStringMessage());
         }
     }
+//
+//    @Deprecated
+//    public void addLabWork(LabWork labWork) {
+//        Response response = executeServerCommand(new Add(labWork));
+//        if (!response.isRejected()) {
+//            LabWork modifiedLabWork = (LabWork) response.getPayload();
+//            if (bufferedCollectionPage.size() < pageSize) {
+//                bufferedCollectionPage.add(modifiedLabWork);
+//                for (ModelListener listener : listeners) {
+//                    listener.addElement(modifiedLabWork.toArray());
+//                }
+//            }
+//        }
+//    }
+//
+//    @Deprecated
+//    public void clear() {
+//        Response response = executeServerCommand(new Clear());
+//        if (!response.isRejected()) {
+//            setSelectedPage(0);
+//            updateCollectionPage(0);
+//            if (view.isMainFrameInitialized()) {
+//                view.clear();
+//            }
+//        }
+//    }
 
-    public void addLabWork(LabWork labWork) {
-        Response response = executeServerCommand(new Add(labWork));
-        if (!response.isRejected()) {
-            LabWork modifiedLabWork = (LabWork) response.getPayload();
-            if (bufferedCollectionPage.size() < pageSize) {
-                bufferedCollectionPage.add(modifiedLabWork);
-                for (ModelListener listener : listeners) {
-                    listener.addElement(modifiedLabWork.toArray());
-                }
-            }
-        }
-    }
+//    @Deprecated
+//    public void updateLabWork(Long id, LabWork labWork) {
+//        labWork.setId(id);
+//        AtomicBoolean isReplaced = new AtomicBoolean(false);
+//        Response response = executeServerCommand(new Update(id, labWork));
+//        LabWork modifiedLabWork = (LabWork) response.getPayload();
+//        if (!response.isRejected()) {
+//            bufferedCollectionPage.replaceAll(l -> {
+//                if (l.getId().equals(id)) {
+//                    isReplaced.set(true);
+//                    return modifiedLabWork;
+//                }
+//                return l;
+//            });
+//        }
+//        if (isReplaced.get()) initUpdateEvent(id, modifiedLabWork);
+//    }
+//
+//    @Deprecated
+//    public void removeLabWork(Long id) {
+//        if (!executeServerCommand(new RemoveByID(id)).isRejected()) {
+//            int size = bufferedCollectionPage.size();
+//            bufferedCollectionPage.removeIf(l -> l.getId().equals(id));
+//            if (size != bufferedCollectionPage.size()) initRemoveEvent(id);
+//        }
+//    }
 
-    public void clear() {
-        Response response = executeServerCommand(new Clear());
-        if (!response.isRejected()) {
-            setSelectedPage(0);
-            updateCollectionPage(0);
-            if (view.isMainFrameInitialized()) {
-                view.clear();
-            }
-        }
-    }
-
-    public void updateLabWork(Long id, LabWork labWork) {
-        labWork.setId(id);
-        AtomicBoolean isReplaced = new AtomicBoolean(false);
-        Response response = executeServerCommand(new Update(id, labWork));
-        LabWork modifiedLabWork = (LabWork) response.getPayload();
-        if (!response.isRejected()) {
-            bufferedCollectionPage.replaceAll(l -> {
-                if (l.getId().equals(id)) {
-                    isReplaced.set(true);
-                    return modifiedLabWork;
-                }
-                return l;
-            });
-        }
-        if (isReplaced.get()) initUpdateEvent(id, modifiedLabWork);
-    }
-
-    public void removeLabWork(Long id) {
-        if (!executeServerCommand(new RemoveByID(id)).isRejected()) {
-            int size = bufferedCollectionPage.size();
-            bufferedCollectionPage.removeIf(l -> l.getId().equals(id));
-            if (size != bufferedCollectionPage.size()) initRemoveEvent(id);
-        }
-    }
-
-    protected void initUpdateEvent(Long id, LabWork labWork) {
-        for (ModelListener listener : listeners) {
-            listener.updateElement(id, labWork.toArray());
-        }
-    }
-
-    protected void initRemoveEvent(Long id) {
-        for (ModelListener listener : listeners) {
-            listener.removeElement(id);
-        }
-    }
+//    @Deprecated
+//    protected void initUpdateEvent(Long id, LabWork labWork) {
+//        for (ModelListener listener : listeners) {
+//            listener.updateElement(id, labWork.toArray());
+//        }
+//    }
+//
+//    @Deprecated
+//    protected void initRemoveEvent(Long id) {
+//        for (ModelListener listener : listeners) {
+//            listener.removeElement(id);
+//        }
+//    }
 
     @Override
     public int getSelectedPage() {
@@ -299,10 +294,6 @@ public class ClientApp implements ClientCore {
     @Override
     public void setPageSize(int pageSize) {
         this.pageSize = pageSize;
-    }
-
-    public boolean hasNextPage() {
-        return hasNextPage;
     }
 
     @Override
@@ -330,6 +321,11 @@ public class ClientApp implements ClientCore {
                 }
             }
         }).start();
+    }
+
+    @Override
+    public void addCollectionChangeSubscriber(CollectionChangeSubscriber collectionChangeSubscriber) {
+        collectionChangeSubscribers.add(collectionChangeSubscriber);
     }
 }
 

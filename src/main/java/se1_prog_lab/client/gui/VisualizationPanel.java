@@ -1,7 +1,6 @@
 package se1_prog_lab.client.gui;
 
 import se1_prog_lab.client.ClientCore;
-import se1_prog_lab.client.ModelListener;
 import se1_prog_lab.client.gui.strategies.RectangleStrategy;
 import se1_prog_lab.collection.LabWork;
 
@@ -10,13 +9,13 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class VisualizationPanel extends JPanel implements ModelListener {
+public class VisualizationPanel extends JPanel implements CollectionChangeSubscriber {
     public static final int SIZE_IF_NULL = 30;
     private final ClientCore clientCore;
     private DrawStrategy drawStrategy = new RectangleStrategy();
 
     public VisualizationPanel(ClientCore clientCore) {
-        clientCore.addListener(this);
+        clientCore.addCollectionChangeSubscriber(this);
         this.clientCore = clientCore;
         this.setLayout(null);
         drawLabWorks();
@@ -42,22 +41,11 @@ public class VisualizationPanel extends JPanel implements ModelListener {
         this.drawStrategy = drawStrategy;
     }
 
-    public void update() {
+    @Override
+    public void updateWithNewData() {
         removeAll();
         drawLabWorks();
         revalidate();
         repaint();
-    }
-
-    public void addElement(Object[] fields) {
-        update();
-    }
-
-    public void updateElement(Long id, Object[] fields) {
-        update();
-    }
-
-    public void removeElement(Long id) {
-        update();
     }
 }

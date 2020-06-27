@@ -12,6 +12,7 @@ public class InsertBefore extends ConstructingCommand {
     public InsertBefore(LabWork labWork, Long id) {
         carriedObject = labWork;
         this.id = id;
+        collectionChanging = true;
     }
 
     @Override

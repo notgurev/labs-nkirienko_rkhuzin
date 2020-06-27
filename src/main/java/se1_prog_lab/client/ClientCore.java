@@ -1,6 +1,7 @@
 package se1_prog_lab.client;
 
 import se1_prog_lab.client.commands.BasicCommand;
+import se1_prog_lab.client.gui.CollectionChangeSubscriber;
 import se1_prog_lab.client.gui.LangChangeSubscriber;
 import se1_prog_lab.collection.LabWork;
 import se1_prog_lab.shared.api.Response;
@@ -26,23 +27,11 @@ public interface ClientCore {
 
     void setLocale(Locale locale);
 
-    void addListener(ModelListener listener);
-
-    void removeListener(ModelListener listener);
-
     void simpleAlert(String alertText);
 
     void start();
 
     Response executeServerCommand(@Nonnull BasicCommand command);
-
-    void addLabWork(LabWork labWork);
-
-    void updateLabWork(Long id, LabWork labWork);
-
-    void removeLabWork(Long id);
-
-    void clear();
 
     void login(String username, String password);
 
@@ -62,9 +51,9 @@ public interface ClientCore {
 
     void setPageSize(int pageSize);
 
-    boolean hasNextPage();
-
     Color getColorByOwner(String owner);
 
     void startRegularUpdates();
+
+    void addCollectionChangeSubscriber(CollectionChangeSubscriber collectionChangeSubscriber);
 }

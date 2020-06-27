@@ -62,11 +62,6 @@ public class ClientGUI implements ClientView {
     }
 
     @Override
-    public void update() {
-        mainFrame.update();
-    }
-
-    @Override
     public void clear() {
         mainFrame.clear();
     }
