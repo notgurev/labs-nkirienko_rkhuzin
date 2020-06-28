@@ -35,7 +35,9 @@ public interface CollectionWrapper {
 
     void removeByID(long id);
 
-    void insertAtIndex(LabWork labWork, int index, long id);
-
     void updateByID(long id, LabWork labWork);
+
+    Collection<LabWork> getCollectionSlice(int firstIndex, int size);
+
+    void insertBefore(LabWork labWork, Long id, Long newID);
 }

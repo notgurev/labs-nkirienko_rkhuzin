@@ -1,28 +1,27 @@
 package se1_prog_lab.collection;
 
-import se1_prog_lab.exceptions.LabWorkFieldException;
-
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
-
-import static se1_prog_lab.util.BetterStrings.blueIfNull;
-import static se1_prog_lab.util.BetterStrings.multiline;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 
 
 /**
- * Класс лабораторной работы (элемента коллекции).
+ * Класс лабораторной работы (элемента коллекции)
  */
 public class LabWork implements Comparable<LabWork>, Serializable {
     /**
-     * Количество полей, чтобы скрипт знал, сколько пропускать строк.
+     * Юзернейм владельца
      */
-    private static final int NUMBER_OF_FIELDS = 14;
+    private final Person author;
     @Positive // без NotNull т.к. сервер сам назначает ID
     private Long id; // > 0, unique, auto-gen, not null
-
     @NotEmpty
     @NotNull
     private String name;
@@ -38,13 +37,14 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     private Integer tunedInWorks;
     @NotNull
     private Difficulty difficulty;
-    private final Person author;
+    private String owner = "DefaultOwner";
 
     public LabWork() {
         author = new Person();
     }
 
-    public LabWork(String name, Coordinates coordinates, Integer minimalPoint, String description, Integer tunedInWorks, Difficulty difficulty, Person author) {
+    public LabWork(String name, Coordinates coordinates, Integer minimalPoint, String description,
+                   Integer tunedInWorks, Difficulty difficulty, Person author) {
         this.name = name;
         this.coordinates = coordinates;
         this.minimalPoint = minimalPoint;
@@ -55,58 +55,81 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         this.author = author;
     }
 
-    public static int getNumberOfFields() {
-        return NUMBER_OF_FIELDS;
+    public Object[] toArray() {
+        return new Object[]{
+                id,
+                name,
+                coordinates.getX(),
+                coordinates.getY(),
+                creationDate.withNano(0),
+                minimalPoint,
+                description,
+                tunedInWorks,
+                difficulty,
+                author.getName(),
+                author.getHeight(),
+                author.getPassportID(),
+                author.getHairColor(),
+                author.getLocation().getX(),
+                author.getLocation().getY(),
+                author.getLocation().getZ(),
+                owner
+        };
     }
 
     @Override
     public String toString() {
-        return multiline(
-                "ID: " + id,
-                "Имя: " + name,
-                coordinates.toString(),
-                "Дата создания: " + creationDate.withNano(0),
-                "minimalPoint: " + blueIfNull(minimalPoint),
-                "Описание: " + description,
-                "tunedInWorks: " + blueIfNull(tunedInWorks),
-                "Сложность: " + difficulty.name(),
-                author.toString() + '\n'
-        );
-    }
-
-    /**
-     * "Предустановка" id при чтении из CSV, когда неясно, есть ли коллизии с другими id.
-     *
-     * @param id устанавливаемый id.
-     * @throws LabWorkFieldException если id не соответствует ограничениям (для скрипта).
-     */
-    public void setId(Long id) throws LabWorkFieldException {
-        if (id == null || id < 0) throw new LabWorkFieldException();
-        this.id = id;
+        return "LabWork{" +
+                "author=" + author +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", coordinates=" + coordinates +
+                ", creationDate=" + creationDate +
+                ", minimalPoint=" + minimalPoint +
+                ", description='" + description + '\'' +
+                ", tunedInWorks=" + tunedInWorks +
+                ", difficulty=" + difficulty +
+                ", owner='" + owner + '\'' +
+                '}';
     }
 
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public LocalDateTime getCreationDate() {
         return creationDate;
     }
 
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
     public Difficulty getDifficulty() {
         return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) throws LabWorkFieldException {
-        if (description == null || description.equals("")) throw new LabWorkFieldException();
+    public void setDescription(String description) {
         this.description = description;
     }
 
@@ -115,7 +138,6 @@ public class LabWork implements Comparable<LabWork>, Serializable {
     }
 
     public void setTunedInWorks(Integer tunedInWorks) {
-        // Нет условий
         this.tunedInWorks = tunedInWorks;
     }
 
@@ -127,26 +149,8 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return minimalPoint;
     }
 
-    public void setMinimalPoint(Integer minimalPoint) throws LabWorkFieldException {
-        if (minimalPoint != null && minimalPoint <= 0) throw new LabWorkFieldException();
+    public void setMinimalPoint(Integer minimalPoint) {
         this.minimalPoint = minimalPoint;
-    }
-
-    public void setName(String name) throws LabWorkFieldException {
-        if (name == null || name.equals("")) throw new LabWorkFieldException();
-        this.name = name;
-    }
-
-    public void setCoordinates(long x, Float y) throws LabWorkFieldException {
-        if (y == null || x > 625) throw new LabWorkFieldException();
-        coordinates = new Coordinates();
-        this.coordinates.setX(x);
-        this.coordinates.setY(y);
-    }
-
-    public void setDifficulty(Difficulty difficulty) throws LabWorkFieldException {
-        if (difficulty == null) throw new LabWorkFieldException();
-        this.difficulty = difficulty;
     }
 
     public Person getAuthor() {
@@ -164,7 +168,58 @@ public class LabWork implements Comparable<LabWork>, Serializable {
         return (int) (id - o.getId());
     }
 
-    public void setCreationDate(LocalDateTime creationDate) {
-        this.creationDate = creationDate;
+    public LabWorkParams toParams() {
+        return new LabWorkParams(
+                name,
+                coordinates.getX(),
+                coordinates.getY(),
+                minimalPoint,
+                description,
+                tunedInWorks,
+                difficulty,
+                author.getName(),
+                author.getHeight(),
+                author.getPassportID(),
+                author.getHairColor(),
+                author.getLocation().getX(),
+                author.getLocation().getY(),
+                author.getLocation().getZ()
+        );
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public Object[] toLocalizedArray(Locale locale) {
+        // Дата
+        DateTimeFormatter dtf = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT).withLocale(locale);
+        String formattedDate = dtf.format(creationDate);
+        // Числа
+        DecimalFormat df = (DecimalFormat) NumberFormat.getNumberInstance(locale);
+
+        return new Object[]{
+                df.format(id),
+                name,
+                df.format(coordinates.getX()),
+                df.format(coordinates.getY()),
+                formattedDate,
+                minimalPoint == null ? "" : df.format(minimalPoint),
+                description,
+                tunedInWorks == null ? "" : df.format(tunedInWorks),
+                difficulty,
+                author.getName(),
+                df.format(author.getHeight()),
+                author.getPassportID(),
+                author.getHairColor(),
+                df.format(author.getLocation().getX()),
+                df.format(author.getLocation().getY()),
+                df.format(author.getLocation().getZ()),
+                owner
+        };
     }
 }

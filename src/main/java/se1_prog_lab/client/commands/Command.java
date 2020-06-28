@@ -1,11 +1,11 @@
 package se1_prog_lab.client.commands;
 
-import se1_prog_lab.client.interfaces.ClientCommandReceiver;
-import se1_prog_lab.server.api.Response;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.AuthData;
+import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
 import java.io.Serializable;
+import java.util.ResourceBundle;
 
 public interface Command extends Serializable {
     /**
@@ -17,16 +17,9 @@ public interface Command extends Serializable {
      */
     Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData);
 
-    /**
-     * Метод, выполняемый на клиенте
-     *
-     * @param args           аргументы команды
-     * @param clientReceiver серверный ресивер команд
-     * @return true, если выполнилась нормально; false, если нет
-     */
-    boolean clientExecute(String[] args, ClientCommandReceiver clientReceiver);
+    String getJournalEntry();
 
-    String getHelpText();
+    boolean isCollectionChanging();
 
-    String getKey();
+    void setResourceBundle(ResourceBundle resourceBundle);
 }

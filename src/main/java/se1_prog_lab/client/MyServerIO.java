@@ -3,22 +3,21 @@ package se1_prog_lab.client;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
-import se1_prog_lab.client.commands.ClientServerSideCommand;
-import se1_prog_lab.client.interfaces.ServerIO;
+import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.exceptions.EOTException;
-import se1_prog_lab.server.api.Response;
-import se1_prog_lab.util.AuthData;
-import se1_prog_lab.util.CommandWrapper;
-import se1_prog_lab.util.interfaces.EOTWrapper;
+import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.CommandWrapper;
+import se1_prog_lab.shared.api.EOTWrapper;
+import se1_prog_lab.shared.api.Response;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
-import static se1_prog_lab.server.api.ResponseType.PLAIN_TEXT;
-import static se1_prog_lab.util.BetterStrings.red;
-import static se1_prog_lab.util.BetterStrings.yellow;
+import static se1_prog_lab.shared.api.ResponseType.PLAIN_TEXT;
 
 /**
  * Класс для взаимодействия с сервером.
@@ -39,6 +38,7 @@ public class MyServerIO implements ServerIO {
     private SocketChannel socketChannel;
     private ByteBuffer byteBuffer = ByteBuffer.allocate(DEFAULT_BUFFER_CAPACITY);
     private AuthData authData;
+    private ResourceBundle r;
 
     @Inject
     public MyServerIO(EOTWrapper eotWrapper) {
@@ -59,10 +59,10 @@ public class MyServerIO implements ServerIO {
                 socketChannel = SocketChannel.open();
                 socketChannel.connect(new InetSocketAddress(HOST, PORT));
                 socketChannel.configureBlocking(false);
-                System.out.println(yellow("Соединение с сервером успешно установлено"));
+                System.out.println("Соединение с сервером успешно установлено");
                 return true;
             } catch (IOException e) {
-                errorMessage = red("Не получилось открыть соединение: " + e.getMessage());
+                errorMessage = "Не получилось открыть соединение: " + e.getMessage();
             }
         }
         System.out.println(errorMessage);
@@ -70,7 +70,7 @@ public class MyServerIO implements ServerIO {
     }
 
     private boolean isOpen() {
-        return socketChannel.isOpen();
+        return (socketChannel != null) && socketChannel.isOpen();
     }
 
     private ByteBuffer getByteBuffer() {
@@ -133,9 +133,10 @@ public class MyServerIO implements ServerIO {
             ObjectInputStream inputStream = new ObjectInputStream(new ByteArrayInputStream(result));
             return (Response) inputStream.readObject();
         } catch (IOException | ClassNotFoundException e) {
-            return new Response(PLAIN_TEXT, red("При получении ответа возникла ошибка: " + e.getMessage()), true);
+            return new Response(PLAIN_TEXT,
+                    r.getString("MyServerIO.error_getting_response") + e.getMessage(), true);
         } catch (EOTException e) {
-            return new Response(PLAIN_TEXT, red("С сервера пришло битое сообщение"), true);
+            return new Response(PLAIN_TEXT, r.getString("MyServerIO.broken_message"), true);
         }
     }
 
@@ -144,22 +145,25 @@ public class MyServerIO implements ServerIO {
      * Добавляет команде актуальные данные для авторизации.
      *
      * @param command команда для отправки.
+     * @param locale локаль
      * @return полученная строка.
      */
     @Override
-    public Response sendAndReceive(ClientServerSideCommand command) {
-        CommandWrapper commandWrapper = new CommandWrapper(command, authData);
+    public Response sendAndReceive(BasicCommand command, Locale locale) {
+        CommandWrapper commandWrapper = new CommandWrapper(command, authData, locale);
         while (true) {
             try {
                 if (!isOpen() && !tryOpen()) {
-                    return new Response(PLAIN_TEXT, "Команда не будет отправлена, так как не удалось открыть соединение", true);
+                    return new Response(PLAIN_TEXT,
+                            r.getString("MyServerIO.wont_be_sent_because_cannot_connect"), true);
                 }
                 sendToServer(commandWrapper);
                 return receiveFromServer();
             } catch (IOException e) {
-                System.out.println(red("Не получилось отправить команду: " + e.getMessage()));
+                System.out.println("Не получилось отправить команду: " + e.getMessage());
                 closeSocketChannel();
-                if (!tryOpen()) return new Response(PLAIN_TEXT, "Не удалось установить соединение", true);
+                if (!tryOpen()) return new Response(PLAIN_TEXT,
+                        r.getString("MyServerIO.cannot_connect"), true);
                 System.out.println("Повторная отправка команды " + commandWrapper.getCommand().getClass().getSimpleName());
             }
         }
@@ -181,11 +185,22 @@ public class MyServerIO implements ServerIO {
      *
      * @param authCommand команда для авторизации
      * @param authData    данные для авторизации
+     * @param locale локаль
      * @return true, если авторизация успешная
      */
     @Override
-    public Response authorize(AuthCommand authCommand, AuthData authData) {
+    public Response authorize(AuthCommand authCommand, AuthData authData, Locale locale) {
         this.authData = authData;
-        return sendAndReceive(authCommand);
+        return sendAndReceive(authCommand, locale);
+    }
+
+    @Override
+    public String getUsername() {
+        return authData.getUsername();
+    }
+
+    @Override
+    public void changeLang(Locale locale) {
+        r = ResourceBundle.getBundle("localization/responses", locale);
     }
 }

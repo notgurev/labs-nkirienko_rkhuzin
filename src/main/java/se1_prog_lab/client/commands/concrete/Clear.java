@@ -1,17 +1,22 @@
 package se1_prog_lab.client.commands.concrete;
 
-import se1_prog_lab.client.commands.ServerSideCommand;
-import se1_prog_lab.server.api.Response;
+import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.AuthData;
+import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
-public class Clear extends ServerSideCommand {
+public class Clear extends BasicCommand {
     public Clear() {
-        super("clear", " - очистить коллекцию");
+        collectionChanging = true;
     }
 
     @Override
     public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.clear(authData);
+        return serverReceiver.clear(authData, resourceBundle);
+    }
+
+    @Override
+    public String getJournalEntry() {
+        return "journal.entries.clear";
     }
 }

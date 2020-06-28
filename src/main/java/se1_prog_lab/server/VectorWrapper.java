@@ -62,20 +62,6 @@ public class VectorWrapper implements CollectionWrapper {
     }
 
     /**
-     * (для команды insert_at)
-     * Добавляет элемент в указанную позицию.
-     *
-     * @param labWork новый элемент
-     * @param index   позиция
-     * @param id      id
-     */
-    public void insertAtIndex(LabWork labWork, int index, long id) {
-        labWork.setId(id);
-        labWorks.setSize(index);
-        labWorks.add(index, labWork);
-    }
-
-    /**
      * Аналог showAll, но с фильтром: только элементы, значение поля minimalPoint которых больше заданного.
      *
      * @param minimalPoint значение поля для фильтра.
@@ -132,6 +118,28 @@ public class VectorWrapper implements CollectionWrapper {
     }
 
     @Override
+    public Collection<LabWork> getCollectionSlice(int firstIndex, int size) {
+        Collection<LabWork> slice = new Vector<>();
+        if (firstIndex < labWorks.size()) {
+            try {
+                for (int index = firstIndex; index < firstIndex + size; index++) {
+                    slice.add(labWorks.get(index));
+                }
+            } catch (ArrayIndexOutOfBoundsException e) {
+                // just stop
+            }
+        }
+        return slice;
+    }
+
+    @Override
+    public void insertBefore(LabWork labWork, Long id, Long newID) {
+        labWork.setId(newID);
+        int index = labWorks.indexOf(getByID(id));
+        labWorks.insertElementAt(labWork, index);
+    }
+
+    @Override
     public void setVector(Vector<LabWork> labWorkVector) {
         labWorks = labWorkVector;
     }
@@ -143,7 +151,7 @@ public class VectorWrapper implements CollectionWrapper {
      * @return количество таких элементов
      */
     public long countLessThanDescription(String description) {
-        return labWorks.stream().filter(labWork -> labWork.getDescription().compareTo(description) < 0).count();
+        return labWorks.stream().filter(Objects::nonNull).filter(labWork -> labWork.getDescription().compareTo(description) < 0).count();
     }
 
     /**

@@ -8,7 +8,8 @@ import se1_prog_lab.server.interfaces.CollectionWrapper;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SqlConsumer;
 import se1_prog_lab.server.interfaces.SqlFunction;
-import se1_prog_lab.util.ElementCreator;
+import se1_prog_lab.shared.util.ElementCreator;
+import se1_prog_lab.shared.util.EnumUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -85,9 +86,17 @@ public class DatabaseManagerImpl implements DatabaseManager {
 
             PreparedStatement authorStatement = connection.prepareStatement(addPersonSql, Statement.RETURN_GENERATED_KEYS);
             authorStatement.setString(1, author.getName());
-            authorStatement.setFloat(2, author.getHeight());
+            if (author.getHeight() != null) {
+                authorStatement.setFloat(2, author.getHeight());
+            } else {
+                authorStatement.setNull(2, Types.REAL);
+            }
             authorStatement.setString(3, author.getPassportID());
-            authorStatement.setString(4, author.getHairColor().name());
+            if (author.getHairColor() != null) {
+                authorStatement.setString(4, author.getHairColor().name());
+            } else {
+                authorStatement.setNull(4, Types.VARCHAR);
+            }
             authorStatement.setInt(5, authorLocation.getX());
             authorStatement.setFloat(6, authorLocation.getY());
             authorStatement.setInt(7, authorLocation.getZ());
@@ -107,9 +116,17 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 elementStatement.setLong(2, coordinates.getX());
                 elementStatement.setFloat(3, coordinates.getY());
                 elementStatement.setTimestamp(4, Timestamp.valueOf(labWork.getCreationDate()));
-                elementStatement.setInt(5, labWork.getMinimalPoint());
+                if (labWork.getMinimalPoint() != null) {
+                    elementStatement.setInt(5, labWork.getMinimalPoint());
+                } else {
+                    elementStatement.setNull(5, Types.INTEGER);
+                }
                 elementStatement.setString(6, labWork.getDescription());
-                elementStatement.setInt(7, labWork.getTunedInWorks());
+                if (labWork.getTunedInWorks() != null) {
+                    elementStatement.setInt(7, labWork.getTunedInWorks());
+                } else {
+                    elementStatement.setNull(7, Types.INTEGER);
+                }
                 elementStatement.setString(8, labWork.getDifficulty().name());
                 elementStatement.setLong(9, rs.getLong(1));
                 elementStatement.setString(10, username);
@@ -221,18 +238,34 @@ public class DatabaseManagerImpl implements DatabaseManager {
             statement.setLong(2, labWork.getCoordinates().getX());
             statement.setFloat(3, labWork.getCoordinates().getY());
             statement.setTimestamp(4, Timestamp.valueOf(labWork.getCreationDate()));
-            statement.setInt(5, labWork.getMinimalPoint());
+            if (labWork.getMinimalPoint() != null) {
+                statement.setInt(5, labWork.getMinimalPoint());
+            } else {
+                statement.setNull(5, Types.INTEGER);
+            }
             statement.setString(6, labWork.getDescription());
-            statement.setInt(7, labWork.getTunedInWorks());
+            if (labWork.getTunedInWorks() != null) {
+                statement.setInt(7, labWork.getTunedInWorks());
+            } else {
+                statement.setNull(7, Types.INTEGER);
+            }
             statement.setString(8, labWork.getDifficulty().name());
             statement.setLong(9, id);
             statement.setString(10, username);
 
             Person author = labWork.getAuthor();
             statement.setString(11, author.getName());
-            statement.setFloat(12, author.getHeight());
+            if (author.getHeight() != null) {
+                statement.setFloat(12, author.getHeight());
+            } else {
+                statement.setNull(12, Types.REAL);
+            }
             statement.setString(13, author.getPassportID());
-            statement.setString(14, author.getHairColor().name());
+            if (author.getHairColor() != null) {
+                statement.setString(14, author.getHairColor().name());
+            } else {
+                statement.setNull(14, Types.VARCHAR);
+            }
             statement.setInt(15, author.getLocation().getX());
             statement.setFloat(16, author.getLocation().getY());
             statement.setInt(17, author.getLocation().getZ());
@@ -260,7 +293,8 @@ public class DatabaseManagerImpl implements DatabaseManager {
         handleQuery((connection -> {
             Vector<LabWork> newCollection = new Vector<>();
             String query = "SELECT * FROM labwork" +
-                    " INNER JOIN person ON labwork.person_id = person.person_id";
+                    " INNER JOIN person ON labwork.person_id = person.person_id" +
+                    " INNER JOIN \"user\" ON \"user\".id = labwork.user_id";
             Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery(query);
             LabWorkParams labWorkParams;
@@ -272,16 +306,19 @@ public class DatabaseManagerImpl implements DatabaseManager {
                 labWorkParams.setCoordinateY(rs.getFloat("coordinatey"));
                 labWorkParams.setCreationDate(rs.getTimestamp("creationdate").toLocalDateTime());
                 labWorkParams.setMinimalPoint(rs.getInt("minimalpoint"));
+                if (rs.wasNull()) labWorkParams.setMinimalPoint(null);
                 labWorkParams.setDescription(rs.getString("description"));
                 labWorkParams.setTunedInWorks(rs.getInt("tunedinworks"));
+                if (rs.wasNull()) labWorkParams.setTunedInWorks(null);
                 labWorkParams.setDifficulty(Difficulty.valueOf(rs.getString("difficulty")));
                 labWorkParams.setAuthorName(rs.getString("person_name"));
                 labWorkParams.setAuthorHeight(rs.getFloat("height"));
                 labWorkParams.setAuthorPassportID(rs.getString("passportid"));
-                labWorkParams.setAuthorHairColor(Color.valueOf(rs.getString("hair_color")));
+                labWorkParams.setAuthorHairColor(EnumUtils.nullableValueOf(Color.class, rs.getString("hair_color")));
                 labWorkParams.setAuthorLocationX(rs.getInt("locationx"));
                 labWorkParams.setAuthorLocationY(rs.getFloat("locationy"));
                 labWorkParams.setAuthorLocationZ(rs.getInt("locationz"));
+                labWorkParams.setOwner(rs.getString("login"));
                 newCollection.add(ElementCreator.createLabWork(labWorkParams));
             }
             collectionWrapper.setVector(newCollection);

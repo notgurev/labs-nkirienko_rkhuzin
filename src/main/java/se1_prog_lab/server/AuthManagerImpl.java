@@ -7,7 +7,7 @@ import se1_prog_lab.exceptions.PasswordHashException;
 import se1_prog_lab.server.interfaces.AuthManager;
 import se1_prog_lab.server.interfaces.DatabaseManager;
 import se1_prog_lab.server.interfaces.SecurePassword;
-import se1_prog_lab.util.AuthData;
+import se1_prog_lab.shared.api.AuthData;
 
 import java.util.logging.Logger;
 

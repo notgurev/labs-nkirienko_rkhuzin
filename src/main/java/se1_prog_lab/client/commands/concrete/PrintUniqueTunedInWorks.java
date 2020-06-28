@@ -1,17 +1,18 @@
 package se1_prog_lab.client.commands.concrete;
 
-import se1_prog_lab.client.commands.ServerSideCommand;
-import se1_prog_lab.server.api.Response;
+import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.AuthData;
+import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
-public class PrintUniqueTunedInWorks extends ServerSideCommand {
-    public PrintUniqueTunedInWorks() {
-        super("print_unique_tuned_in_works", " - вывести уникальные значения поля tunedInWorks");
+public class PrintUniqueTunedInWorks extends BasicCommand {
+    @Override
+    public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
+        return serverReceiver.printUniqueTunedInWorks(resourceBundle);
     }
 
     @Override
-    public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.printUniqueTunedInWorks();
+    public String getJournalEntry() {
+        return "journal.entries.putiw";
     }
 }

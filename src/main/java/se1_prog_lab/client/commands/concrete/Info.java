@@ -1,17 +1,18 @@
 package se1_prog_lab.client.commands.concrete;
 
-import se1_prog_lab.client.commands.ServerSideCommand;
-import se1_prog_lab.server.api.Response;
+import se1_prog_lab.client.commands.BasicCommand;
 import se1_prog_lab.server.interfaces.ServerCommandReceiver;
-import se1_prog_lab.util.AuthData;
+import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.Response;
 
-public class Info extends ServerSideCommand {
-    public Info() {
-        super("info", " - вывести информацию о коллекции");
+public class Info extends BasicCommand {
+    @Override
+    public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
+        return serverReceiver.info(resourceBundle);
     }
 
     @Override
-    public Response serverExecute(ServerCommandReceiver serverReceiver, AuthData authData) {
-        return serverReceiver.info();
+    public String getJournalEntry() {
+        return "journal.entries.info";
     }
 }

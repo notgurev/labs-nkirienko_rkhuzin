@@ -9,7 +9,7 @@ CREATE TABLE public.labwork
     coordinatex bigint NOT NULL,
     coordinatey real NOT NULL,
     creationdate timestamp without time zone NOT NULL,
-    minimalpoint integer NOT NULL,
+    minimalpoint integer,
     description character varying(1000) COLLATE pg_catalog."default" NOT NULL,
     tunedinworks integer,
     difficulty difficulty NOT NULL,

@@ -5,137 +5,253 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import se1_prog_lab.client.commands.AuthCommand;
-import se1_prog_lab.client.commands.ClientServerSideCommand;
-import se1_prog_lab.client.commands.Command;
+import se1_prog_lab.client.commands.BasicCommand;
+import se1_prog_lab.client.commands.NoJournalEntryCommand;
+import se1_prog_lab.client.commands.concrete.technical.GetCollectionPage;
 import se1_prog_lab.client.commands.concrete.technical.Login;
 import se1_prog_lab.client.commands.concrete.technical.Register;
-import se1_prog_lab.client.interfaces.Client;
-import se1_prog_lab.client.interfaces.CommandRepository;
-import se1_prog_lab.client.interfaces.ServerIO;
+import se1_prog_lab.client.gui.ClientView;
+import se1_prog_lab.client.gui.CollectionChangeSubscriber;
+import se1_prog_lab.client.gui.LangChangeSubscriber;
 import se1_prog_lab.collection.LabWork;
-import se1_prog_lab.server.api.Response;
-import se1_prog_lab.util.AuthData;
-import se1_prog_lab.util.AuthStrings;
+import se1_prog_lab.shared.api.AuthData;
+import se1_prog_lab.shared.api.AuthStatus;
+import se1_prog_lab.shared.api.Response;
+import se1_prog_lab.shared.util.ColorUtils;
 
-import java.util.Collection;
+import javax.annotation.Nonnull;
+import javax.swing.*;
+import java.awt.*;
 import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Collectors;
+import java.util.*;
 
-import static se1_prog_lab.server.api.ResponseType.AUTH_STATUS;
-import static se1_prog_lab.util.AuthStrings.INCORRECT_LOGIN_DATA;
-import static se1_prog_lab.util.AuthStrings.USERNAME_TAKEN;
-import static se1_prog_lab.util.BetterStrings.multiline;
-import static se1_prog_lab.util.BetterStrings.yellow;
-import static se1_prog_lab.util.ValidatingReader.readString;
+import static se1_prog_lab.shared.api.AuthStatus.INCORRECT_LOGIN_DATA;
+import static se1_prog_lab.shared.api.AuthStatus.USERNAME_TAKEN;
+import static se1_prog_lab.shared.api.ResponseType.AUTH_STATUS;
+import static se1_prog_lab.shared.api.ResponseType.LABWORK_LIST;
 
 /**
  * Класс клиентского приложения.
+ * Controller.
  */
 @Singleton
-public class ClientApp implements Client {
-    private final Scanner consoleScanner;
-    private final CommandRepository commandRepository;
+public class ClientApp implements ClientCore {
+    private static final int UPDATE_TIMER = 60 * 1000; // 60 секунд
+    private static final int JOURNAL_SIZE_LIMIT = 13;
+    private static final Locale DEFAULT_LOCALE = Locale.forLanguageTag("ru-RU");
     private final ServerIO serverIO;
+    private final ClientView view;
+    private final LinkedList<String> journal = new LinkedList<>(); // Журнал (история) команд
+    private final HashMap<String, Color> ownersColors = new HashMap<>();
+    private final List<CollectionChangeSubscriber> collectionChangeSubscribers = new ArrayList<>();
+    private final List<LangChangeSubscriber> langChangeSubscribers = new ArrayList<>();
+    private Vector<LabWork> bufferedCollectionPage = new Vector<>();
+    private int selectedPage;
+    private int pageSize = 10;
+    private Locale locale = DEFAULT_LOCALE;
 
     @Inject
-    public ClientApp(Scanner consoleScanner, CommandRepository commandRepository, ServerIO serverIO) {
-        this.consoleScanner = consoleScanner;
-        this.commandRepository = commandRepository;
+    public ClientApp(ServerIO serverIO, ClientView view) {
         this.serverIO = serverIO;
+        this.view = view;
     }
 
     public static void main(String[] args) {
         Injector injector = Guice.createInjector(new ClientModule());
-        Client clientApp = injector.getInstance(Client.class);
-        clientApp.start();
+        ClientCore controller = injector.getInstance(ClientCore.class);
+        controller.start();
     }
 
-    public void handleResponse(Response response) {
-        switch (response.getResponseType()) {
-            case PLAIN_TEXT:
-                System.out.println((String) response.getMessage());
-                break;
-            case AUTH_STATUS:
-                AuthStrings authStatus = (AuthStrings) response.getMessage();
-                System.out.println(authStatus.getMessage());
-                break;
-            case LABWORK_LIST:
-                Collection<?> labWorks = (Collection<?>) response.getMessage();
-                List<LabWork> parameterizedLabWorks = labWorks.stream().map((labWork) -> (LabWork) labWork).collect(Collectors.toList());
-                String lines = multiline(parameterizedLabWorks.stream().map(LabWork::toString).toArray());
-                System.out.println(lines);
-        }
+    @Override
+    public void addLanguageSubscriber(LangChangeSubscriber subscriber) {
+        langChangeSubscribers.add(subscriber);
     }
 
-    /**
-     * Консоль.
-     */
+    @Override
+    public void removeLanguageSubscriber(LangChangeSubscriber subscriber) {
+        langChangeSubscribers.remove(subscriber);
+    }
+
+    @Override
+    public Locale getLocale() {
+        return locale;
+    }
+
+    @Override
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+        langChangeSubscribers.forEach(subscriber -> subscriber.changeLang(locale));
+    }
+
+    @Override
+    public void updateCollectionPage() {
+        submitServerCommand(new GetCollectionPage(selectedPage, pageSize));
+    }
+
+    @Override
+    public Vector<LabWork> getBufferedCollectionPage() {
+        return bufferedCollectionPage;
+    }
+
+    @Override
+    public Object[][] getCollectionData() {
+        return bufferedCollectionPage.stream().map(LabWork::toArray).toArray(Object[][]::new);
+    }
+
+    @Override
+    public Object[][] getLocalizedCollectionData() {
+        return bufferedCollectionPage.stream().map(labWork -> labWork.toLocalizedArray(locale)).toArray(Object[][]::new);
+    }
+
+    @Override
+    public void simpleAlert(String alertText) {
+        view.simpleAlert(alertText);
+    }
+
     @Override
     public void start() {
-        System.out.println(yellow("Начало работы клиента"));
-
+        SwingUtilities.invokeLater(view::initLoginWindow);
+        addLanguageSubscriber(serverIO);
+        serverIO.changeLang(locale);
         serverIO.tryOpen();
+    }
 
-        Response serverResponse;
-        while (true) {
-
-            authorize();
-
-            while (true) {
-                System.out.print(">> ");
-                String[] input = consoleScanner.nextLine().trim().split(" ");
-                Command command = commandRepository.parseThenRun(input);
-
-                if (command instanceof ClientServerSideCommand) {
-                    serverResponse = serverIO.sendAndReceive((ClientServerSideCommand) command);
-                    handleResponse(serverResponse);
-                    if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
-                        AuthStrings authStatus = (AuthStrings) serverResponse.getMessage();
-                        if (authStatus == INCORRECT_LOGIN_DATA || authStatus == USERNAME_TAKEN) break;
-                    }
-                }
-            }
+    private void addJournalEntry(String entry) {
+        if (entry != null) journal.addFirst(entry);
+        while (journal.size() > JOURNAL_SIZE_LIMIT) {
+            journal.removeLast();
         }
     }
 
-    private void authorize() {
-        System.out.println("Для работы с коллекцией зарегистрироваться/авторизоваться");
+    @Override
+    public Response submitServerCommand(@Nonnull BasicCommand command) {
+        Response serverResponse = serverIO.sendAndReceive(command, locale);
+        handleResponse(serverResponse);
+        if (serverResponse.isRejected() && serverResponse.getResponseType() == AUTH_STATUS) {
+            AuthStatus authStatus = serverResponse.getAuthStatus();
+            if (authStatus == INCORRECT_LOGIN_DATA || authStatus == USERNAME_TAKEN) getBackToLoginWindow();
+        } else {
+            if (!(command instanceof NoJournalEntryCommand)) addJournalEntry(command.getJournalEntry());
+        }
+        if (command.isCollectionChanging() && !serverResponse.isRejected()) {
+            updateCollectionPage();
+        }
+        return serverResponse;
+    }
 
-        String input;
-        do {
-            System.out.printf("Введите %s для регистрации или %s для авторизации \n",
-                    yellow("register"), yellow("login"));
-            input = consoleScanner.nextLine().trim();
-        } while (!(input.equals("login") || input.equals("register")));
+    private void getBackToLoginWindow() {
+        view.disposeMainWindow();
+        view.initLoginWindow();
+    }
 
-        String username, password;
-        Response response;
+    @Override
+    public void login(String username, String password) {
         AuthCommand authCommand;
-        String usernameMessage, passwordMessage;
-        AuthData authData;
-        do {
+        AuthData authData = new AuthData(username, password);
+        authCommand = new Login();
+        handleAuthResponse(serverIO.authorize(authCommand, authData, locale));
+    }
 
-            if (input.equals("login")) {
-                usernameMessage = "Введите ваше имя пользователя: ";
-                passwordMessage = "Введите ваш пароль: ";
+    @Override
+    public void register(String username, String password) {
+        AuthCommand authCommand;
+        AuthData authData = new AuthData(username, password);
+        authCommand = new Register();
+        handleAuthResponse(serverIO.authorize(authCommand, authData, locale));
+    }
+
+    @Override
+    public void openConstructingFrame() {
+        view.initConstructingFrame();
+    }
+
+    @Override
+    public void openConstructingFrame(int index) {
+        view.initConstructingFrame(bufferedCollectionPage.get(index));
+    }
+
+    @Override
+    public void openJournalFrame(Locale locale) {
+        view.initJournalFrame(journal, locale);
+    }
+
+    private void handleAuthResponse(Response authResponse) {
+        if (authResponse.isRejected()) {
+            view.simpleAlert(authResponse.getMessage());
+        } else {
+            view.disposeLoginWindow();
+            updateCollectionPage();
+            view.initMainWindow(serverIO.getUsername());
+            startRegularUpdates();
+        }
+    }
+
+    private void handleResponse(Response response) {
+        if (response.getResponseType() == LABWORK_LIST) {
+            Collection<LabWork> collection = response.getCollection();
+            if (collection == null || collection.isEmpty()) {
+                bufferedCollectionPage = new Vector<>();
             } else {
-                usernameMessage = "Придумайте имя пользователя: ";
-                passwordMessage = "Придумайте пароль: ";
+                bufferedCollectionPage = (Vector<LabWork>) response.getCollection();
             }
+            collectionChangeSubscribers.forEach(CollectionChangeSubscriber::updateWithNewData);
+        } else {
+            view.simpleAlert(response.getMessage());
+        }
+    }
 
-            username = readString(consoleScanner, usernameMessage, false, 1);
-            password = readString(consoleScanner, passwordMessage, false, 1);
-            authData = new AuthData(username, password);
+    @Override
+    public int getSelectedPage() {
+        return selectedPage;
+    }
 
-            if (input.equals("login")) authCommand = new Login();
-            else authCommand = new Register();
-            response = serverIO.authorize(authCommand, authData);
-            handleResponse(response);
-        } while (response.isRejected());
+    @Override
+    public void setSelectedPage(int selectedPage) {
+        this.selectedPage = selectedPage;
+    }
+
+    @Override
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    @Override
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    @Override
+    public Color getColorByOwner(String owner) {
+        if (ownersColors.containsKey(owner)) {
+            return ownersColors.get(owner);
+        } else {
+            Color randomColor = ColorUtils.generateRandomColor(0.5f);
+            ownersColors.put(owner, randomColor);
+            return randomColor;
+        }
+    }
+
+    @SuppressWarnings("BusyWait")
+    @Override
+    public void startRegularUpdates() {
+        new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(UPDATE_TIMER);
+                    System.out.println("Обновляем коллекцию в фоновом режиме");
+                    updateCollectionPage();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    @Override
+    public void addCollectionChangeSubscriber(CollectionChangeSubscriber collectionChangeSubscriber) {
+        collectionChangeSubscribers.add(collectionChangeSubscriber);
     }
 }
-
 
 
 
