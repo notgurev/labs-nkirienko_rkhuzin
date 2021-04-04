@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.notgurev</groupId>
-    <artifactId>se1-prog-lab6</artifactId>
+    <artifactId>se1-prog-collection-management-lab</artifactId>
     <version>1.0</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
